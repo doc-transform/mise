@@ -1,6 +1,6 @@
-# File Tasks
+# 文件任务
 
-In addition to defining tasks through the configuration, they can also be defined as standalone script files in one of the following directories:
+除了通过配置定义任务外，还可以在以下目录中将任务定义为独立的脚本文件：
 
 - `mise-tasks/:task_name`
 - `.mise-tasks/:task_name`
@@ -8,9 +8,9 @@ In addition to defining tasks through the configuration, they can also be define
 - `.mise/tasks/:task_name`
 - `.config/mise/tasks/:task_name`
 
-Note that you can configure directories using the [task_config](/tasks/task-configuration.html#task-config-options) section.
+注意你可以通过 [task_config](/tasks/task-configuration.html#task-config-options) 部分来配置目录。
 
-Here is an example of a file task that builds a Rust CLI:
+以下是一个构建 Rust CLI 的文件任务示例：
 
 ```bash [mise-tasks/build]
 #!/usr/bin/env bash
@@ -18,25 +18,23 @@ Here is an example of a file task that builds a Rust CLI:
 cargo build
 ```
 
-::: tip Important
-Ensure that the file is executable, otherwise mise will not be able to detect it.
+:::: tip 重要
+确保文件是可执行的，否则 mise 将无法检测到它。
 
 ```shell
 chmod +x mise-tasks/build
 ```
 
-:::
+::::
 
-Having the code in a bash file and not TOML helps make it work
-better in editors since they can do syntax highlighting and linting more easily.
+将代码放在 bash 文件而不是 TOML 中，可以让编辑器更好地进行语法高亮和代码检查。
 
-They also still work great for non-mise users—though
-of course they'll need to find a different way to install their dev tools the tasks might use.
+它们对于不使用 mise 的用户同样适用——当然他们需要另寻方法安装任务可能使用的开发工具。
 
-## Task Configuration
+## 任务配置
 
-All configuration options can be found here [task configuration](/tasks/task-configuration)
-You can provide additional configuration for file tasks by adding `#MISE` comments at the top of the file.
+所有配置选项可在[任务配置](/tasks/task-configuration)中找到。
+你可以通过在文件顶部添加 `#MISE` 注释来为文件任务提供额外配置。
 
 ```bash
 #MISE description="Build the CLI"
@@ -48,20 +46,17 @@ You can provide additional configuration for file tasks by adding `#MISE` commen
 #MISE tools={rust="1.50.0"}
 ```
 
-Assuming that file was located in `mise-tasks/build`, it can then be run with `mise run build` (or with its alias: `mise run b`).
+假设该文件位于 `mise-tasks/build`，可以用 `mise run build`（或其别名 `mise run b`）运行。
 
-:::tip
-Beware of formatters changing `#MISE` to `# MISE`.
-It's intentionally ignored by mise to avoid unintentional configuration.
-To workaround this, use the alternative: `# [MISE]`.
-:::
+::::tip
+注意格式化工具可能将 `#MISE` 改为 `# MISE`。mise 有意忽略后者以避免意外配置。作为替代方案，可以使用 `# [MISE]`。
+::::
 
 ## Shebang
 
-The shebang line is optional, but if it is present, it will be used to determine the shell to run the script with.
-You can also use it to run the script with various programming languages.
+shebang 行是可选的，但如果存在，将用于确定运行脚本的 shell。你也可以用它来运行不同编程语言的脚本。
 
-::: code-group
+:::: code-group
 
 ```js [node]
 #!/usr/bin/env node
@@ -92,20 +87,17 @@ $current_directory = Get-Location
 Write-Host "Hello from PowerShell, current directory is $current_directory"
 ```
 
-:::
+::::
 
-## Editing tasks
+## 编辑任务
 
-This script can be edited by running `mise tasks edit build` (using `$EDITOR`). If it doesn't exist it will be created.
-This is convenient for quickly editing or creating new scripts.
+可以运行 `mise tasks edit build`（使用 `$EDITOR`）来编辑脚本。如果不存在会自动创建。这对于快速编辑或创建新脚本很方便。
 
-## Task Grouping
+## 任务分组
 
-File tasks in `mise-tasks`, `.mise/tasks`, `mise/tasks`, or `.config/mise/tasks` can be grouped into
-sub-directories which will automatically apply prefixes to their names
-when loaded.
+`mise-tasks`、`.mise/tasks`、`mise/tasks` 或 `.config/mise/tasks` 中的文件任务可以分组到子目录中，加载时会自动为其名称添加前缀。
 
-**Example**: With a folder structure like below:
+**示例**：如下目录结构：
 
 ```text
 mise-tasks
@@ -116,7 +108,7 @@ mise-tasks
     └── units
 ```
 
-Running `mise tasks` will give the below output:
+运行 `mise tasks` 将输出：
 
 ```shellsession
 $ mise tasks
@@ -127,24 +119,21 @@ test:integration              ./mise-tasks/test/integration
 test:units                    ./mise-tasks/test/units
 ```
 
-## Arguments
+## 参数
 
-::: tip
-For comprehensive information about task arguments, see the dedicated [Task Arguments](/tasks/task-arguments) page.
-:::
+:::: tip
+关于任务参数的完整信息，请参阅专门的[任务参数](/tasks/task-arguments)页面。
+::::
 
-[usage](https://usage.jdx.dev) spec can be used within these files to provide argument parsing, autocompletion,
-documentation when running mise and can be exported to markdown. Essentially this turns tasks into
-fully-fledged CLIs.
+可以在文件中使用 [usage](https://usage.jdx.dev) 规格来提供参数解析、自动补全和文档功能，还可以导出为 markdown。这基本上将任务变成了完整的 CLI 工具。
 
-:::tip
-The `usage` CLI is not required to execute mise tasks with the usage spec.
-However, for completions to work, the `usage` CLI must be installed and available in the PATH.
-:::
+::::tip
+执行带有 usage 规格的 mise 任务不需要安装 `usage` CLI。但要让补全功能正常工作，需要安装 `usage` CLI 并在 PATH 中可用。
+::::
 
-### Example file task with arguments
+### 带参数的文件任务示例
 
-Here is an example of a file task that builds a Rust CLI using some of the features of usage:
+以下是一个使用 usage 部分特性构建 Rust CLI 的文件任务示例：
 
 ```bash [mise-tasks/build]
 #!/usr/bin/env bash
@@ -165,27 +154,25 @@ fi
 cargo build --profile "${usage_profile?}" --target "${usage_target?}"
 ```
 
-::: tip
-For details on bash parameter expansion patterns like `${var?}`, `${var:-default}`, and `${var:+value}`, see [Bash Variable Expansion for Usage Variables](/tasks/task-arguments#bash-variable-expansion).
-:::
+:::: tip
+关于 bash 参数展开模式如 `${var?}`、`${var:-default}` 和 `${var:+value}` 的详细信息，请参阅 [Usage 变量的 Bash 变量展开](/tasks/task-arguments#bash-variable-expansion)。
+::::
 
-If you have installed `usage`, completions will be enabled for your task. In this example,
+如果你安装了 `usage`，任务将启用补全功能。在此示例中：
 
-- `mise run -- build --profile <tab><tab>`
-  will show `debug` and `release` as options.
-- The `--user` flag will also show completions generated by the output of `mycli users`.
-- Note: Use `--` to separate mise flags from task arguments: `mise run -- build --profile release <target>`
+- `mise run -- build --profile <tab><tab>` 将显示 `debug` 和 `release` 作为选项。
+- `--user` 标志也会显示由 `mycli users` 输出生成的补全。
+- 注意：使用 `--` 来分隔 mise 标志和任务参数：`mise run -- build --profile release <target>`
 
-(Note that cli and markdown help for tasks is not yet implemented in mise as of this writing but that is planned.)
+（请注意，mise 的任务 CLI 和 markdown 帮助尚未实现，但已在计划中。）
 
-:::tip
-If you don't get any autocomplete suggestions, use the `-v` (verbose) flag to see what's going on.
-For example, if you use `mise run build -v` and have an invalid `usage` spec, you will see an error message such as `DEBUG failed to parse task file with usage`
-:::
+::::tip
+如果你没有收到任何自动补全建议，使用 `-v`（verbose）标志查看详情。例如，如果你使用 `mise run build -v` 且 `usage` 规格无效，你会看到错误信息如 `DEBUG failed to parse task file with usage`
+::::
 
-### Example of a NodeJS file task with arguments
+### Node.js 文件任务带参数的示例
 
-Here is how you can use [usage](https://usage.jdx.dev/cli/scripts#usage-scripts) to parse arguments in a Node.js script:
+以下是如何使用 [usage](https://usage.jdx.dev/cli/scripts#usage-scripts) 在 Node.js 脚本中解析参数：
 
 ```js [mise-tasks/greet]
 #!/usr/bin/env -S node
@@ -209,14 +196,14 @@ fs.appendFileSync(usage_output_file, `Hello, ${user}\n`);
 console.log(`Greeting written to ${usage_output_file}`);
 ```
 
-Run it with:
+运行：
 
 ```shell
 mise run greet greeting.txt --user Alice
 # Greeting written to greeting.txt
 ```
 
-If you pass an invalid argument, you will get an error message:
+如果传递了无效参数，将收到错误信息：
 
 ```shell
 mise run greet invalid.txt --user Alice
@@ -224,7 +211,7 @@ mise run greet invalid.txt --user Alice
 #   0: Invalid choice for arg output_file: invalid.txt, expected one of greeting.txt, file.txt
 ```
 
-Autocomplete will show the available choices for the `output_file` argument if `usage` is installed.
+如果安装了 `usage`，自动补全将显示 `output_file` 参数的可选值。
 
 ```shell
 mise run greet <TAB>
@@ -234,27 +221,26 @@ mise run greet <TAB>
 
 ## CWD
 
-mise sets the current working directory to the directory of `mise.toml` before running tasks.
-This can be overridden by setting <span v-pre>`dir="{{cwd}}"`</span> in the task header:
+mise 在运行任务前会将当前工作目录设为 `mise.toml` 所在的目录。可以在任务头部设置 <span v-pre>`dir="{{cwd}}"`</span> 来覆盖：
 
 ```bash
 #!/usr/bin/env bash
 #MISE dir="{{cwd}}"
 ```
 
-Also, the original working directory is available in the `MISE_ORIGINAL_CWD` environment variable:
+此外，原始工作目录可通过 `MISE_ORIGINAL_CWD` 环境变量获取：
 
 ```bash
 #!/usr/bin/env bash
 cd "$MISE_ORIGINAL_CWD"
 ```
 
-## Running tasks directly
+## 直接运行任务
 
-Tasks don't need to be configured as part of a config, you can just run them directly by passing the path to the script:
+任务不需要在配置中注册，你可以直接通过传递脚本路径来运行：
 
 ```bash
 mise run ./path/to/script.sh
 ```
 
-Note that the path must start with `/` or `./` to be considered a file path. (On Windows it can be `C:\` or `.\`)
+注意路径必须以 `/` 或 `./` 开头才会被视为文件路径。（在 Windows 上可以是 `C:\` 或 `.\`）

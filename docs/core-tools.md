@@ -1,11 +1,10 @@
-# Core Tools
+# 核心工具
 
-`mise` comes with some plugins built into the CLI written in Rust. These are new and will improve over
-time.
+`mise` 内置了一些用 Rust 编写的插件。这些插件还比较新，会随着时间不断完善。
 
-They can be easily overridden by installing an asdf/vfox plugin with the same name, e.g.: `mise plugin install python https://github.com/asdf-community/asdf-python`.
+安装同名的 asdf/vfox 插件即可轻松覆盖内置核心插件，例如：`mise plugin install python https://github.com/asdf-community/asdf-python`。
 
-You can see the core plugins with `mise registry -b core`.
+你可以通过 `mise registry -b core` 查看所有核心插件。
 
 - [Bun](/lang/bun)
 - [Deno](/lang/deno)

@@ -1,201 +1,201 @@
-# Glossary
+# 术语表
 
-This glossary defines key terms and concepts used throughout the mise documentation.
+本术语表定义了 mise 文档中使用的关键术语和概念。
 
-## Core Concepts
+## 核心概念
 
-**Activation**
-: The process of loading mise's context (tools, environment variables, PATH modifications) into your shell session. Typically done via `eval "$(mise activate bash)"` in your shell rc file. See [Installing mise](/installing-mise) for setup instructions.
+**激活（Activation）**
+: 将 mise 的上下文（工具、环境变量、PATH 修改）加载到 shell 会话中的过程。通常通过在 shell rc 文件中添加 `eval "$(mise activate bash)"` 来完成。参见[安装 mise](/installing-mise) 了解设置说明。
 
-**Backend**
-: A package manager or ecosystem that mise uses to install and manage tools. Each backend knows how to fetch, install, and manage tools from its respective source. See [Backends](#backends) below and [Backend Architecture](/dev-tools/backend_architecture) for details.
+**工具源（Backend）**
+: mise 用来安装和管理工具的包管理器或生态系统。每个工具源知道如何从其对应的来源获取、安装和管理工具。参见下方的[工具源](#backends)和[工具源架构](/dev-tools/backend_architecture)了解详情。
 
-**Core Tools**
-: Built-in tool implementations written in Rust that ship with mise. These provide first-class support for popular languages like Node.js, Python, Ruby, Go, and others. See [Core tools](/core-tools) for the full list.
+**核心工具（Core Tools）**
+: 用 Rust 编写的内置工具实现，随 mise 一起发布。为 Node.js、Python、Ruby、Go 等流行语言提供一等支持。参见[核心工具](/core-tools)查看完整列表。
 
 **mise.toml**
-: The primary configuration file for mise projects. Contains tool versions, environment variables, tasks, and hooks. See [Configuration](/configuration) for the full specification.
+: mise 项目的主配置文件。包含工具版本、环境变量、任务和钩子。参见[配置](/configuration)了解完整规范。
 
 **mise.local.toml**
-: A user-local configuration file that overrides `mise.toml`. Typically added to `.gitignore` for personal settings that shouldn't be shared with the team.
+: 用户本地的配置文件，覆盖 `mise.toml` 中的设置。通常添加到 `.gitignore` 中，用于不应与团队共享的个人设置。
 
-**Plugin**
-: An extension that adds functionality to mise, such as managing additional tools or setting up environment variables. See [Plugins](/plugins) for an overview.
+**插件（Plugin）**
+: 为 mise 添加功能的扩展，例如管理额外的工具或设置环境变量。参见[插件](/plugins)了解概述。
 
-**Registry**
-: The collection of tool aliases that map user-friendly short names to their full backend specifications. For example, `aws-cli` maps to `aqua:aws/aws-cli`. See [Registry](/registry).
+**注册表（Registry）**
+: 将用户友好的短名称映射到完整工具源规范的工具别名集合。例如，`aws-cli` 映射到 `aqua:aws/aws-cli`。参见[注册表](/registry)。
 
-**Tool**
-: A development tool or runtime that mise can install and manage, such as `node`, `python`, `terraform`, or `jq`.
+**工具（Tool）**
+: mise 可以安装和管理的开发工具或运行时，如 `node`、`python`、`terraform` 或 `jq`。
 
-**Tool Request**
-: A user's specification for a tool version, which may be fuzzy or use aliases. Examples: `node@18`, `python@latest`, `go@1.21`. These get resolved to concrete Tool Versions.
+**工具请求（Tool Request）**
+: 用户对工具版本的指定，可以是模糊的或使用别名。例如：`node@18`、`python@latest`、`go@1.21`。这些会被解析为具体的工具版本。
 
-**Tool Version**
-: A concrete, resolved version of a tool. For example, `node@18` (tool request) might resolve to `node@18.19.0` (tool version).
+**工具版本（Tool Version）**
+: 工具的具体已解析版本。例如，`node@18`（工具请求）可能解析为 `node@18.19.0`（工具版本）。
 
-**Toolset**
-: An immutable collection of resolved tools for a specific context, containing all the Tool Versions that should be active for a directory or project.
+**工具集（Toolset）**
+: 针对特定上下文解析的不可变工具集合，包含应在某个目录或项目中激活的所有工具版本。
 
-## Backends
+## 工具源
 
-mise supports multiple backends for installing tools from different sources:
+mise 支持多种工具源，从不同来源安装工具：
 
 **aqua**
-: Backend using the [aqua-proj](https://aquaproj.github.io/) registry. Supports SLSA provenance verification and provides access to thousands of tools. See [aqua backend](/dev-tools/backends/aqua).
+: 使用 [aqua-proj](https://aquaproj.github.io/) 注册表的工具源。支持 SLSA 来源验证，提供数千种工具。参见 [aqua 工具源](/dev-tools/backends/aqua)。
 
 **asdf**
-: Legacy backend compatible with [asdf](https://asdf-vm.com/) shell-script plugins. Linux and macOS only. Slower than native backends but provides access to the asdf plugin ecosystem. See [asdf backend](/dev-tools/backends/asdf).
+: 兼容 [asdf](https://asdf-vm.com/) shell 脚本插件的旧版工具源。仅限 Linux 和 macOS。比原生工具源慢，但提供了对 asdf 插件生态的访问。参见 [asdf 工具源](/dev-tools/backends/asdf)。
 
 **cargo**
-: Installs Rust tools by compiling them with `cargo install`. See [cargo backend](/dev-tools/backends/cargo).
+: 通过 `cargo install` 编译安装 Rust 工具。参见 [cargo 工具源](/dev-tools/backends/cargo)。
 
 **conda**
-: Installs packages from Conda repositories. See [conda backend](/dev-tools/backends/conda).
+: 从 Conda 仓库安装包。参见 [conda 工具源](/dev-tools/backends/conda)。
 
 **dotnet**
-: Installs .NET tools. See [dotnet backend](/dev-tools/backends/dotnet).
+: 安装 .NET 工具。参见 [dotnet 工具源](/dev-tools/backends/dotnet)。
 
 **gem**
-: Installs Ruby gems as tools. See [gem backend](/dev-tools/backends/gem).
+: 将 Ruby gem 作为工具安装。参见 [gem 工具源](/dev-tools/backends/gem)。
 
 **github**
-: Installs tools directly from GitHub releases. See [github backend](/dev-tools/backends/github).
+: 直接从 GitHub releases 安装工具。参见 [github 工具源](/dev-tools/backends/github)。
 
 **gitlab**
-: Installs tools directly from GitLab releases. See [gitlab backend](/dev-tools/backends/gitlab).
+: 直接从 GitLab releases 安装工具。参见 [gitlab 工具源](/dev-tools/backends/gitlab)。
 
 **go**
-: Installs Go tools using `go install`. See [go backend](/dev-tools/backends/go).
+: 使用 `go install` 安装 Go 工具。参见 [go 工具源](/dev-tools/backends/go)。
 
 **http**
-: Installs tools from arbitrary HTTP/HTTPS URLs. See [http backend](/dev-tools/backends/http).
+: 从任意 HTTP/HTTPS URL 安装工具。参见 [http 工具源](/dev-tools/backends/http)。
 
 **npm**
-: Installs Node.js packages and CLI tools from the npm registry. See [npm backend](/dev-tools/backends/npm).
+: 从 npm 注册表安装 Node.js 包和 CLI 工具。参见 [npm 工具源](/dev-tools/backends/npm)。
 
 **pipx**
-: Installs Python CLI tools in isolated environments using pipx. See [pipx backend](/dev-tools/backends/pipx).
+: 使用 pipx 在隔离环境中安装 Python CLI 工具。参见 [pipx 工具源](/dev-tools/backends/pipx)。
 
 **spm**
-: Installs tools via Swift Package Manager. See [spm backend](/dev-tools/backends/spm).
+: 通过 Swift Package Manager 安装工具。参见 [spm 工具源](/dev-tools/backends/spm)。
 
 **ubi**
-: Universal Binary Installer for tools distributed as single binaries. See [ubi backend](/dev-tools/backends/ubi).
+: 通用二进制安装器，用于以单个二进制文件形式分发的工具。参见 [ubi 工具源](/dev-tools/backends/ubi)。
 
 **vfox**
-: Backend compatible with [VersionFox](https://vfox.lhan.me/) plugins. See [vfox backend](/dev-tools/backends/vfox).
+: 兼容 [VersionFox](https://vfox.lhan.me/) 插件的工具源。参见 [vfox 工具源](/dev-tools/backends/vfox)。
 
-## Shell Integration
+## Shell 集成
 
 **hook-env**
-: The `mise hook-env` command that exports environment changes for shell integration. Called automatically by the shell hook installed via `mise activate`.
+: `mise hook-env` 命令，用于导出 shell 集成所需的环境变更。通过 `mise activate` 安装的 shell 钩子会自动调用它。
 
-**PATH Activation**
-: The default method of shell integration where mise updates the `PATH` environment variable at each prompt to include the appropriate tool binaries.
+**PATH 激活**
+: 默认的 shell 集成方式，mise 在每次提示符显示时更新 `PATH` 环境变量以包含适当的工具可执行文件。
 
 **Reshim**
-: The process of updating the shims directory after tools are installed or removed. Run `mise reshim` if shims get out of sync.
+: 在工具安装或移除后更新 shims 目录的过程。如果 shims 不同步，运行 `mise reshim`。
 
 **Shims**
-: Small executable scripts that intercept tool commands and delegate to mise, which loads the appropriate tool context before execution. An alternative to PATH activation. See [Shims](/dev-tools/shims).
+: 小型可执行脚本，拦截工具命令并委托给 mise。mise 在执行前加载适当的工具上下文。作为 PATH 激活的替代方案。参见 [Shims](/dev-tools/shims)。
 
-## Configuration
+## 配置
 
 **config_root**
-: The canonical project root directory that mise uses when resolving relative paths in configuration files. Set via the `MISE_PROJECT_ROOT` environment variable or detected automatically.
+: mise 在解析配置文件中的相对路径时使用的规范项目根目录。通过 `MISE_PROJECT_ROOT` 环境变量设置或自动检测。
 
-**Configuration Environments**
-: Environment-specific configuration files like `mise.dev.toml` or `mise.prod.toml`, activated via the `MISE_ENV` environment variable. See [Configuration Environments](/configuration/environments).
+**配置环境（Configuration Environments）**
+: 环境特定的配置文件，如 `mise.dev.toml` 或 `mise.prod.toml`，通过 `MISE_ENV` 环境变量激活。参见[配置环境](/configuration/environments)。
 
-**Configuration Hierarchy**
-: The system where mise.toml files at different levels (system, global, project) are merged together, with files closer to the current directory taking precedence over parent directories.
+**配置层级（Configuration Hierarchy）**
+: 不同层级（系统、全局、项目）的 mise.toml 文件合并的系统，距离当前目录越近的文件优先级越高。
 
-**Settings**
-: Global mise configuration options stored in `~/.config/mise/settings.toml` that define behavior across all projects. See [Settings](/configuration/settings).
+**设置（Settings）**
+: 存储在 `~/.config/mise/settings.toml` 中的全局 mise 配置选项，定义所有项目的行为。参见[设置](/configuration/settings)。
 
-**Templates**
-: Dynamic values in configuration using Tera template syntax, like <span v-pre>`{{env.HOME}}`</span> or <span v-pre>`{{arch()}}`</span>. See [Templates](/templates).
+**模板（Templates）**
+: 使用 Tera 模板语法的动态配置值，如 <span v-pre>`{{env.HOME}}`</span> 或 <span v-pre>`{{arch()}}`</span>。参见[模板](/templates)。
 
-## Environment Variables
+## 环境变量
 
-**env.\_ directives**
-: Special environment configuration directives for advanced setup:
+**env.\_ 指令**
+: 用于高级配置的特殊环境配置指令：
 
-- `env._.file` - Load variables from a file (e.g., `.env`)
-- `env._.path` - Prepend directories to PATH
-- `env._.source` - Source a shell script
+- `env._.file` - 从文件（如 `.env`）加载变量
+- `env._.path` - 向 PATH 前置目录
+- `env._.source` - 执行 shell 脚本
 
-**Lazy Evaluation**
-: Environment variables configured with `tools = true` that can access tool-provided environment variables. These are evaluated after tools are loaded.
+**延迟求值（Lazy Evaluation）**
+: 使用 `tools = true` 配置的环境变量，可以访问工具提供的环境变量。它们在工具加载后才求值。
 
-**Redaction**
-: Marking sensitive environment variables with `redact = true` to hide their values from mise output and logs.
+**脱敏（Redaction）**
+: 使用 `redact = true` 标记敏感环境变量，以在 mise 输出和日志中隐藏其值。
 
-## Hooks
+## 钩子
 
-**Hooks**
-: Scripts that automatically execute during mise activation at specific events. An experimental feature. See [Hooks](/hooks).
+**钩子（Hooks）**
+: 在 mise 激活期间特定事件时自动执行的脚本。这是一个实验性功能。参见[钩子](/hooks)。
 
-**cd hook**
-: Runs whenever you change directories while mise is active.
+**cd 钩子**
+: 在 mise 激活状态下每次切换目录时运行。
 
-**enter hook**
-: Runs when entering a directory where a mise.toml becomes active.
+**enter 钩子**
+: 当进入一个 mise.toml 变为活动状态的目录时运行。
 
-**leave hook**
-: Runs when leaving a directory where a mise.toml was active.
+**leave 钩子**
+: 当离开一个 mise.toml 处于活动状态的目录时运行。
 
-**postinstall hook**
-: Runs after a tool is successfully installed.
+**postinstall 钩子**
+: 在工具成功安装后运行。
 
-**preinstall hook**
-: Runs before a tool installation begins.
+**preinstall 钩子**
+: 在工具安装开始前运行。
 
-**watch_files hook**
-: Runs when specified files change. Requires `mise activate` for file watching.
+**watch_files 钩子**
+: 当指定文件发生变更时运行。需要 `mise activate` 来监视文件。
 
-## Tasks
+## 任务
 
-**Dependency Graph**
-: A Directed Acyclic Graph (DAG) used internally to resolve task execution order based on dependencies.
+**依赖图（Dependency Graph）**
+: 内部使用的有向无环图（DAG），根据依赖关系解析任务执行顺序。
 
-**File Tasks**
-: Tasks defined as standalone executable scripts in directories like `mise-tasks/` or `.mise/tasks/`. See [File Tasks](/tasks/file-tasks).
+**文件任务（File Tasks）**
+: 定义为独立可执行脚本的任务，位于 `mise-tasks/` 或 `.mise/tasks/` 等目录中。参见[文件任务](/tasks/file-tasks)。
 
-**Task**
-: A reusable command defined in mise.toml or as a standalone script that executes within the mise environment. See [Tasks](/tasks/).
+**任务（Task）**
+: 在 mise.toml 中定义的或作为独立脚本的可复用命令，在 mise 环境中执行。参见[任务](/tasks/)。
 
-**Task Dependencies**
-: Relationships between tasks defined via `depends` (run before), `depends_post` (run after), or `wait_for` (wait but don't trigger). See [Task Configuration](/tasks/task-configuration).
+**任务依赖（Task Dependencies）**
+: 通过 `depends`（之前运行）、`depends_post`（之后运行）或 `wait_for`（等待但不触发）定义的任务间关系。参见[任务配置](/tasks/task-configuration)。
 
-**TOML Tasks**
-: Tasks defined directly in the `[tasks]` section of mise.toml files. See [TOML Tasks](/tasks/toml-tasks).
+**TOML 任务**
+: 直接在 mise.toml 文件的 `[tasks]` 段落中定义的任务。参见 [TOML 任务](/tasks/toml-tasks)。
 
-## Directories & Environment
+## 目录与环境
 
 **MISE_CACHE_DIR**
-: Directory where mise caches downloaded files and metadata. Defaults to `~/.cache/mise` on Linux, `~/Library/Caches/mise` on macOS.
+: mise 缓存下载文件和元数据的目录。在 Linux 上默认为 `~/.cache/mise`，在 macOS 上为 `~/Library/Caches/mise`。
 
 **MISE_DATA_DIR**
-: Directory where mise stores installed tools and other persistent data. Defaults to `~/.local/share/mise`.
+: mise 存储已安装工具和其他持久数据的目录。默认为 `~/.local/share/mise`。
 
 **MISE_PROJECT_ROOT**
-: Environment variable automatically set to the root directory of the current project (where the mise.toml is located).
+: 自动设置为当前项目根目录（即 mise.toml 所在位置）的环境变量。
 
-## Other Terms
+## 其他术语
 
-**Aliases**
-: Alternative names for tool versions, allowing shortcuts like `lts` for Node.js LTS versions. See [Tool Aliases](/dev-tools/aliases).
+**别名（Aliases）**
+: 工具版本的替代名称，允许使用 `lts` 等快捷方式来指代 Node.js LTS 版本。参见[工具别名](/dev-tools/aliases)。
 
 **direnv**
-: An external tool for environment management that mise can work alongside. See [direnv integration](/direnv).
+: 一个外部环境管理工具，mise 可以与之协同工作。参见 [direnv 集成](/direnv)。
 
 **mise-en-place**
-: French culinary phrase meaning "everything in its place" - the philosophy behind mise. Chefs prepare all ingredients before cooking; developers should have all tools ready before coding.
+: 法语烹饪术语，意为"各就各位"——这正是 mise 的设计哲学。厨师在烹饪前准备好所有食材；开发者也应该在编码前准备好所有工具。
 
 **mise.lock**
-: A lockfile that records exact resolved versions for reproducible environments across machines and CI. See [mise.lock](/dev-tools/mise-lock).
+: 锁文件，记录精确的已解析版本，确保跨机器和 CI 的环境可重现性。参见 [mise.lock](/dev-tools/mise-lock)。
 
-**Tool Options**
-: Configuration in mise.toml that changes tool behavior, such as setting a Python `virtualenv` path or Node.js `corepack` preferences.
+**工具选项（Tool Options）**
+: mise.toml 中改变工具行为的配置，例如设置 Python `virtualenv` 路径或 Node.js `corepack` 偏好。

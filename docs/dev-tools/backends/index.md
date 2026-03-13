@@ -1,14 +1,14 @@
-# Backends
+# 工具源（Backends）
 
-Backends are package managers or ecosystems that mise uses to install [tools](/dev-tools/index.html) and [plugins](/plugins.html). Each backend can install and manage multiple tools from its ecosystem. For example, the `npm` backend can install many different tools like `npm:prettier`, or the `pipx` backend can install tools like `pipx:black`. This allows mise to support a wide variety of tools and languages by leveraging different package managers and their ecosystems.
+工具源是 mise 用于安装[工具](/dev-tools/index.html)和[插件](/plugins.html)的包管理器或生态系统。每个工具源都可以从其生态系统中安装和管理多种工具。例如，`npm` 工具源可以安装 `npm:prettier` 等多种工具，`pipx` 工具源可以安装 `pipx:black` 等工具。这使得 mise 能够借助不同的包管理器及其生态系统，支持各种各样的工具和语言。
 
-When you run the [`mise use`](/cli/use.html) command, mise will determine the appropriate backend to use based on the tool you are trying to manage. The backend will then handle the installation, configuration, and any other necessary steps to ensure the tool is ready to use.
+当你运行 [`mise use`](/cli/use.html) 命令时，mise 会根据你要管理的工具自动判断应使用的工具源。工具源随后会负责安装、配置以及其他必要步骤，确保工具可以正常使用。
 
-For more details on how backends fit into mise's overall design, see the [backend architecture documentation](/dev-tools/backend_architecture.html).
+关于工具源在 mise 整体设计中的定位，请参阅[工具源架构文档](/dev-tools/backend_architecture.html)。
 
-Below is a list of the available backends in mise:
+以下是 mise 中可用的工具源列表：
 
-- [asdf](/dev-tools/backends/asdf) (provide tools through [plugins](/plugins.html))
+- [asdf](/dev-tools/backends/asdf)（通过[插件](/plugins.html)提供工具）
 - [aqua](/dev-tools/backends/aqua)
 - [cargo](/dev-tools/backends/cargo)
 - [conda](/dev-tools/backends/conda) <Badge type="warning" text="experimental" />
@@ -24,5 +24,5 @@ Below is a list of the available backends in mise:
 - [s3](/dev-tools/backends/s3) <Badge type="warning" text="experimental" />
 - [spm](/dev-tools/backends/spm) <Badge type="warning" text="experimental" />
 - [ubi](/dev-tools/backends/ubi)
-- [vfox](/dev-tools/backends/vfox) (provide tools through [plugins](/plugins.html))
-- [custom backends](/backend-plugin-development) (build your own backend with a plugin which itself provides many tools)
+- [vfox](/dev-tools/backends/vfox)（通过[插件](/plugins.html)提供工具）
+- [自定义工具源](/backend-plugin-development)（构建自己的工具源插件，一个插件即可提供多种工具）

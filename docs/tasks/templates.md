@@ -1,14 +1,14 @@
-# Task Templates
+# 任务模板
 
-::: warning
-This feature is experimental and requires `experimental = true` in your settings.
-:::
+:::: warning
+此功能为实验性功能，需要在设置中启用 `experimental = true`。
+::::
 
-Task templates allow you to define reusable task definitions that can be extended by multiple tasks. This is particularly useful in monorepos or projects with similar task patterns across different components.
+任务模板允许你定义可被多个任务扩展的可复用任务定义。在 monorepo 或多个组件具有相似任务模式的项目中特别有用。
 
-## Defining Templates
+## 定义模板
 
-Templates are defined in the `[task_templates.*]` section of your `mise.toml`:
+模板定义在 `mise.toml` 的 `[task_templates.*]` 部分：
 
 ```toml
 [settings]
@@ -27,9 +27,9 @@ tools = { python = "3.12" }
 depends = ["build"]
 ```
 
-## Extending Templates
+## 扩展模板
 
-Tasks can extend templates using the `extends` field:
+任务通过 `extends` 字段扩展模板：
 
 ```toml
 [tasks.build]
@@ -37,34 +37,34 @@ extends = "python:build"
 
 [tasks.test]
 extends = "python:test"
-run = "pytest --cov"  # Override run while keeping tools, depends
+run = "pytest --cov"  # 覆盖 run，保留 tools、depends
 ```
 
-## Template Naming
+## 模板命名
 
-Templates use colon (`:`) separators for namespacing, similar to task naming conventions in monorepos:
+模板使用冒号（`:`）分隔符进行命名空间划分，类似 monorepo 中的任务命名约定：
 
 - `python:build`
 - `python:test`
 - `rust:cargo:build`
 - `node:npm:test`
 
-## Merge Semantics
+## 合并语义
 
-When a task extends a template, fields are merged according to these rules:
+当任务扩展模板时，字段按以下规则合并：
 
-| Field                                   | Behavior                                                    |
-| --------------------------------------- | ----------------------------------------------------------- |
-| `run`, `run_windows`                    | Local overrides completely                                  |
-| `tools`                                 | Deep merge (local tools added/override template)            |
-| `env`                                   | Deep merge (local env added/override template)              |
-| `depends`, `depends_post`, `wait_for`   | Local overrides completely (not merged)                     |
-| `dir`                                   | Local overrides; defaults to config_root if not in template |
-| `sources`, `outputs`                    | Local overrides completely                                  |
-| `description`, `shell`, `timeout`, etc. | Local overrides template (if set)                           |
-| `quiet`, `hide`, `raw`                  | Not carried over (must be set explicitly in task)           |
+| 字段                                     | 行为                                               |
+| --------------------------------------- | -------------------------------------------------- |
+| `run`, `run_windows`                    | 本地完全覆盖                                         |
+| `tools`                                 | 深度合并（本地工具添加/覆盖模板）                       |
+| `env`                                   | 深度合并（本地环境变量添加/覆盖模板）                    |
+| `depends`, `depends_post`, `wait_for`   | 本地完全覆盖（不合并）                                 |
+| `dir`                                   | 本地覆盖；模板中未设置则默认为 config_root               |
+| `sources`, `outputs`                    | 本地完全覆盖                                         |
+| `description`, `shell`, `timeout` 等     | 本地覆盖模板（如果设置了）                              |
+| `quiet`, `hide`, `raw`                  | 不继承（必须在任务中明确设置）                           |
 
-### Example: Deep Merge for Tools
+### 示例：tools 的深度合并
 
 ```toml
 [task_templates."fullstack:build"]
@@ -72,11 +72,11 @@ tools = { python = "3.12", node = "18" }
 
 [tasks.build]
 extends = "fullstack:build"
-tools = { node = "20" }  # Override node, keep python from template
-# Result: tools = { python = "3.12", node = "20" }
+tools = { node = "20" }  # 覆盖 node，保留模板中的 python
+# 结果: tools = { python = "3.12", node = "20" }
 ```
 
-### Example: Deep Merge for Env
+### 示例：env 的深度合并
 
 ```toml
 [task_templates."python:build"]
@@ -84,11 +84,11 @@ env = { PYTHONPATH = "src", DEBUG = "0" }
 
 [tasks.build]
 extends = "python:build"
-env = { DEBUG = "1" }  # Override DEBUG, keep PYTHONPATH from template
-# Result: env = { PYTHONPATH = "src", DEBUG = "1" }
+env = { DEBUG = "1" }  # 覆盖 DEBUG，保留模板中的 PYTHONPATH
+# 结果: env = { PYTHONPATH = "src", DEBUG = "1" }
 ```
 
-### Example: Complete Override for Depends
+### 示例：depends 的完全覆盖
 
 ```toml
 [task_templates."python:test"]
@@ -96,35 +96,35 @@ depends = ["lint", "typecheck"]
 
 [tasks.test]
 extends = "python:test"
-depends = ["build"]  # Completely replaces template depends
-# Result: depends = ["build"] (lint and typecheck NOT included)
+depends = ["build"]  # 完全替换模板的 depends
+# 结果: depends = ["build"]（lint 和 typecheck 不包含）
 ```
 
-## Tera Templating
+## Tera 模板
 
-Templates support Tera templating, rendered with the **using project's context**:
+模板支持 Tera 模板，使用**使用项目的上下文**渲染：
 
 ```toml
 [task_templates."python:build"]
 description = "Build Python project"
-dir = "{{ config_root }}"  # Resolves to the PROJECT's directory
+dir = "{{ config_root }}"  # 解析为项目的目录（不是模板定义的位置）
 run = "uv build"
 env = { PROJECT = "{{ config_root | basename }}" }
 ```
 
-Available variables (same as regular tasks):
+可用变量（与普通任务相同）：
 
-- <code v-pre>{{ config_root }}</code> - The project using the template (NOT where template is defined)
-- <code v-pre>{{ env.VAR }}</code> - Environment variables
-- <code v-pre>{{ cwd }}</code> - Current working directory
-- <code v-pre>{{ vars.* }}</code> - User-defined variables from config
+- <code v-pre>{{ config_root }}</code> - 使用模板的项目（不是模板定义的位置）
+- <code v-pre>{{ env.VAR }}</code> - 环境变量
+- <code v-pre>{{ cwd }}</code> - 当前工作目录
+- <code v-pre>{{ vars.* }}</code> - 配置中用户定义的变量
 
-## Monorepo Usage
+## Monorepo 用法
 
-Task templates are especially useful in monorepos where multiple packages share similar build patterns:
+任务模板在 monorepo 中特别有用，多个包共享相似的构建模式：
 
 ```toml
-# Root mise.toml
+# 根 mise.toml
 [settings]
 experimental = true
 experimental_monorepo_root = true
@@ -150,7 +150,7 @@ extends = "python:build"
 
 [tasks.test]
 extends = "python:test"
-run = "pytest --cov"  # Add coverage
+run = "pytest --cov"  # 添加覆盖率
 
 [tasks.lint]
 extends = "python:lint"
@@ -168,11 +168,11 @@ extends = "python:test"
 extends = "python:lint"
 ```
 
-## Future Enhancements
+## 未来增强
 
-The following features are planned for future releases:
+以下功能计划在未来版本中实现：
 
-- **Global templates**: Define templates in `~/.config/mise/config.toml` for use across all projects
-- **Template packages**: Import templates from external sources
-- **Pattern-matching rules**: Auto-apply templates based on file detection (e.g., auto-apply `python:*` templates when `pyproject.toml` exists)
-- **File task templates**: Define templates as standalone script files, similar to [file tasks](/tasks/file-tasks)
+- **全局模板**：在 `~/.config/mise/config.toml` 中定义模板，跨所有项目使用
+- **模板包**：从外部来源导入模板
+- **模式匹配规则**：基于文件检测自动应用模板（例如，检测到 `pyproject.toml` 时自动应用 `python:*` 模板）
+- **文件任务模板**：将模板定义为独立脚本文件，类似[文件任务](/tasks/file-tasks)

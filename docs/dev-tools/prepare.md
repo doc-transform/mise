@@ -1,31 +1,30 @@
-# Prepare <Badge type="warning" text="experimental" />
+# 预安装 <Badge type="warning" text="实验性" />
 
-The `mise prepare` command ensures project dependencies are ready by hashing source files
-(e.g., `package-lock.json`) and running install commands when changes are detected.
+`mise prepare` 命令通过检查锁文件是否比安装输出（如 `package-lock.json` 与 `node_modules/` 的比较）更新来确保项目依赖就绪，并在需要时运行安装命令。
 
-## Quick Start
+## 快速开始
 
 ```bash
-# Enable experimental features
+# 启用实验性功能
 export MISE_EXPERIMENTAL=1
 
-# Run all applicable prepare steps
+# 运行所有适用的预安装步骤
 mise prepare
 
-# Or use the alias
+# 或使用别名
 mise prep
 ```
 
-## Configuration
+## 配置
 
-Configure prepare providers in `mise.toml`:
+在 `mise.toml` 中配置预安装提供者：
 
 ```toml
-# Built-in npm provider (auto-detects lockfile)
+# 内置 npm 提供者（自动检测锁文件）
 [prepare.npm]
-auto = true  # Auto-run before mise x/run
+auto = true  # 在 mise x/run 之前自动运行
 
-# Built-in providers for other package managers
+# 其他包管理器的内置提供者
 [prepare.yarn]
 [prepare.pnpm]
 [prepare.bun]
@@ -36,40 +35,40 @@ auto = true  # Auto-run before mise x/run
 [prepare.bundler]
 [prepare.composer]
 
-# Custom provider
+# 自定义提供者
 [prepare.codegen]
 auto = true
 sources = ["schema/*.graphql"]
 outputs = ["src/generated/"]
 run = "npm run codegen"
 
-# Disable specific providers
+# 禁用特定提供者
 [prepare]
 disable = ["npm"]
 ```
 
-## Built-in Providers
+## 内置提供者
 
-mise includes built-in providers for common package managers:
+mise 为常见包管理器内置了提供者：
 
-| Provider   | Sources                                 | Outputs               | Command                              |
+| 提供者     | 源文件                                  | 输出目录              | 命令                                 |
 | ---------- | --------------------------------------- | --------------------- | ------------------------------------ |
 | `npm`      | `package.json`, `package-lock.json`     | `node_modules/`       | `npm install`                        |
 | `yarn`     | `package.json`, `yarn.lock`             | `node_modules/`       | `yarn install`                       |
 | `pnpm`     | `package.json`, `pnpm-lock.yaml`        | `node_modules/`       | `pnpm install`                       |
 | `bun`      | `package.json`, `bun.lock`, `bun.lockb` | `node_modules/`       | `bun install`                        |
-| `go`       | `go.mod`                                | `vendor/` or `go.sum` | `go mod vendor` or `go mod download` |
+| `go`       | `go.mod`                                | `vendor/` 或 `go.sum` | `go mod vendor` 或 `go mod download` |
 | `pip`      | `requirements.txt`                      | `.venv/`              | `pip install -r requirements.txt`    |
 | `poetry`   | `pyproject.toml`, `poetry.lock`         | `.venv/`              | `poetry install`                     |
 | `uv`       | `pyproject.toml`, `uv.lock`             | `.venv/`              | `uv sync`                            |
 | `bundler`  | `Gemfile`, `Gemfile.lock`               | `vendor/bundle/`      | `bundle install`                     |
 | `composer` | `composer.json`, `composer.lock`        | `vendor/`             | `composer install`                   |
 
-Built-in providers are only active when explicitly configured in `mise.toml` and their lockfile exists.
+内置提供者只在 `mise.toml` 中显式配置且锁文件存在时才生效。
 
-## Custom Providers
+## 自定义提供者
 
-Create custom providers for project-specific build steps:
+为项目特定的构建步骤创建自定义提供者：
 
 ```toml
 [prepare.codegen]
@@ -84,131 +83,101 @@ outputs = ["node_modules/.prisma/"]
 run = "npx prisma generate"
 ```
 
-### Provider Options
+### 提供者选项
 
-| Option        | Type     | Description                                                               |
-| ------------- | -------- | ------------------------------------------------------------------------- |
-| `auto`        | bool     | Auto-run before `mise x` and `mise run` (default: false)                  |
-| `sources`     | string[] | Files/patterns to check for changes                                       |
-| `outputs`     | string[] | Files/directories that must exist for the provider to be considered fresh |
-| `run`         | string   | Command to run when stale                                                 |
-| `env`         | table    | Environment variables to set                                              |
-| `dir`         | string   | Working directory for the command                                         |
-| `description` | string   | Description shown in output                                               |
-| `depends`     | string[] | Other provider names that must complete before this one runs              |
-| `timeout`     | string   | Timeout for the run command, e.g., `"30s"`, `"5m"` (default: no timeout)  |
+| 选项            | 类型     | 说明                                                                    |
+| --------------- | -------- | ----------------------------------------------------------------------- |
+| `auto`          | bool     | 在 `mise x` 和 `mise run` 之前自动运行（默认：false）                   |
+| `sources`       | string[] | 需要检查变更的文件/模式                                                  |
+| `outputs`       | string[] | 应比源文件更新的文件/目录                                                |
+| `run`           | string   | 过期时运行的命令                                                         |
+| `env`           | table    | 要设置的环境变量                                                         |
+| `dir`           | string   | 命令的工作目录                                                           |
+| `description`   | string   | 在输出中显示的描述                                                       |
+| `touch_outputs` | bool     | 成功运行后更新输出的修改时间使其显示为最新（默认：true）                  |
 
-## Freshness Checking
+## 新旧检查
 
-mise uses blake3 content hashing to determine if sources have changed since the last
-successful run. Hashes are stored in `.mise/prepare-state.toml`.
+mise 使用修改时间（mtime）比较来判断输出是否过期：
 
-1. Compute blake3 hashes of all source files
-2. Compare against stored hashes from the last successful run
-3. If any file was added, removed, or changed, the provider is stale
+1. 找到所有源文件中最新的 mtime
+2. 找到所有输出文件中最新的 mtime
+3. 如果任何源文件比所有输出文件更新，则该提供者为过期状态
 
-This means:
+这意味着：
 
-- If you modify `package-lock.json`, `node_modules/` will be considered stale
-- If `node_modules/` doesn't exist, the provider is always stale
-- If sources don't exist, the provider is considered fresh (nothing to do)
-- On first run (no stored state), the provider is always considered stale
+- 如果修改了 `package-lock.json`，`node_modules/` 将被视为过期
+- 如果 `node_modules/` 不存在，提供者始终为过期状态
+- 如果源文件不存在，提供者被视为最新（无需操作）
 
-## Auto-Prepare
+成功运行后，mise 会将每个输出的 mtime 更新为当前时间（由 `touch_outputs` 控制，默认 `true`）。这确保了当依赖已满足时命令实际是空操作（如 `uv sync`）的情况下，输出仍被标记为最新，避免后续调用中重复的过期警告。
 
-When `auto = true` is set on a provider, it will automatically run before:
+## 自动预安装
 
-- `mise run` (task execution)
-- `mise x` (exec command)
+当提供者设置 `auto = true` 时，它会在以下命令之前自动运行：
 
-This ensures dependencies are always up-to-date before running tasks or commands.
+- `mise run`（任务执行）
+- `mise x`（exec 命令）
 
-To skip auto-prepare for a single invocation:
+这确保在运行任务或命令之前依赖始终是最新的。
+
+要在单次调用中跳过自动预安装：
 
 ```bash
 mise run --no-prepare build
 mise x --no-prepare -- npm test
 ```
 
-## Staleness Warnings
+## 过期警告
 
-When using `mise activate`, mise will warn you if any auto-enabled providers have stale dependencies:
+使用 `mise activate` 时，如果启用了自动运行的提供者有过期依赖，mise 会发出警告：
 
 ```
 mise WARN prepare: npm may need update, run `mise prep`
 ```
 
-This can be disabled with:
+可以通过以下方式禁用：
 
 ```toml
 [settings]
 status.show_prepare_stale = false
 ```
 
-## CLI Usage
+## CLI 用法
 
 ```bash
-# Run all applicable prepare steps
+# 运行所有适用的预安装步骤
 mise prepare
 
-# Run only a specific provider
-mise prepare npm
-
-# Show why a provider is fresh or stale
-mise prepare npm --explain
-
-# Show what would run without executing
+# 显示将要运行的内容但不执行
 mise prepare --dry-run
 
-# Force run even if outputs are fresh
+# 即使输出是最新的也强制运行
 mise prepare --force
 
-# List available prepare providers
+# 列出可用的预安装提供者
 mise prepare --list
 
-# Skip specific providers
+# 仅运行特定提供者
+mise prepare --only npm --only codegen
+
+# 跳过特定提供者
 mise prepare --skip npm
 ```
 
-## Dependencies
+## 并行执行
 
-Providers can declare dependencies on other providers using the `depends` field. A provider
-will wait for all its dependencies to complete successfully before running.
-
-```toml
-[prepare.uv]
-auto = true
-
-[prepare.ansible-galaxy]
-auto = true
-depends = ["uv"]
-run = "ansible-galaxy install -f requirements.yml"
-sources = ["requirements.yml"]
-outputs = [".galaxy-installed"]
-```
-
-In this example, `ansible-galaxy` will wait for `uv` to finish before starting.
-
-Providers without `depends` run in parallel as before. If a dependency fails, all providers
-that depend on it are skipped. Circular dependencies are detected and the affected providers
-are skipped with a warning.
-
-## Parallel Execution
-
-Prepare providers run in parallel, respecting the `jobs` setting for concurrency limits.
-This speeds up preparation when multiple providers need to run (e.g., both npm and pip).
-Providers with `depends` will wait for their dependencies to complete before starting,
-while independent providers run concurrently.
+预安装提供者并行运行，遵循 `jobs` 设置的并发限制。当多个提供者需要运行时（如同时需要 npm 和 pip），这可以加速准备过程。
 
 ```toml
 [settings]
-jobs = 4  # Run up to 4 providers in parallel
+jobs = 4  # 最多并行运行 4 个提供者
 ```
 
-## Example: Full-Stack Project
+## 示例：全栈项目
 
 ```toml
-# mise.toml for a project with Node.js frontend and Python backend
+# 包含 Node.js 前端和 Python 后端的项目的 mise.toml
 
 [prepare.npm]
 auto = true
@@ -218,17 +187,14 @@ auto = true
 
 [prepare.prisma]
 auto = true
-depends = ["npm"]  # needs node_modules first
 sources = ["prisma/schema.prisma"]
 outputs = ["node_modules/.prisma/"]
 run = "npx prisma generate"
 
 [prepare.frontend-codegen]
-depends = ["npm"]  # needs node_modules first
 sources = ["schema.graphql", "codegen.ts"]
 outputs = ["src/generated/"]
 run = "npm run codegen"
 ```
 
-Running `mise prep` will install npm and poetry dependencies in parallel, then run prisma
-and frontend-codegen (also in parallel, since they only depend on npm, not each other).
+运行 `mise prep` 会检查所有四个提供者并并行运行过期的那些。

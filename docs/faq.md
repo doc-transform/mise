@@ -1,220 +1,152 @@
-# FAQs
+# 常见问题
 
-## I don't want to put a `mise.toml`/`.tool-versions` file into my project since git shows it as an untracked file
+## 我不想在项目中放 `mise.toml`/`.tool-versions` 文件，因为 git 会显示为未跟踪文件
 
-Use [`mise.local.toml`](https://mise.jdx.dev/configuration.html#mise-toml) and put that into your global gitignore file. This file should never be committed.
+使用 [`mise.local.toml`](https://mise.jdx.dev/configuration.html#mise-toml) 并将其加入全局 gitignore 文件中。这个文件永远不应被提交。
 
-If you really want to use a `mise.toml` or `.tool-versions`, here are 3 ways to make git ignore these files:
+如果你确实想使用 `mise.toml` 或 `.tool-versions`，以下是三种让 git 忽略这些文件的方法：
 
-- Adding `mise.toml` to project's `.git/info/exclude`. This file is local to your project so
-  there is no need to commit it.
-- Adding `mise.toml` to project's `.gitignore` file. This has the downside that you need to
-  commit the change to the ignore file.
-- Adding `mise.toml` to global gitignore (`core.excludesFile`). This will cause git to
-  ignore `mise.toml` files in all projects. You can explicitly add one to a project if needed
-  with `git add --force mise.toml`.
+- 将 `mise.toml` 添加到项目的 `.git/info/exclude` 中。这个文件是项目本地的，无需提交。
+- 将 `mise.toml` 添加到项目的 `.gitignore` 文件中。缺点是你需要提交对该忽略文件的更改。
+- 将 `mise.toml` 添加到全局 gitignore（`core.excludesFile`）中。这会让 git 在所有项目中忽略 `mise.toml` 文件。如果需要，你可以使用 `git add --force mise.toml` 显式添加。
 
-## What is the difference between "nodejs" and "node" (or "golang" and "go")?
+## "nodejs" 和 "node"（或 "golang" 和 "go"）有什么区别？
 
-These are aliased. For example, `mise use nodejs@14.0` is the same as `mise install node@14.0`. This
-means it is not possible to have these be different plugins.
+它们是别名关系。例如，`mise use nodejs@14.0` 等同于 `mise install node@14.0`。这意味着不可能让它们成为不同的插件。
 
-This is for convenience so you don't need to remember which one is the "official" name. However if
-something with the aliasing is acting up, submit a ticket or just stick to using "node" and "go".
-Under the hood, when mise reads a config file or takes CLI input it will swap out "nodejs" and
-"golang".
+这是为了方便使用，这样你不必记住哪个是"官方"名称。不过，如果别名方面出了问题，请提交工单或直接使用 "node" 和 "go"。在底层，当 mise 读取配置文件或接收 CLI 输入时，会自动替换 "nodejs" 和 "golang"。
 
-## What does `mise activate` do?
+## `mise activate` 做了什么？
 
-It registers a shell hook to run `mise hook-env` every time the shell prompt is displayed.
-`mise hook-env` checks the current env vars (most importantly `PATH` but there are others like
-`GOROOT` or `JAVA_HOME` for some tools) and adds/removes/updates the ones that have changed.
+它注册了一个 shell 钩子，在每次显示命令提示符时运行 `mise hook-env`。`mise hook-env` 会检查当前的环境变量（最重要的是 `PATH`，但对于某些工具还有 `GOROOT` 或 `JAVA_HOME` 等），并添加/删除/更新已变更的变量。
 
-For example, if you `cd` into a different directory that has `java 18` instead of `java 17`
-specified, just before the next prompt is displayed the shell runs: `eval "$(mise hook-env)"`
-which will execute something like this in the current shell session:
+例如，如果你 `cd` 到一个指定了 `java 18` 而不是 `java 17` 的目录，在下次显示提示符之前，shell 会运行 `eval "$(mise hook-env)"`，这将在当前 shell 会话中执行类似这样的命令：
 
 ```sh
 export JAVA_HOME=$HOME/.local/share/installs/java/18
 export PATH=$HOME/.local/share/installs/java/18/bin:$PATH
 ```
 
-In reality updating `PATH` is a bit more complex than that because it also needs to remove java-17,
-but you get the idea.
+实际上更新 `PATH` 比这更复杂，因为还需要移除 java-17 的路径，但你应该理解大概原理了。
 
-You may think that is excessive to run `mise hook-env` every time the prompt is displayed
-and it should only run on `cd`, however there are plenty of
-situations where it needs to run without the directory changing, for example if `.tool-versions` or
-`mise.toml` was just edited in the current shell.
+你可能觉得每次显示提示符都运行 `mise hook-env` 太过频繁了，应该只在 `cd` 时运行。然而有很多情况下即使目录没有变化也需要运行它，例如在当前 shell 中刚刚编辑了 `.tool-versions` 或 `mise.toml`。
 
-Because it runs on prompt display, if you attempt to use `mise activate` in a
-non-interactive session (like a bash script), it will never call `mise hook-env` and in effect will
-never modify PATH because it never displays a prompt. For this type of setup, you can either call
-`mise hook-env` manually every time you wish to update PATH, or use [shims](/dev-tools/shims.md)
-instead (preferred).
-Or if you only need to use mise for certain commands, just prefix the commands with
-[`mise x --`](./cli/exec).
-For example, `mise x -- npm test` or `mise x -- ./my_script.sh`.
+因为它在提示符显示时运行，如果你在非交互式会话（如 bash 脚本）中使用 `mise activate`，它永远不会调用 `mise hook-env`，因此实际上永远不会修改 PATH，因为它从不显示提示符。对于这种情况，你可以在每次需要更新 PATH 时手动调用 `mise hook-env`，或者改用 [shims](/dev-tools/shims.md)（推荐）。如果你只需要在某些命令中使用 mise，可以给命令加上 [`mise x --`](./cli/exec) 前缀。例如，`mise x -- npm test` 或 `mise x -- ./my_script.sh`。
 
-`mise hook-env` will exit early in different situations if no changes have been made. This prevents
-adding latency to your shell prompt every time you run a command. You can run `mise hook-env`
-yourself
-to see what it outputs, however it is likely nothing if you're in a shell that has already been
-activated.
+`mise hook-env` 在没有变更的情况下会提前退出。这可以避免每次运行命令时给 shell 提示符增加延迟。你可以自己运行 `mise hook-env` 看看它输出了什么，不过如果你在一个已经激活了 mise 的 shell 中，很可能什么都不会输出。
 
-`mise activate` also creates a shell function (in most shells) called `mise`.
-This is a trick that makes it possible for `mise shell`
-and `mise deactivate` to work without wrapping them in `eval "$(mise shell)"`.
+`mise activate` 还会在大多数 shell 中创建一个名为 `mise` 的 shell 函数。这是一个技巧，使得 `mise shell` 和 `mise deactivate` 可以直接工作，而无需将它们包在 `eval "$(mise shell)"` 中。
 
-## Windows support?
+## Windows 支持？
 
 ::: warning
-While mise runs great in WSL, native Windows is also supported, though via the use of shims until
-someone adds [powershell](https://github.com/jdx/mise/discussions/6733) support.
+虽然 mise 在 WSL 中运行良好，但也支持原生 Windows，不过目前需要通过 shims 方式使用，直到有人添加 [PowerShell](https://github.com/jdx/mise/discussions/6733) 支持。
 
-As you'll need to use shims, this means you won't have environment variables from mise.toml unless you run mise via
-[`mise x`](/cli/exec) or [`mise run`](/cli/run)—though that's actually how I use mise on my mac so
-for me that's my preferred workflow anyway.
+由于需要使用 shims，这意味着你无法从 mise.toml 获取环境变量，除非通过 [`mise x`](/cli/exec) 或 [`mise run`](/cli/run) 来运行——不过这实际上也是我在 Mac 上使用 mise 的方式，对我来说这是首选的工作流程。
 :::
 
-## How do I use mise with http proxies?
+## 如何在 HTTP 代理环境下使用 mise？
 
-Short answer: just set `http_proxy` and `https_proxy` environment variables. These should be
-lowercase.
+简短回答：只需设置 `http_proxy` 和 `https_proxy` 环境变量。这些变量应该使用小写。
 
-This may not work with all plugins if they are not configured to use these env vars.
-If you're having a proxy-related issue installing something specific you should post an issue on the
-plugin's repository.
+如果插件没有配置使用这些环境变量，可能不会生效。如果你在安装某个特定工具时遇到代理相关的问题，请在该插件的仓库中提交 issue。
 
-## How do the shorthand plugin names map to repositories?
+## 插件短名称是如何映射到仓库的？
 
-e.g.: how does `mise plugin install elixir` know to fetch <https://github.com/asdf-vm/asdf-elixir>?
+例如：`mise plugin install elixir` 是如何知道要从 <https://github.com/asdf-vm/asdf-elixir> 获取的？
 
-We maintain [an index](https://github.com/mise-plugins/registry) of shorthands that mise uses as a
-base.
-This is regularly updated every time that mise has a release. This repository is stored directly
-into
-the codebase in [registry/](https://github.com/jdx/mise/blob/main/registry/).
+我们维护了一个 mise 用作基础的[短名称索引](https://github.com/mise-plugins/registry)。它会在每次 mise 发布时定期更新。这个仓库直接存储在代码库的 [registry/](https://github.com/jdx/mise/blob/main/registry/) 中。
 
-## Does "node@20" mean the newest available version of node?
+## "node@20" 是指最新可用版本的 node 吗？
 
-It depends on the command. Normally, for most commands and inside of config files, "node@20" will
-point to the latest _installed_ version of node-20.x. You can find this version by running
-`mise latest --installed node@20` or by seeing what the `~/.local/share/mise/installs/node/20`
-symlink
-points to:
+取决于命令。通常在大多数命令和配置文件中，"node@20" 指向最新*已安装*的 node-20.x 版本。你可以通过运行 `mise latest --installed node@20` 或查看 `~/.local/share/mise/installs/node/20` 符号链接指向的位置来找到这个版本：
 
 ```sh
 $ ls -l ~/.local/share/mise/installs/node/20
 [...] /home/jdx/.local/share/mise/installs/node/20 -> node-v20.0.0-linux-x64
 ```
 
-There are some exceptions to this, such as the following:
+以下几个命令是例外：
 
 - `mise install node@20`
 - `mise latest node@20`
 - `mise upgrade node@20`
 
-These will use the latest _available_ version of node-20.x. This generally makes sense because you
-wouldn't want to install a version that is already installed.
+这些会使用最新*可用*的 node-20.x 版本。这通常是合理的，因为你不会想安装一个已经安装过的版本。
 
-## How do I migrate from asdf?
+## 如何从 asdf 迁移？
 
-- Install mise and set up `mise activate` as described in the [getting started guide](/getting-started)
-- remove asdf from your shell rc file
-- Run `mise install` in a directory with an asdf `.tool-versions` file and mise will install the tools
+- 安装 mise 并按照[快速开始指南](/getting-started)中的说明配置 `mise activate`
+- 从 shell rc 文件中移除 asdf
+- 在包含 asdf `.tool-versions` 文件的目录中运行 `mise install`，mise 会安装相应的工具
 
 ::: info
-Note that `mise` does not consider `~/.tool-versions` files to be a global config file like `asdf` does. `mise` uses a
-`~/.config/mise/config.toml` file for global configuration.
+请注意，`mise` 不会像 `asdf` 那样将 `~/.tool-versions` 视为全局配置文件。`mise` 使用 `~/.config/mise/config.toml` 作为全局配置。
 :::
 
-Here is an example script you can use to migrate your global `.tool-versions` file to mise:
+以下是一个可以用来迁移全局 `.tool-versions` 文件的示例脚本：
 
 ```shell
 mv ~/.tool-versions ~/.tool-versions.bak
 cat ~/.tool-versions.bak | tr -s ' ' | tr ' ' '@' | xargs -n2 mise use -g
 ```
 
-Once you are comfortable with mise, you can remove the `.tool-versions.bak` file and [uninstall `asdf`](https://asdf-vm.com/manage/core.html#uninstall)
+当你对 mise 使用感到满意后，可以删除 `.tool-versions.bak` 文件并[卸载 `asdf`](https://asdf-vm.com/manage/core.html#uninstall)。
 
-## How compatible is mise with asdf?
+## mise 与 asdf 的兼容性如何？
 
-mise should be able to read/install any `.tool-versions` file used by asdf. Any asdf plugin
-should be usable in mise. The commands in mise are slightly
-different, such as `mise install node@20.0.0` vs `asdf install node 20.0.0`—this is done so
-multiple tools can be specified at once. However, asdf-style syntax is still supported: (`mise
-install node 20.0.0`). This is the case for most commands, though the help for the command may
-say that asdf-style syntax is supported. When in doubt, just try asdf syntax and see if it works—it probably does.
+mise 应该能够读取/安装任何 asdf 使用的 `.tool-versions` 文件。任何 asdf 插件都应该可以在 mise 中使用。mise 的命令与 asdf 略有不同，例如 `mise install node@20.0.0` vs `asdf install node 20.0.0`——这是为了可以一次指定多个工具。不过 asdf 风格的语法仍然支持：（`mise install node 20.0.0`）。大多数命令都是如此，虽然命令帮助中可能会注明支持 asdf 风格的语法。如果不确定，直接尝试 asdf 语法看看能不能用——通常是可以的。
 
 ::: info
-UPDATE (2025-01-01): mise was designed to be compatible with the asdf written in bash (<=0.15). The new asdf written in go (>=0.16)
-has commands mise does not support like `asdf set`. `mise set` is an existing command that is completely different than `asdf set`—in mise that sets env vars.
+更新说明（2025-01-01）：mise 设计上与 bash 编写的 asdf（<=0.15）兼容。用 Go 重写的新版 asdf（>=0.16）有一些 mise 不支持的命令，如 `asdf set`。`mise set` 是一个已有的完全不同于 `asdf set` 的命令——在 mise 中它用于设置环境变量。
 
-This isn't important for usability reasons so much as making it so plugins continue to work that
-call asdf commands inside of the plugin code.
+这与可用性无关，更多是为了确保在插件代码中调用 asdf 命令的插件能继续工作。
 :::
 
-Using commands like `mise use` may output `.tool-versions` files that are not compatible with asdf,
-such as using fuzzy versions. You can set `--pin` or `MISE_PIN=1` to make `mise use` output asdf-compatible versions
-in `.tool-versions`. Alternatively, you can have `mise.toml` and `.tool-versions` sitting side-by-side. `mise.toml` tools
-will override tools defined in a `.tool-versions` in the same directory.
+使用 `mise use` 等命令可能会输出与 asdf 不兼容的 `.tool-versions` 文件，例如使用模糊版本。你可以设置 `--pin` 或 `MISE_PIN=1` 让 `mise use` 在 `.tool-versions` 中输出 asdf 兼容的版本。或者，你可以让 `mise.toml` 和 `.tool-versions` 并存。同一目录中 `mise.toml` 定义的工具会覆盖 `.tool-versions` 中定义的工具。
 
-That said, in general compatibility with asdf is no longer a design goal. It's long been the case
-that there is no reason to prefer asdf to mise so users should migrate. While plenty of users have
-teams which use both in tandem, issues with such a setup are unlikely to be prioritized.
+话虽如此，与 asdf 的兼容性已不再是设计目标。长期以来，没有理由偏好 asdf 而非 mise，因此用户应该迁移过来。虽然有很多用户的团队同时使用两者，但这种配置出现的问题不太可能被优先处理。
 
-## How do I disable/force CLI color output?
+## 如何禁用/强制 CLI 颜色输出？
 
-mise uses [console.rs](https://docs.rs/console/latest/console/fn.colors_enabled.html) which
-honors the [clicolors spec](https://bixense.com/clicolors/):
+mise 使用 [console.rs](https://docs.rs/console/latest/console/fn.colors_enabled.html)，遵循 [clicolors 规范](https://bixense.com/clicolors/)：
 
-- `CLICOLOR != 0`: ANSI colors are supported and should be used when the program isn't piped.
-- `CLICOLOR == 0`: Don't output ANSI color escape codes.
-- `CLICOLOR_FORCE != 0`: ANSI colors should be enabled no matter what.
+- `CLICOLOR != 0`：支持 ANSI 颜色，当程序没有通过管道时应使用颜色。
+- `CLICOLOR == 0`：不输出 ANSI 颜色转义码。
+- `CLICOLOR_FORCE != 0`：无论如何都启用 ANSI 颜色。
 
-## Is mise secure?
+## mise 安全吗？
 
-Providing a secure supply chain is incredibly important. mise already provides a more secure
-experience when compared to asdf. Security-oriented evaluations and contributions are welcome.
-We also urge users to look after the plugins they use, and urge plugin authors to look after
-the users they serve.
+提供安全的供应链至关重要。与 asdf 相比，mise 已经提供了更安全的使用体验。欢迎安全方面的评估和贡献。我们也敦促用户关注所使用的插件安全性，敦促插件作者保护用户安全。
 
-For more details see [SECURITY.md](https://github.com/jdx/mise/blob/main/SECURITY.md).
+更多详情请参阅 [SECURITY.md](https://github.com/jdx/mise/blob/main/SECURITY.md)。
 
-## What is usage?
+## 什么是 usage？
 
-usage (<https://usage.jdx.dev/>) is a spec and CLI for defining CLI tools.
+usage（<https://usage.jdx.dev/>）是一个用于定义 CLI 工具的规范和命令行工具。
 
-Arguments, flags, environment variables, and config files can all be defined in a Usage spec. It can be thought of like OpenAPI (swagger) for CLIs.
+参数、标志、环境变量和配置文件都可以在 Usage 规范中定义。可以把它理解为 CLI 的 OpenAPI（swagger）。
 
-`usage` can be installed with `mise` using `mise use -g usage` and is required to get the autocompletion working. See [autocompletion](/installing-mise.html#autocompletion).
+`usage` 可以通过 `mise use -g usage` 安装，使用它才能让自动补全功能正常工作。参见[自动补全](/installing-mise.html#autocompletion)。
 
-You can leverage usage in file tasks to get auto-completion working, see [file tasks arguments](/tasks/file-tasks.html#arguments).
+你可以在文件任务中利用 usage 来实现自动补全，参见[文件任务参数](/tasks/file-tasks.html#arguments)。
 
-## What is pitchfork?
+## 什么是 pitchfork？
 
-pitchfork (<https://pitchfork.jdx.dev/>) is a process manager for developers.
+pitchfork（<https://pitchfork.jdx.dev/>）是一个面向开发者的进程管理器。
 
-It handles daemon management with features like automatic restarts on failure, smart readiness checks, shell-based auto-start/stop when entering project directories, and cron-style scheduling for periodic tasks.
+它提供守护进程管理功能，包括故障自动重启、智能就绪检查、进入项目目录时的 shell 自动启动/停止，以及定时任务的 cron 式调度。
 
-## VSCode for windows extension with error `spawn EINVAL`
+## Windows 下 VSCode 扩展报错 `spawn EINVAL`
 
-In VSCode, many extensions will throw an "error spawn EINVAL" due to a [Node.js security fix](https://nodejs.org/en/blog/vulnerability/april-2024-security-releases-2#command-injection-via-args-parameter-of-child_processspawn-without-shell-option-enabled-on-windows-cve-2024-27980---high).
+在 VSCode 中，由于一个 [Node.js 安全修复](https://nodejs.org/en/blog/vulnerability/april-2024-security-releases-2#command-injection-via-args-parameter-of-child_processspawn-without-shell-option-enabled-on-windows-cve-2024-27980---high)，许多扩展会抛出 "error spawn EINVAL" 错误。
 
-The default `exe` shim mode should resolve this. If you're using an older mode, you can change [windows_shim_mode](https://mise.jdx.dev/configuration/settings.html#windows_shim_mode) to `exe`, `hardlink`, or `symlink`.
+默认的 `exe` shim 模式应该能解决此问题。如果你使用的是旧模式，可以将 [windows_shim_mode](https://mise.jdx.dev/configuration/settings.html#windows_shim_mode) 更改为 `exe`、`hardlink` 或 `symlink`。
 
-## How does mise versioning work?
+## mise 的版本号是怎么工作的？
 
-mise uses [Calver](https://calver.org/) versioning (`2024.1.0`).
-Breaking changes will be few but when they do happen,
-they will be communicated in the CLI with plenty of notice whenever possible.
+mise 使用[日历化版本号](https://calver.org/)（`2024.1.0`）。破坏性变更会很少，但确实发生时，会尽可能在 CLI 中提前通知。
 
-Rather than have SemVer major releases to communicate change in large releases,
-new functionality and changes can be opted-into with settings like `experimental = true`.
-This way plugin authors and users can
-test out new functionality immediately without waiting for a major release.
+与使用语义化版本号的大版本来传达大型发布中的变更不同，新功能和变更可以通过 `experimental = true` 等设置来选择性启用。这样插件作者和用户可以立即测试新功能而无需等待大版本发布。
 
-The numbers in Calver (YYYY.MM.RELEASE) simply represent the date of the release—not compatibility
-or how many new features were added.
-Each release will be small and incremental.
+日历化版本号中的数字（YYYY.MM.RELEASE）仅表示发布日期，而非兼容性或新增了多少功能。每次发布都是小规模的增量更新。

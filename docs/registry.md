@@ -2,73 +2,73 @@
 editLink: false
 ---
 
-# Registry
+# 注册表
 
 <script setup>
 import Registry from '/components/registry.vue';
 </script>
 
-List of all [tools](#tools) aliased by default in `mise`.
+`mise` 中所有默认别名的[工具](#tools)列表。
 
-You can use these shorthands with `mise use`. This allows you to use a tool without needing to know the full name. For example, to use the `aws-cli` tool, you can do the following:
+你可以在 `mise use` 中使用这些简写名称。这样你就可以在不需要知道完整名称的情况下使用工具。例如，要使用 `aws-cli` 工具，你可以这样做：
 
 ```shell
 mise use aws-cli
 ```
 
-instead of
+而不是
 
 ```shell
 mise use aqua:aws/aws-cli
 ```
 
-If a tool is not available in the registry, you can install it by its full name. [github](./dev-tools/backends/github.html) and [aqua](./dev-tools/backends/aqua.html) give you for example access to almost all programs available on GitHub.
+如果某个工具不在注册表中，你可以通过完整名称来安装。[github](./dev-tools/backends/github.html) 和 [aqua](./dev-tools/backends/aqua.html) 让你可以访问 GitHub 上几乎所有的程序。
 
-## Backends
+## 工具源
 
-In addition to built-in [core tools](/core-tools.html), `mise` supports a variety of [backends](/dev-tools/backends/) to install tools.
+除了内置的[核心工具](/core-tools.html)外，`mise` 支持多种[工具源](/dev-tools/backends/)来安装工具。
 
-In general, the preferred [backend](/dev-tools/backends/) to use for new tools is the following:
+一般来说，新工具推荐使用以下[工具源](/dev-tools/backends/)（按优先级排序）：
 
-- [aqua](./dev-tools/backends/aqua.html) - offers the most features and security while not requiring plugins
-- [github](./dev-tools/backends/github.html) - for tools that are not available in the aqua registry, but are available on GitHub
-- [gitlab](./dev-tools/backends/gitlab.html) - for tools that are not available in the aqua registry, but are available on GitLab
-- [pipx](./dev-tools/backends/pipx.html) - only for python tools, requires python to be installed but this generally would always be the case for python tools
-- [npm](./dev-tools/backends/npm.html) - only for node tools, requires node to be installed but this generally would always be the case for node tools
-- [go](./dev-tools/backends/go.html) - only for go tools, requires go to be installed to compile. Because go tools can be distributed as a single binary, aqua/github are definitely preferred.
-- [cargo](./dev-tools/backends/cargo.html) - only for rust tools, requires rust to be installed to compile. Because rust tools can be distributed as a single binary, aqua/github are definitely preferred.
-- [dotnet](./dev-tools/backends/dotnet.html) - only for dotnet tools, requires dotnet to be installed to compile. Because dotnet tools can be distributed as a single binary, aqua/github are definitely preferred.
+- [aqua](./dev-tools/backends/aqua.html) - 提供最多的功能和安全特性，且无需插件
+- [github](./dev-tools/backends/github.html) - 适用于 aqua 注册表中没有但在 GitHub 上可用的工具
+- [gitlab](./dev-tools/backends/gitlab.html) - 适用于 aqua 注册表中没有但在 GitLab 上可用的工具
+- [pipx](./dev-tools/backends/pipx.html) - 仅适用于 Python 工具，需要安装 python，但使用 Python 工具时通常都会有
+- [npm](./dev-tools/backends/npm.html) - 仅适用于 Node 工具，需要安装 node，但使用 Node 工具时通常都会有
+- [go](./dev-tools/backends/go.html) - 仅适用于 Go 工具，需要安装 go 来编译。由于 Go 工具可以分发为单个二进制文件，aqua/github 是更好的选择
+- [cargo](./dev-tools/backends/cargo.html) - 仅适用于 Rust 工具，需要安装 rust 来编译。由于 Rust 工具可以分发为单个二进制文件，aqua/github 是更好的选择
+- [dotnet](./dev-tools/backends/dotnet.html) - 仅适用于 dotnet 工具，需要安装 dotnet 来编译。由于 dotnet 工具可以分发为单个二进制文件，aqua/github 是更好的选择
 
-New vfox and asdf tools are almost never accepted for supply-chain security reasons.
+出于供应链安全原因，新的 vfox 和 asdf 工具几乎不会被接受。
 
-### Backends Priority
+### 工具源优先级
 
-Each tool can define its own priority if it has more than one backend it supports. If you would like to disable a backend, you can do so with the following command:
+每个工具如果支持多个工具源，可以定义自己的优先级。如果你想禁用某个工具源，可以使用以下命令：
 
 ```shell
 mise settings disable_backends=asdf
 ```
 
-This will disable the [asdf](./dev-tools/backends/asdf.html) backend. See [Aliases](/dev-tools/aliases.html) for a way to set a default backend for a tool. Note that the `asdf` backend is disabled by default on Windows.
+这将禁用 [asdf](./dev-tools/backends/asdf.html) 工具源。参见[别名](/dev-tools/aliases.html)了解如何为工具设置默认工具源。请注意，在 Windows 上 `asdf` 工具源默认被禁用。
 
-You can also specify the full name for a tool using `mise use aqua:1password/cli` if you want to use a specific backend.
+你也可以使用 `mise use aqua:1password/cli` 这样的完整名称来指定使用特定的工具源。
 
-### Environment Variable Overrides
+### 环境变量覆盖
 
-You can override the backend for any tool using environment variables with the pattern `MISE_BACKENDS_<TOOL>`. This takes the highest priority and overrides any registry or alias configuration:
+你可以使用 `MISE_BACKENDS_<TOOL>` 模式的环境变量来覆盖任何工具的工具源。这具有最高优先级，会覆盖注册表或别名配置：
 
 ```shell
-# Use vfox backend for php
+# 使用 vfox 工具源安装 php
 export MISE_BACKENDS_PHP='vfox:mise-plugins/vfox-php'
 mise install php@latest
 ```
 
-The tool name in the environment variable should be in SHOUTY_SNAKE_CASE (uppercase with underscores). For example, `my-tool` becomes `MISE_BACKENDS_MY_TOOL`.
+环境变量中的工具名称应使用 SHOUTY_SNAKE_CASE（全大写加下划线）。例如，`my-tool` 变为 `MISE_BACKENDS_MY_TOOL`。
 
-Source: <https://github.com/jdx/mise/blob/main/registry/>
+来源：<https://github.com/jdx/mise/blob/main/registry/>
 
-## Tools {#tools}
+## 工具 {#tools}
 
-Note that [`mise registry`](/cli/registry.html) can be used to list all tools in the registry. [`mise use`](/cli/use.html) without any arguments will show a `tui` to select a tool to install.
+注意 [`mise registry`](/cli/registry.html) 可用于列出注册表中的所有工具。不带参数运行 [`mise use`](/cli/use.html) 会显示一个 `tui` 供你选择要安装的工具。
 
 <Registry />

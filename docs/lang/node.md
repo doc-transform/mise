@@ -1,36 +1,33 @@
 # Node
 
-Like `nvm`, (or `volta`, `fnm` or `asdf`...), `mise` can manage multiple versions of Node.js on the same system.
+与 `nvm`（或 `volta`、`fnm`、`asdf`...）类似，`mise` 可以在同一系统上管理多个版本的 Node.js。
 
-> The following are instructions for using the node mise core plugin. This is used when there isn't a
-> git plugin installed named "node".
-> If you want to use [asdf-nodejs](https://github.com/asdf-vm/asdf-nodejs)
-> then run `mise plugins install node https://github.com/asdf-vm/asdf-nodejs`
+> 以下是使用 node mise 核心插件的说明。当没有安装名为 "node" 的 git 插件时会使用核心插件。
+> 如果你想使用 [asdf-nodejs](https://github.com/asdf-vm/asdf-nodejs)，请运行 `mise plugins install node https://github.com/asdf-vm/asdf-nodejs`
 
-The code for this is inside the mise repository at [`./src/plugins/core/node.rs`](https://github.com/jdx/mise/blob/main/src/plugins/core/node.rs).
+相关代码位于 mise 仓库的 [`./src/plugins/core/node.rs`](https://github.com/jdx/mise/blob/main/src/plugins/core/node.rs)。
 
-## Usage
+## 用法
 
-The following installs the latest version of node-20.x and makes it the global
-default:
+以下命令安装最新版本的 node-20.x 并将其设为全局默认版本：
 
 ```sh
 mise use -g node@20
 ```
 
-See the [Node.JS Cookbook](/mise-cookbook/nodejs.html) for common tasks and examples.
+更多常见任务和示例请参阅 [Node.JS 实践手册](/mise-cookbook/nodejs.html)。
 
-## `.nvmrc` and `.node-version` support
+## `.nvmrc` 和 `.node-version` 支持
 
-By default, mise uses a `mise.toml` file for auto-switching between software versions.
+默认情况下，mise 使用 `mise.toml` 文件在不同软件版本之间自动切换。
 
-It also supports `.tool-versions`, `.nvmrc` or `.node-version` file to find out what version of Node.js should be used. This will be used if `node` isn't defined in `mise.toml`.
+它也支持 `.tool-versions`、`.nvmrc` 或 `.node-version` 文件来确定应使用哪个版本的 Node.js。如果 `mise.toml` 中没有定义 `node`，就会使用这些文件。
 
-This makes it a drop-in replacement for `nvm`. See [idiomatic version files](/configuration.html#idiomatic-version-files) for more information.
+这使得它可以直接替代 `nvm`。更多信息请参阅[惯用版本文件](/configuration.html#idiomatic-version-files)。
 
-## Default node packages
+## 默认 node 包
 
-mise-node can automatically install a default set of npm packages right after installing a node version. To enable this feature, provide a `$HOME/.default-npm-packages` file that lists one package per line, for example:
+mise-node 可以在安装新 node 版本后自动安装一组默认的 npm 包。要启用此功能，提供一个 `$HOME/.default-npm-packages` 文件，每行列出一个包，例如：
 
 ```text
 lodash
@@ -38,48 +35,41 @@ request
 express
 ```
 
-You can specify a non-default location of this file by setting a `MISE_NODE_DEFAULT_PACKAGES_FILE` variable.
+你可以通过设置 `MISE_NODE_DEFAULT_PACKAGES_FILE` 变量来指定此文件的非默认位置。
 
-## "nodejs" -> "node" Alias
+## "nodejs" -> "node" 别名
 
-You cannot install/use a plugin named "nodejs". If you attempt this, mise will just rename it to
-"node". See the [FAQ](/faq.html#what-is-the-difference-between-nodejs-and-node-or-golang-and-go)
-for an explanation.
+你无法安装/使用名为 "nodejs" 的插件。如果你尝试这样做，mise 会自动将其重命名为 "node"。请参阅 [FAQ](/faq.html#what-is-the-difference-between-nodejs-and-node-or-golang-and-go) 了解原因。
 
-## Building from source
+## 从源码构建
 
-If compiling from source, see [BUILDING.md](https://github.com/nodejs/node/blob/main/BUILDING.md#building-nodejs-on-supported-platforms) in node's documentation for
-required system dependencies.
+如果要从源码编译，请参阅 node 文档中的 [BUILDING.md](https://github.com/nodejs/node/blob/main/BUILDING.md#building-nodejs-on-supported-platforms) 了解所需的系统依赖。
 
 ```shell
 mise settings node.compile=1
 mise use node@latest
 ```
 
-## Unofficial Builds
+## 非官方构建
 
-Nodejs.org offers a set of [unofficial builds](https://unofficial-builds.nodejs.org/) which are
-compatible with some platforms that are not supported by the official binaries. These are a nice alternative to
-compiling from source for these platforms.
+Nodejs.org 提供了一套[非官方构建](https://unofficial-builds.nodejs.org/)，兼容一些官方二进制文件不支持的平台。对于这些平台，这是从源码编译的一个不错的替代方案。
 
-To use, first set the mirror url to point to the unofficial builds:
+要使用非官方构建，首先将镜像 URL 指向非官方构建：
 
 ```sh
 mise settings node.mirror_url=https://unofficial-builds.nodejs.org/download/release/
 ```
 
-If your goal is to simply support an alternative arch/os like linux-loong64 or linux-armv6l, this is
-all that is required. Node also provides flavors such as musl or glibc-217 (an older glibc version
-than what the official binaries are built with).
+如果你的目标只是支持替代架构/操作系统，如 linux-loong64 或 linux-armv6l，这就是所需的全部配置。Node 还提供 musl 或 glibc-217（比官方二进制文件使用的更旧的 glibc 版本）等风味。
 
-To use these, set `node.flavor`:
+要使用这些风味，设置 `node.flavor`：
 
 ```sh
 mise settings node.flavor=musl
 mise settings node.flavor=glibc-217
 ```
 
-## Settings
+## 设置
 
 <script setup>
 import Settings from '/components/settings.vue';

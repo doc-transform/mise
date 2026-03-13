@@ -1,27 +1,25 @@
-# IDE Integration
+# IDE 集成
 
-Code editors and IDEs work differently than interactive shells.
+代码编辑器和 IDE 的工作方式与交互式 shell 不同。
 
-Usually, they will either inherit the environment from your current shell (this is the case if you start it from a terminal like `nvim .` or `code .`) or will have [their own way](https://github.com/microsoft/vscode-docs/blob/906acccd6180d8425577f8297ed29e221ad3daca/docs/supporting/faq.md?plain=1#L238) to set up the environment.
+通常，它们要么继承当前 shell 的环境（如果你是从终端启动的，例如 `nvim .` 或 `code .`），要么有[自己的方式](https://github.com/microsoft/vscode-docs/blob/906acccd6180d8425577f8297ed29e221ad3daca/docs/supporting/faq.md?plain=1#L238)来设置环境。
 
-Once you have launched the IDE, it won't reload the environment variables or the `PATH` provided by `mise` if you update your mise configuration files. Therefore, we cannot rely on the default `mise activate` method to automatically set up the editor.
+IDE 启动后，如果你更新了 mise 配置文件，它不会自动重新加载 `mise` 提供的环境变量和 `PATH`。因此，我们不能依赖默认的 `mise activate` 方式来自动配置编辑器。
 
-There are a few ways to make `mise` work with your editor:
+有几种方式可以让 `mise` 与编辑器配合工作：
 
-- Some editors or IDE plugins have direct support for `mise` and can let you select the tools/sdk path from the IDE settings. This will let you access to the tool binaries but won't load the environment variables.
-- Most editors (and language plugins) will look for tools on the `PATH` and run them in the context of your project. Therefore, adding the `mise` shims to the `PATH` might be enough (see [below](#adding-shims-to-path-default-shell)). This will run the tool provided by mise and load the environment variables.
-- In other cases, you may need to manually indicate the path to the tools provided by `mise` in the IDE settings. This can be done by using [`mise which <tool>`](./cli/which.md) or [`mise where`](./cli/where). You can also provide the path to the tool shim (e.g. `~/.local/share/mise/shims/node`) if the plugin supports it as this will also load the environment variables when the tool is run.
-- Finally, some custom plugins have been developed to work with `mise`. You can find them in the [IDE Plugins](#ide-plugins) section.
+- 一些编辑器或 IDE 插件直接支持 `mise`，允许你在 IDE 设置中选择工具/SDK 路径。这样可以访问工具二进制文件，但不会加载环境变量。
+- 大多数编辑器（和语言插件）会在 `PATH` 中查找工具并在项目上下文中运行。因此，将 `mise` shims 添加到 `PATH` 可能就够了（见[下方](#adding-shims-to-path-default-shell)）。这样运行工具时会通过 mise 调用，并加载环境变量。
+- 在其他情况下，你可能需要在 IDE 设置中手动指定 `mise` 提供的工具路径。可以使用 [`mise which <tool>`](./cli/which.md) 或 [`mise where`](./cli/where) 来获取路径。也可以指向 shim 的路径（如 `~/.local/share/mise/shims/node`），如果插件支持的话，这同样会在运行工具时加载环境变量。
+- 最后，社区开发了一些专用插件来配合 `mise`。详见 [IDE 插件](#ide-plugins)部分。
 
-## Adding shims to PATH in your default shell profile {#adding-shims-to-path-default-shell}
+## 在默认 shell 的 profile 中添加 shims 到 PATH {#adding-shims-to-path-default-shell}
 
-IDEs work better with [shims](./dev-tools/shims) than they do environment variable modifications. The simplest way is
-to add the mise shim directory to `PATH`.
+IDE 使用 [shims](./dev-tools/shims) 比使用环境变量修改更稳定。最简单的方式是将 mise shim 目录添加到 `PATH`。
 
-For IntelliJ and VSCode—and likely others, you can modify your default shell's login (aka "profile")
-script. Your default shell can be found with:
+对于 IntelliJ 和 VSCode 等编辑器，你可以修改默认 shell 的登录（即 "profile"）脚本。查看默认 shell 的方式：
 
-::: code-group
+:::: code-group
 
 ```shell [macos]
 dscl . -read /Users/$USER UserShell
@@ -31,12 +29,11 @@ dscl . -read /Users/$USER UserShell
 getent passwd $USER | cut -d: -f7
 ```
 
-:::
+::::
 
-You can change your default shell with `chsh -s /path/to/shell` but you may need
-to first add it to `/etc/shells`. Once you know the right one, modify the appropriate file:
+你可以用 `chsh -s /path/to/shell` 更换默认 shell，但可能需要先将其添加到 `/etc/shells`。确认 shell 后，修改对应文件：
 
-::: code-group
+:::: code-group
 
 ```zsh
 # ~/.zprofile
@@ -44,7 +41,7 @@ eval "$(mise activate zsh --shims)"
 ```
 
 ```bash
-# ~/.bash_profile or ~/.bash_login or ~/.profile
+# ~/.bash_profile 或 ~/.bash_login 或 ~/.profile
 eval "$(mise activate bash --shims)"
 ```
 
@@ -57,36 +54,33 @@ else
 end
 ```
 
-:::
+::::
 
-::: warning
-Do not use /bin/bash or /usr/bin/bash on macOS. bash is complicated, decades old, and mise isn't able to use as many features.
-Unless you consider yourself an expert on bash and know why I (and Apple for that matter) admonish using bash, just use zsh on macOS.
-:::
+:::: warning
+在 macOS 上不要使用 /bin/bash 或 /usr/bin/bash。bash 的版本很旧且复杂，mise 无法充分利用其特性。
+除非你是 bash 专家并且清楚为什么 Apple 也不推荐使用 bash，否则请在 macOS 上使用 zsh。
+::::
 
-On Linux this is read when logging into the machine, so changing it requires logging out and back in for it to work. See #vscode below
-for how to get VSCode to read the login file.
+在 Linux 上，login profile 在登录时读取，因此修改后需要注销并重新登录才能生效。VSCode 的配置方式请参阅下方 #vscode 部分。
 
-This assumes that `mise` is on `PATH`. If it is not, you'll need to use the absolute path (
-e.g.: `eval "$($HOME/.local/bin/mise activate zsh --shims)"`).
+这里假设 `mise` 已经在 `PATH` 中。如果不在，需要使用绝对路径（如：`eval "$($HOME/.local/bin/mise activate zsh --shims)"`）。
 
-Here is an example showing that VSCode will use `node` provided by `mise`:
+以下示例展示了 VSCode 使用 mise 提供的 `node`：
 
-::: tabs
+:::: tabs
 === VSCode
 
-![vscode using shims](./shims-vscode.png)
+![vscode 使用 shims](./shims-vscode.png)
 
 === IntelliJ
-![intellij using shims](./shims-intellij.png)
-:::
+![intellij 使用 shims](./shims-intellij.png)
+::::
 
-As mentioned above, using `shims` doesn't work with all mise features. For example, arbitrary [env vars](./environments/) in `[env]` will
-only be set if a shim is executed. For this we need tighter integration with the IDE and/or a custom plugin.
+如前所述，使用 `shims` 并不能覆盖 mise 的所有功能。例如，`[env]` 中的任意[环境变量](./environments/)只有在 shim 被执行时才会生效。要实现更深度的集成，需要 IDE 的原生支持和/或专用插件。
 
-## IDE Plugins
+## IDE 插件
 
-Here are some community plugins that have been developed to work with `mise`:
+以下是社区开发的与 `mise` 配合使用的插件：
 
 - Emacs: [mise.el](https://github.com/liuyinz/mise.el)
 - IntelliJ: [intellij-mise](https://github.com/134130/intellij-mise)
@@ -95,79 +89,78 @@ Here are some community plugins that have been developed to work with `mise`:
 ## Vim
 
 ```vim
-" Prepend mise shims to PATH
+" 将 mise shims 添加到 PATH 最前面
 let $PATH = $HOME . '/.local/share/mise/shims:' . $PATH
 ```
 
 ## Neovim
 
 ```lua
--- Prepend mise shims to PATH
+-- 将 mise shims 添加到 PATH 最前面
 vim.env.PATH = vim.env.HOME .. "/.local/share/mise/shims:" .. vim.env.PATH
 ```
 
-For a better Treesitter and LSP integration, check out the [neovim cookbook](./mise-cookbook/neovim.md).
+如需更好的 Treesitter 和 LSP 集成，请查看 [Neovim cookbook](./mise-cookbook/neovim.md)。
 
-## emacs
+## Emacs
 
-### Traditional shims way
+### 传统 shims 方式
 
 ```lisp
-;; CLI tools installed by Mise
-;; See: https://www.emacswiki.org/emacs/ExecPath
+;; 通过 Mise 安装的 CLI 工具
+;; 参见: https://www.emacswiki.org/emacs/ExecPath
 (setenv "PATH" (concat (getenv "PATH") ":/home/user/.local/share/mise/shims"))
 (setq exec-path (append exec-path '("/home/user/.local/share/mise/shims")))
 ```
 
-### Use with package [mise.el](https://github.com/eki3z/mise.el)
+### 使用 [mise.el](https://github.com/eki3z/mise.el) 包
 
 <https://github.com/eki3z/mise.el>
 
-> A GNU Emacs library which uses the mise tool to determine per-directory/project environment variables and then set those environment variables on a per-buffer basis.
+> 一个 GNU Emacs 库，使用 mise 工具来确定每个目录/项目的环境变量，然后在每个 buffer 的基础上设置这些环境变量。
 
 ```lisp
 (require 'mise)
 (add-hook 'after-init-hook #'global-mise-mode)
 ```
 
-## JetBrains Editors (IntelliJ, RustRover, PyCharm, WebStorm, RubyMine, GoLand, etc)
+## JetBrains 系列编辑器（IntelliJ、RustRover、PyCharm、WebStorm、RubyMine、GoLand 等）
 
-### IntelliJ Plugin
+### IntelliJ 插件
 
 <https://github.com/134130/intellij-mise>
 
-This plugin can automatically configure the IDE to use the tools provided by mise. It has also some support for running mise tasks and loading environment variables in the run configurations.
+这个插件可以自动配置 IDE 使用 mise 提供的工具，同时支持运行 mise 任务和在运行配置中加载环境变量。
 
-### Direct SDK selection
+### 直接选择 SDK
 
-Some JetBrains IDEs (or language plugins) have direct support for `mise`. This allows you to select the SDK version from the IDE settings.
-Example for Java:
+部分 JetBrains IDE（或语言插件）直接支持 `mise`，允许在 IDE 设置中选择 SDK 版本。
+Java 的示例：
 
-![SDK settings](./intellij-sdk-selection.png)
+![SDK 设置](./intellij-sdk-selection.png)
 
-### SDK selection using asdf layout
+### 通过 asdf 目录结构选择 SDK
 
-Some plugins cannot find SDK installed by `mise` yet but might have support for asdf.
-In that case, a workaround is to symlink the mise tool directory which has same layout as asdf:
+部分插件尚未支持 `mise` 安装的 SDK，但可能支持 asdf。
+这种情况下，可以将 mise 的工具目录软链接到 asdf 的位置（两者目录结构相同）：
 
 ```sh
 ln -s ~/.local/share/mise ~/.asdf
 ```
 
-Then they should show up on in Project Settings:
+之后在项目设置中就能看到这些工具了：
 
-![project settings](https://github.com/jdx/mise-docs/assets/216188/b34a0e3f-7af8-45c9-85b8-2c72bd1dc226)
+![项目设置](https://github.com/jdx/mise-docs/assets/216188/b34a0e3f-7af8-45c9-85b8-2c72bd1dc226)
 
-Or in the case of node (possibly other languages), it's under "Languages & Frameworks":
+对于 node（可能还有其他语言），在 "Languages & Frameworks" 中查看：
 
-![languages & frameworks](https://github.com/jdx/mise-docs/assets/216188/9926be1c-ab88-451a-8ace-edf2dac564b5)
+![Languages & Frameworks](https://github.com/jdx/mise-docs/assets/216188/9926be1c-ab88-451a-8ace-edf2dac564b5)
 
 ## VSCode
 
-### VSCode Automation Profile for macOS
+### macOS 上的 VSCode 自动化 Profile
 
-Unlike Linux, macOS does not read the login shell profile (`~/.profile`, or `~/.zprofile`) when logging into the machine. You'll likely
-want to add this setting to VSCode config in order to have it load your shims:
+与 Linux 不同，macOS 在登录时不会读取 login shell profile（`~/.profile` 或 `~/.zprofile`）。你可能需要在 VSCode 配置中添加以下设置来加载 shims：
 
 ```json
     "terminal.integrated.automationProfile.osx": {
@@ -176,30 +169,29 @@ want to add this setting to VSCode config in order to have it load your shims:
     }
 ```
 
-:::tip
-You can also use `["--login", "--interactive"]` if you want to include `~/.zshrc`.
-:::
+::::tip
+你也可以使用 `["--login", "--interactive"]` 来同时加载 `~/.zshrc`。
+::::
 
-### VSCode Plugin
+### VSCode 插件
 
-There is a [VSCode plugin](https://marketplace.visualstudio.com/items?itemName=hverlin.mise-vscode) which can configure other extensions for you, without having to modify your shell profile to add the shims to `PATH`.
+[VSCode 插件](https://marketplace.visualstudio.com/items?itemName=hverlin.mise-vscode) 可以自动为你配置其他扩展，无需修改 shell profile 来添加 shims 到 `PATH`。
 
-In addition, it provides additional features such as:
+此外，它还提供以下功能：
 
-- Automatic configuration of other extensions to use tools provided by `mise`
-- Manage `mise` tasks, tools, and environment variables directly from VSCode
-- Load environment variables from `mise.toml` files in VSCode
-- Support for autocompletion and snippets for `mise.toml` file
-- Integration with VSCode tasks
+- 自动配置其他扩展使用 `mise` 提供的工具
+- 直接在 VSCode 中管理 `mise` 任务、工具和环境变量
+- 在 VSCode 中加载 `mise.toml` 文件中的环境变量
+- 支持 `mise.toml` 文件的自动补全和代码片段
+- 与 VSCode 任务系统集成
 
-<https://github.com/hverlin/mise-vscode/> ([Documentation](https://hverlin.github.io/mise-vscode/))
+<https://github.com/hverlin/mise-vscode/>（[文档](https://hverlin.github.io/mise-vscode/)）
 
-### Use [`mise exec`](./cli/exec) in launch Configuration
+### 在 launch 配置中使用 [`mise exec`](./cli/exec)
 
-While modifying your default shell profile is likely the easiest solution, you can also set
-the tools in `launch.json`:
+虽然修改默认 shell profile 可能是最简单的方案，但你也可以在 `launch.json` 中配置工具：
 
-::: details mise exec launch.json example
+:::: details mise exec launch.json 示例
 
 ```json
 {
@@ -222,19 +214,14 @@ the tools in `launch.json`:
 }
 ```
 
-:::
+::::
 
 ## Xcode
 
-Xcode projects can run system commands from script build phases and schemes. Since Xcode sandboxes
-the execution of the script using the tool `/usr/bin/sandbox-exec`, don't expect Mise and the
-automatically-activated tools to work out of the box. First, you'll need to
-add `$(SRCROOT)/mise.toml` to the list of **Input files**. This is necessary for Xcode to allow
-reads to that file. Then, you can use `mise activate` to activate the tools you need:
+Xcode 项目可以在 Script Build Phase 和 Scheme 中运行系统命令。由于 Xcode 使用 `/usr/bin/sandbox-exec` 对脚本执行进行沙箱隔离，不要期望 mise 和自动激活的工具能开箱即用。首先，你需要将 `$(SRCROOT)/mise.toml` 添加到 **Input files** 列表中，这是让 Xcode 允许读取该文件所必需的。然后使用 `mise activate` 来激活所需的工具：
 
 ```bash
-# -C ensures that Mise loads the configuration from the Mise configuration
-# file in the project's root directory.
+# -C 确保 mise 从项目根目录下的 mise 配置文件加载配置
 eval "$($HOME/.local/bin/mise activate -C $SRCROOT bash --shims)"
 
 swiftlint

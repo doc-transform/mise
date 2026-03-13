@@ -1,20 +1,19 @@
-# SPM Backend <Badge type="warning" text="experimental" />
+# SPM 工具源 <Badge type="warning" text="experimental" />
 
-You may install executables managed by [Swift Package Manager](https://www.swift.org/documentation/package-manager) directly from GitHub or GitLab releases.
+你可以直接从 GitHub 或 GitLab 发布安装由 [Swift Package Manager](https://www.swift.org/documentation/package-manager) 管理的可执行文件。
 
-The code for this is inside of the mise repository at [`./src/backend/spm.rs`](https://github.com/jdx/mise/blob/main/src/backend/spm.rs).
+相关代码位于 mise 仓库的 [`./src/backend/spm.rs`](https://github.com/jdx/mise/blob/main/src/backend/spm.rs)。
 
-## Dependencies
+## 依赖
 
-This relies on having `swift` installed. You can either install it [manually](https://www.swift.org/install) or [with mise](/lang/swift).
+需要先安装 `swift`。你可以[手动安装](https://www.swift.org/install)或[通过 mise 安装](/lang/swift)。
 
 > [!NOTE]
-> If you have Xcode installed and selected in your system via `xcode-select`, Swift is already available through the toolchain embedded in the Xcode installation.
+> 如果你已安装 Xcode 并通过 `xcode-select` 在系统中选定，Swift 已经通过 Xcode 内嵌的工具链可用。
 
-## Usage
+## 用法
 
-The following installs the latest version of `tuist`
-and sets it as the active version on PATH:
+以下命令安装最新版本的 `tuist` 并将其设为 PATH 中的活跃版本：
 
 ```sh
 $ mise use -g spm:tuist/tuist
@@ -25,34 +24,32 @@ USAGE: tuist <subcommand>
 ...
 ```
 
-The version will be set in `~/.config/mise/config.toml` with the following format:
+版本将以如下格式写入 `~/.config/mise/config.toml`：
 
 ```toml
 [tools]
 "spm:tuist/tuist" = "latest"
 ```
 
-### Supported Syntax
+### 支持的语法
 
-| Description                                   | Usage                                           |
-| --------------------------------------------- | ----------------------------------------------- |
-| GitHub shorthand for latest release version   | `spm:tuist/tuist`                               |
-| GitHub shorthand for specific release version | `spm:tuist/tuist@4.15.0`                        |
-| GitHub url for latest release version         | `spm:https://github.com/tuist/tuist.git`        |
-| GitHub url for specific release version       | `spm:https://github.com/tuist/tuist.git@4.15.0` |
+| 描述                             | 用法                                            |
+| -------------------------------- | ----------------------------------------------- |
+| GitHub 简写（最新发布版本）      | `spm:tuist/tuist`                               |
+| GitHub 简写（指定发布版本）      | `spm:tuist/tuist@4.15.0`                        |
+| GitHub URL（最新发布版本）       | `spm:https://github.com/tuist/tuist.git`        |
+| GitHub URL（指定发布版本）       | `spm:https://github.com/tuist/tuist.git@4.15.0` |
 
-Other syntax may work but is unsupported and untested.
+其他语法可能可用，但不受支持且未经测试。
 
-## Tool Options
+## 工具选项
 
-The following [tool-options](/dev-tools/#tool-options) are available for the backend — these
-go in `[tools]` in `mise.toml`.
+以下[工具选项](/dev-tools/#tool-options)可用于此工具源——在 `mise.toml` 的 `[tools]` 中配置。
 
 ### `provider`
 
-Set the provider type to use for fetching assets and release information. Either `github` or `gitlab` (default is `github`).
-Ensure the `provider` is set to the correct type if you use shorthand notation and `api_url` for self-hosted repositories
-as the type probably cannot be derived correctly from the URL.
+设置用于获取资产和发布信息的提供商类型。可选 `github` 或 `gitlab`（默认为 `github`）。
+如果你使用简写表示法和 `api_url` 指向自托管仓库，请确保将 `provider` 设置为正确的类型，因为可能无法从 URL 正确推断类型。
 
 ```toml
 [tools]
@@ -61,7 +58,7 @@ as the type probably cannot be derived correctly from the URL.
 
 ### `api_url`
 
-Set the URL for the provider's API. This is useful when using a self-hosted instance.
+设置提供商 API 的 URL。在使用自托管实例时很有用。
 
 ```toml
 [tools]

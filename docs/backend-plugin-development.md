@@ -1,53 +1,53 @@
-# Backend Plugin Development
+# 工具源插件开发
 
 ::: tip
-The [mise-backend-plugin-template](https://github.com/jdx/mise-backend-plugin-template) provides a ready-to-use starting point with LuaCATS type definitions, stylua formatting, and hk linting pre-configured.
+[mise-backend-plugin-template](https://github.com/jdx/mise-backend-plugin-template) 提供了一个开箱即用的起点，预配置了 LuaCATS 类型定义、stylua 格式化和 hk 代码检查。
 :::
 
-Backend plugins in mise use enhanced backend methods to manage multiple tools using the `plugin:tool` format. These plugins are perfect for package managers, tool families, and custom installations that need to manage multiple related tools.
+mise 中的工具源（Backend）插件使用增强的工具源方法，通过 `plugin:tool` 格式来管理多个工具。这些插件非常适合包管理器、工具族以及需要管理多个相关工具的自定义安装场景。
 
-## What are Backend Plugins?
+## 什么是工具源插件？
 
-Backend plugins extend the standard vfox plugin system with enhanced backend methods. They support:
+工具源插件在标准 vfox 插件系统的基础上扩展了增强的工具源方法。它们支持：
 
-- **Multiple Tools**: One plugin can manage multiple tools. For example, `vfox-npm` is the plugin which could install different types of tools like `prettier`, `eslint`, and other npm packages
-- **Cross-Platform Support**: Works on Windows, macOS, and Linux
-- **Flexible Architecture**: Modern plugin system with dedicated backend methods for enhanced functionality
+- **多工具支持**：一个插件可以管理多个工具。例如，`vfox-npm` 插件可以安装 `prettier`、`eslint` 和其他 npm 包等不同类型的工具
+- **跨平台支持**：支持 Windows、macOS 和 Linux
+- **灵活架构**：具有专用工具源方法的现代插件系统，提供增强功能
 
-## Plugin Architecture
+## 插件架构
 
-Backend plugins are generally a git repository but can also be a directory (via `mise link`).
+工具源插件通常是一个 git 仓库，但也可以是一个目录（通过 `mise link`）。
 
-Backend plugins are implemented in Lua (version 5.1 at the moment). They use three main backend methods implemented as individual files:
+工具源插件使用 Lua（目前为 5.1 版本）实现。它们使用三个主要的工具源方法，分别以独立文件实现：
 
-- `hooks/backend_list_versions.lua` - Lists available versions for a tool
-- `hooks/backend_install.lua` - Installs a specific version of a tool
-- `hooks/backend_exec_env.lua` - Sets up environment variables for a tool
+- `hooks/backend_list_versions.lua` - 列出工具的可用版本
+- `hooks/backend_install.lua` - 安装工具的特定版本
+- `hooks/backend_exec_env.lua` - 为工具设置环境变量
 
-## Backend Methods
+## 工具源方法
 
 ### BackendListVersions
 
-Lists available versions for a tool:
+列出工具的可用版本：
 
 ```lua
 function PLUGIN:BackendListVersions(ctx)
     local tool = ctx.tool
     local versions = {}
 
-    -- Your logic to fetch versions for the tool
-    -- Example: query an API, parse a registry, etc.
+    -- 获取工具版本的逻辑
+    -- 例如：查询 API、解析注册表等
 
     return {versions = versions}
 end
 ```
 
 > [!WARNING]
-> **Version sorting**: The versions returned by `BackendListVersions` should be in ascending order (oldest to newest), sorted semantically (version `3.10.0` should not come before `3.2.0`). Mise does not apply any additional sorting to the versions returned by this method.
+> **版本排序**：`BackendListVersions` 返回的版本应按升序排列（从旧到新），并按语义排序（版本 `3.10.0` 不应排在 `3.2.0` 之前）。mise 不会对此方法返回的版本进行额外排序。
 
 ### BackendInstall
 
-Installs a specific version of a tool:
+安装工具的特定版本：
 
 ```lua
 function PLUGIN:BackendInstall(ctx)
@@ -55,11 +55,9 @@ function PLUGIN:BackendInstall(ctx)
     local version = ctx.version
     local install_path = ctx.install_path
     local download_path = ctx.download_path
-    local options = ctx.options
 
-    -- Your logic to install the tool
-    -- Example: download files, extract archives, etc.
-    -- Access custom options via options["key"] or options.key
+    -- 安装工具的逻辑
+    -- 例如：下载文件、解压归档等
 
     return {}
 end
@@ -67,16 +65,14 @@ end
 
 ### BackendExecEnv
 
-Sets up environment variables for a tool:
+为工具设置环境变量：
 
 ```lua
 function PLUGIN:BackendExecEnv(ctx)
     local install_path = ctx.install_path
-    local options = ctx.options
 
-    -- Your logic to set up environment variables
-    -- Example: add bin directories to PATH
-    -- Access custom options via options["key"] or options.key
+    -- 设置环境变量的逻辑
+    -- 例如：将 bin 目录添加到 PATH
 
     return {
         env_vars = {
@@ -86,47 +82,47 @@ function PLUGIN:BackendExecEnv(ctx)
 end
 ```
 
-## Creating a Backend Plugin
+## 创建工具源插件
 
-### Using the Template Repository
+### 使用模板仓库
 
-Use the dedicated [mise-backend-plugin-template](https://github.com/jdx/mise-backend-plugin-template) for creating backend plugins:
+使用专用的 [mise-backend-plugin-template](https://github.com/jdx/mise-backend-plugin-template) 创建工具源插件：
 
 ```bash
-# Option 1: Use GitHub's template feature (recommended)
-# Visit https://github.com/jdx/mise-backend-plugin-template
-# Click "Use this template" to create your repository
+# 方式 1：使用 GitHub 的模板功能（推荐）
+# 访问 https://github.com/jdx/mise-backend-plugin-template
+# 点击 "Use this template" 创建你的仓库
 
-# Option 2: Clone and modify
+# 方式 2：克隆并修改
 git clone https://github.com/jdx/mise-backend-plugin-template my-backend-plugin
 cd my-backend-plugin
 rm -rf .git
 git init
 ```
 
-The template includes:
+模板包含：
 
-- Complete backend plugin structure with all required hooks
-- Modern development tooling (hk, stylua, luacheck, actionlint)
-- Comprehensive documentation and examples
-- CI/CD setup with GitHub Actions
-- Multiple implementation patterns for different backend types
+- 完整的工具源插件结构，包含所有必需的钩子
+- 现代开发工具（hk、stylua、luacheck、actionlint）
+- 详细的文档和示例
+- 使用 GitHub Actions 的 CI/CD 配置
+- 多种实现模式，适用于不同的工具源类型
 
-### 1. Plugin Structure
+### 1. 插件结构
 
-Create a directory with this structure:
+创建以下结构的目录：
 
 ```
 my-backend-plugin/
-├── metadata.lua                    # Plugin metadata
+├── metadata.lua                    # 插件元数据
 ├── hooks/
-│   ├── backend_list_versions.lua   # BackendListVersions hook
-│   ├── backend_install.lua         # BackendInstall hook
-│   └── backend_exec_env.lua        # BackendExecEnv hook
-└── Injection.lua                   # Runtime injection (auto-generated)
+│   ├── backend_list_versions.lua   # BackendListVersions 钩子
+│   ├── backend_install.lua         # BackendInstall 钩子
+│   └── backend_exec_env.lua        # BackendExecEnv 钩子
+└── Injection.lua                   # 运行时注入（自动生成）
 ```
 
-### 2. Basic metadata.lua
+### 2. 基本 metadata.lua
 
 ```lua
 PLUGIN = {
@@ -137,9 +133,9 @@ PLUGIN = {
 }
 ```
 
-## Real-World Example: vfox-npm
+## 实际示例：vfox-npm
 
-Here's the complete implementation of the vfox-npm plugin that manages npm packages:
+以下是管理 npm 包的 vfox-npm 插件的完整实现：
 
 ### metadata.lua
 
@@ -174,12 +170,12 @@ function PLUGIN:BackendInstall(ctx)
     local version = ctx.version
     local install_path = ctx.install_path
 
-    -- Install the package directly using npm install
+    -- 使用 npm install 直接安装包
     local cmd = require("cmd")
     local npm_cmd = "npm install " .. tool .. "@" .. version .. " --no-package-lock --no-save --silent"
     local result = cmd.exec(npm_cmd, {cwd = install_path})
 
-    -- If we get here, the command succeeded
+    -- 执行到此说明命令成功
     return {}
 end
 ```
@@ -197,112 +193,112 @@ function PLUGIN:BackendExecEnv(ctx)
 end
 ```
 
-## Usage Example
+## 使用示例
 
-The plugin name doesn't have to match the repository name. The backend prefix will match whatever name the backend plugin was installed as.
+插件名称不必与仓库名称匹配。工具源前缀将匹配安装工具源插件时使用的名称。
 
 ```bash
-# Install the plugin
+# 安装插件
 mise plugin install vfox-npm https://github.com/jdx/vfox-npm
 
-# List available versions
+# 列出可用版本
 mise ls-remote vfox-npm:prettier
 
-# Install a specific version
+# 安装特定版本
 mise install vfox-npm:prettier@3.0.0
 
-# Use in a project
+# 在项目中使用
 mise use vfox-npm:prettier@latest
 
-# Execute the tool
+# 执行工具
 mise exec -- prettier --help
 ```
 
-> **Tip**: This naming flexibility could potentially be used to have a very complex plugin backend that would behave differently based on what it was named. For example, you could install the same plugin with different names to configure different behaviors or access different tool registries.
+> **提示**：这种命名灵活性可以用于创建非常复杂的插件工具源，根据其名称表现不同的行为。例如，你可以使用不同的名称安装同一插件，以配置不同的行为或访问不同的工具注册表。
 
-## Context Variables
+## 上下文变量
 
-Backend plugins receive context through the `ctx` parameter passed to each hook function:
+工具源插件通过传递给每个钩子函数的 `ctx` 参数接收上下文：
 
-### BackendListVersions Context
+### BackendListVersions 上下文
 
-| Variable   | Description   | Example      |
-| ---------- | ------------- | ------------ |
-| `ctx.tool` | The tool name | `"prettier"` |
+| 变量         | 描述     | 示例           |
+| ------------ | -------- | -------------- |
+| `ctx.tool`   | 工具名称 | `"prettier"`   |
 
-### BackendInstall Context
+### BackendInstall 上下文
 
-| Variable            | Description            | Example                                                            |
-| ------------------- | ---------------------- | ------------------------------------------------------------------ |
-| `ctx.tool`          | The tool name          | `"prettier"`                                                       |
-| `ctx.version`       | The requested version  | `"3.0.0"`                                                          |
-| `ctx.install_path`  | Installation directory | `"/home/user/.local/share/mise/installs/vfox-npm-prettier/3.0.0"`  |
-| `ctx.download_path` | Download directory     | `"/home/user/.local/share/mise/downloads/vfox-npm-prettier/3.0.0"` |
+| 变量                | 描述       | 示例                                                               |
+| ------------------- | ---------- | ------------------------------------------------------------------ |
+| `ctx.tool`          | 工具名称   | `"prettier"`                                                       |
+| `ctx.version`       | 请求的版本 | `"3.0.0"`                                                          |
+| `ctx.install_path`  | 安装目录   | `"/home/user/.local/share/mise/installs/vfox-npm-prettier/3.0.0"`  |
+| `ctx.download_path` | 下载目录   | `"/home/user/.local/share/mise/downloads/vfox-npm-prettier/3.0.0"` |
 
-### BackendExecEnv Context
+### BackendExecEnv 上下文
 
-| Variable           | Description            | Example                                                           |
-| ------------------ | ---------------------- | ----------------------------------------------------------------- |
-| `ctx.tool`         | The tool name          | `"prettier"`                                                      |
-| `ctx.version`      | The requested version  | `"3.0.0"`                                                         |
-| `ctx.install_path` | Installation directory | `"/home/user/.local/share/mise/installs/vfox-npm-prettier/3.0.0"` |
+| 变量               | 描述       | 示例                                                              |
+| ------------------ | ---------- | ----------------------------------------------------------------- |
+| `ctx.tool`         | 工具名称   | `"prettier"`                                                      |
+| `ctx.version`      | 请求的版本 | `"3.0.0"`                                                         |
+| `ctx.install_path` | 安装目录   | `"/home/user/.local/share/mise/installs/vfox-npm-prettier/3.0.0"` |
 
-## Testing Your Plugin
+## 测试插件
 
-### Local Development
+### 本地开发
 
 ```bash
-# Link your plugin for development
+# 链接插件用于开发
 mise plugin link my-plugin /path/to/my-plugin
 
-# Test listing versions
+# 测试列出版本
 mise ls-remote my-plugin:some-tool
 
-# Test installation
+# 测试安装
 mise use my-plugin:some-tool@1.0.0
 
-# Test execution
+# 测试执行
 mise exec -- some-tool --version
 ```
 
-### Debug Mode
+### 调试模式
 
-Use debug mode to see detailed plugin execution:
+使用调试模式查看详细的插件执行信息：
 
 ```bash
 mise --debug install my-plugin:some-tool@1.0.0
 ```
 
-## Best Practices
+## 最佳实践
 
-### Error Handling
+### 错误处理
 
-Provide more meaningful error messages:
+提供有意义的错误信息：
 
 ```lua
 function PLUGIN:BackendListVersions(ctx)
     local tool = ctx.tool
 
-    -- Validate tool name
+    -- 验证工具名称
     if not tool or tool == "" then
         error("Tool name cannot be empty")
     end
 
-    -- Execute command with error checking
+    -- 带错误检查的命令执行
     local cmd = require("cmd")
     local result = cmd.exec("npm view " .. tool .. " versions --json 2>/dev/null")
     if not result or result:match("npm ERR!") then
         error("Failed to fetch versions for " .. tool .. ": " .. (result or "no output"))
     end
 
-    -- Parse JSON response
+    -- 解析 JSON 响应
     local json = require("json")
     local success, npm_versions = pcall(json.decode, result)
     if not success or not npm_versions then
         error("Failed to parse versions for " .. tool)
     end
 
-    -- Return versions or error if none found
+    -- 返回版本，如果没有找到则报错
     local versions = {}
     if type(npm_versions) == "table" then
         for i = #npm_versions, 1, -1 do
@@ -318,33 +314,33 @@ function PLUGIN:BackendListVersions(ctx)
 end
 ```
 
-### Regex Parsing
+### 正则解析
 
-Parse versions with regex:
+使用正则解析版本：
 
 ```lua
 local function parse_version(version_string)
-    -- Remove prefixes like 'v' or 'release-'
+    -- 移除 'v' 或 'release-' 等前缀
     return version_string:gsub("^v", ""):gsub("^release%-", "")
 end
 ```
 
-### Path Handling
+### 路径处理
 
-Use cross-platform path handling:
+使用跨平台路径处理：
 
 ```lua
 local function join_path(...)
-    local sep = package.config:sub(1,1) -- Get OS path separator
+    local sep = package.config:sub(1,1) -- 获取操作系统路径分隔符
     return table.concat({...}, sep)
 end
 
 local bin_path = join_path(install_path, "bin")
 ```
 
-### Cross-Platform Commands
+### 跨平台命令
 
-Handle different operating systems:
+处理不同操作系统：
 
 ```lua
 local function create_dir(path)
@@ -353,11 +349,11 @@ local function create_dir(path)
 end
 ```
 
-## Advanced Features
+## 高级特性
 
-### Conditional Installation
+### 条件安装
 
-Different installation logic based on tool or version:
+根据工具或版本使用不同的安装逻辑：
 
 ```lua
 function PLUGIN:BackendInstall(ctx)
@@ -365,11 +361,11 @@ function PLUGIN:BackendInstall(ctx)
     local version = ctx.version
     local install_path = ctx.install_path
 
-    -- Create install directory
+    -- 创建安装目录
     os.execute("mkdir -p " .. install_path)
 
     if tool == "special-tool" then
-        -- Special installation logic
+        -- 特殊安装逻辑
         local cmd = require("cmd")
         local npm_cmd = "cd " .. install_path .. " && npm install " .. tool .. "@" .. version .. " --no-package-lock --no-save --silent 2>/dev/null"
         local result = cmd.exec(npm_cmd)
@@ -377,7 +373,7 @@ function PLUGIN:BackendInstall(ctx)
             error("Failed to install " .. tool .. "@" .. version)
         end
     else
-        -- Default installation logic
+        -- 默认安装逻辑
         local cmd = require("cmd")
         local npm_cmd = "cd " .. install_path .. " && npm install " .. tool .. "@" .. version .. " --no-package-lock --no-save --silent 2>/dev/null"
         local result = cmd.exec(npm_cmd)
@@ -390,40 +386,39 @@ function PLUGIN:BackendInstall(ctx)
 end
 ```
 
-### Environment Detection
+### 环境检测
 
-vfox automatically injects runtime information into your plugin:
+vfox 会自动将运行时信息注入到你的插件中：
 
 ```lua
 function PLUGIN:BackendInstall(ctx)
-    -- Platform-specific installation using injected RUNTIME object
+    -- 使用注入的 RUNTIME 对象进行平台特定安装
     if RUNTIME.osType == "darwin" then
-        -- macOS installation logic
+        -- macOS 安装逻辑
     elseif RUNTIME.osType == "linux" then
-        -- Linux installation logic
+        -- Linux 安装逻辑
     elseif RUNTIME.osType == "windows" then
-        -- Windows installation logic
+        -- Windows 安装逻辑
     end
 
     return {}
 end
 ```
 
-The `RUNTIME` object provides:
+`RUNTIME` 对象提供：
 
-- `RUNTIME.osType`: Operating system type (Windows, Linux, Darwin)
-- `RUNTIME.archType`: Architecture (amd64, arm64, etc.)
-- `RUNTIME.envType`: libc environment type (`"gnu"` on glibc Linux, `"musl"` on musl Linux, `nil` on Windows/macOS and undetected systems)
-- `RUNTIME.version`: vfox runtime version
-- `RUNTIME.pluginDirPath`: Plugin directory path
+- `RUNTIME.osType`：操作系统类型（Windows、Linux、Darwin）
+- `RUNTIME.archType`：架构（amd64、arm64 等）
+- `RUNTIME.version`：vfox 运行时版本
+- `RUNTIME.pluginDirPath`：插件目录路径
 
-### Multiple Environment Variables
+### 多环境变量
 
-Set multiple environment variables:
+设置多个环境变量：
 
 ```lua
 function PLUGIN:BackendExecEnv(ctx)
-    -- Add node_modules/.bin to PATH for npm-installed binaries
+    -- 将 node_modules/.bin 添加到 PATH 以使用 npm 安装的二进制文件
     local bin_path = ctx.install_path .. "/node_modules/.bin"
     return {
         env_vars = {
@@ -435,16 +430,16 @@ function PLUGIN:BackendExecEnv(ctx)
 end
 ```
 
-## Performance Optimization
+## 性能优化
 
-### Caching
+### 缓存
 
-TODO: We need caching support for [Shared Lua modules](plugin-lua-modules.md).
+TODO：我们需要为[共享 Lua 模块](plugin-lua-modules.md)添加缓存支持。
 
-## Next Steps
+## 下一步
 
-- [Start with the backend plugin template](https://github.com/jdx/mise-backend-plugin-template)
-- [Learn about Tool Plugin Development](tool-plugin-development.md)
-- [Explore available Lua modules](plugin-lua-modules.md)
-- [Publishing your plugin](plugin-publishing.md)
-- [View the vfox-npm plugin source](https://github.com/jdx/vfox-npm)
+- [从工具源插件模板开始](https://github.com/jdx/mise-backend-plugin-template)
+- [了解工具插件开发](tool-plugin-development.md)
+- [探索可用的 Lua 模块](plugin-lua-modules.md)
+- [发布你的插件](plugin-publishing.md)
+- [查看 vfox-npm 插件源码](https://github.com/jdx/vfox-npm)

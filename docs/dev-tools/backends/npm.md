@@ -1,33 +1,31 @@
-# npm Backend
+# npm 工具源
 
-You may install packages directly from [npmjs.org](https://npmjs.org/) even if there
-isn't an asdf plugin for it.
+你可以直接从 [npmjs.org](https://npmjs.org/) 安装包，即使没有对应的 asdf 插件也可以。
 
-The code for this is inside of the mise repository at [`./src/backend/npm.rs`](https://github.com/jdx/mise/blob/main/src/backend/npm.rs).
+相关代码位于 mise 仓库的 [`./src/backend/npm.rs`](https://github.com/jdx/mise/blob/main/src/backend/npm.rs)。
 
-## Dependencies
+## 依赖
 
-This relies on having `npm` installed for resolving package versions.
-If you use `bun` or `pnpm` as the package manager, they must also be installed.
+需要安装 `npm` 来解析包版本。
+如果你使用 `bun` 或 `pnpm` 作为包管理器，它们也需要先安装。
 
-Here is how to install `npm` with mise:
+以下是通过 mise 安装 `npm` 的方式：
 
 ```sh
 mise use -g node
 ```
 
-To install `bun` or `pnpm`:
+安装 `bun` 或 `pnpm`：
 
 ```sh
 mise use -g bun
-# or
+# 或者
 mise use -g pnpm
 ```
 
-## Usage
+## 用法
 
-The following installs the latest version of [prettier](https://www.npmjs.com/package/prettier)
-and sets it as the active version on PATH:
+以下命令安装最新版本的 [prettier](https://www.npmjs.com/package/prettier) 并将其设为 PATH 中的活跃版本：
 
 ```sh
 $ mise use -g npm:prettier
@@ -35,16 +33,16 @@ $ prettier --version
 3.1.0
 ```
 
-The version will be set in `~/.config/mise/config.toml` with the following format:
+版本将以如下格式写入 `~/.config/mise/config.toml`：
 
 ```toml
 [tools]
 "npm:prettier" = "latest"
 ```
 
-## Settings
+## 设置
 
-Set these with `mise settings set [VARIABLE] [VALUE]` or by setting the environment variable listed.
+通过 `mise settings set [VARIABLE] [VALUE]` 或设置对应的环境变量进行配置。
 
 <script setup>
 import Settings from '/components/settings.vue';

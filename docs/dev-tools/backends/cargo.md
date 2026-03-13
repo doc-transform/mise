@@ -1,29 +1,26 @@
-# Cargo Backend
+# Cargo 工具源
 
-You may install packages directly from [Cargo Crates](https://crates.io/) even if there
-isn't an asdf plugin for it.
+你可以直接从 [Cargo Crates](https://crates.io/) 安装包，即使没有对应的 asdf 插件也可以。
 
-The code for this is inside the mise repository at [`./src/backend/cargo.rs`](https://github.com/jdx/mise/blob/main/src/backend/cargo.rs).
+相关代码位于 mise 仓库的 [`./src/backend/cargo.rs`](https://github.com/jdx/mise/blob/main/src/backend/cargo.rs)。
 
-## Dependencies
+## 依赖
 
-This relies on having `cargo` installed. You can either install it on your
-system via [rustup](https://rustup.rs/):
+需要先安装 `cargo`。你可以通过 [rustup](https://rustup.rs/) 在系统上安装：
 
 ```sh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-Or you can install it via mise:
+或者通过 mise 安装：
 
 ```sh
 mise use -g rust
 ```
 
-## Usage
+## 用法
 
-The following installs the latest version of [eza](https://crates.io/crates/eza) and
-sets it as the active version on PATH:
+以下命令安装最新版本的 [eza](https://crates.io/crates/eza) 并将其设为 PATH 中的活跃版本：
 
 ```sh
 $ mise use -g cargo:eza
@@ -33,48 +30,46 @@ v0.17.1 [+git]
 https://github.com/eza-community/eza
 ```
 
-The version will be set in `~/.config/mise/config.toml` with the following format:
+版本将以如下格式写入 `~/.config/mise/config.toml`：
 
 ```toml
 [tools]
 "cargo:eza" = "latest"
 ```
 
-### Using Git
+### 使用 Git
 
-You can install any package from a Git repository using the `mise` command. This allows you to
-install a particular tag, branch, or commit revision:
+你可以使用 `mise` 命令从 Git 仓库安装任何包。这允许你安装特定的 tag、分支或 commit：
 
 ```sh
-# Install a specific tag
+# 安装特定 tag
 mise use cargo:https://github.com/username/demo@tag:<release_tag>
 
-# Install the latest from a branch
+# 安装分支的最新版本
 mise use cargo:https://github.com/username/demo@branch:<branch_name>
 
-# Install a specific commit revision
+# 安装特定 commit
 mise use cargo:https://github.com/username/demo@rev:<commit_hash>
 ```
 
-This will execute a `cargo install` command with the corresponding Git options.
+这会执行带有相应 Git 选项的 `cargo install` 命令。
 
-## Settings
+## 设置
 
-Set these with `mise settings set [VARIABLE] [VALUE]` or by setting the environment variable listed.
+通过 `mise settings set [VARIABLE] [VALUE]` 或设置对应的环境变量进行配置。
 
 <script setup>
 import Settings from '/components/settings.vue';
 </script>
 <Settings child="cargo" :level="3" />
 
-## Tool Options
+## 工具选项
 
-The following [tool-options](/dev-tools/#tool-options) are available for the `cargo` backend—these
-go in `[tools]` in `mise.toml`.
+以下[工具选项](/dev-tools/#tool-options)可用于 `cargo` 工具源——在 `mise.toml` 的 `[tools]` 中配置。
 
 ### `features`
 
-Install additional components (passed as `cargo install --features`):
+安装额外的组件（作为 `cargo install --features` 传递）：
 
 ```toml
 [tools]
@@ -83,7 +78,7 @@ Install additional components (passed as `cargo install --features`):
 
 ### `default-features`
 
-Disable default features (passed as `cargo install --no-default-features`):
+禁用默认 features（作为 `cargo install --no-default-features` 传递）：
 
 ```toml
 [tools]
@@ -92,7 +87,7 @@ Disable default features (passed as `cargo install --no-default-features`):
 
 ### `bin`
 
-Select the CLI bin name to install when multiple are available (passed as `cargo install --bin`):
+当存在多个可执行文件时，选择要安装的 CLI 二进制文件名（作为 `cargo install --bin` 传递）：
 
 ```toml
 [tools]
@@ -101,8 +96,7 @@ Select the CLI bin name to install when multiple are available (passed as `cargo
 
 ### `crate`
 
-Select the crate name to install when multiple are available (passed as
-`cargo install --git=<repo> <crate>`):
+当存在多个 crate 时，选择要安装的 crate 名称（作为 `cargo install --git=<repo> <crate>` 传递）：
 
 ```toml
 [tools]
@@ -111,8 +105,7 @@ Select the crate name to install when multiple are available (passed as
 
 ### `locked`
 
-Use Cargo.lock (passes `cargo install --locked`) when building CLI. This is the default behavior,
-pass `false` to disable:
+构建 CLI 时使用 Cargo.lock（传递 `cargo install --locked`）。这是默认行为，传入 `false` 可以禁用：
 
 ```toml
 [tools]

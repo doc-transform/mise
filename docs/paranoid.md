@@ -1,62 +1,44 @@
-# Paranoid
+# 安全增强模式（Paranoid）
 
-Paranoid is an optional behavior that locks mise down more to make it harder
-for a bad actor to compromise your system. These are settings that I
-personally do not use on my own system because I find the behavior too
-restrictive for the benefits.
+Paranoid 是一种可选的行为模式，会对 mise 进行更严格的锁定，使恶意攻击者更难入侵你的系统。这些设置是我个人不在自己系统上使用的，因为我觉得行为限制过于严格，收益不够明显。
 
-Paranoid mode can be enabled with either `MISE_PARANOID=1` or a setting:
+可以通过 `MISE_PARANOID=1` 或设置来启用安全增强模式：
 
 ```sh
 mise settings paranoid=1
 ```
 
-## Config files
+## 配置文件
 
-Normally `mise` will make sure some config files are "trusted" before loading
-them. This will prompt you to confirm that you want to load the file, e.g.:
+正常情况下，`mise` 会在加载某些配置文件之前确认它们是"受信任的"。它会提示你确认是否要加载该文件，例如：
 
 ```sh
 $ mise install
 mise ~/src/mise/.tool-versions is not trusted. Trust it [y/n]?
 ```
 
-Generally only potentially dangerous config files are checked such as files
-that use templates (which can execute arbitrary code) or that set env vars.
-Under paranoid, however, all config files must be trusted first.
+通常只有潜在危险的配置文件才会被检查，例如使用模板的文件（模板可以执行任意代码）或设置环境变量的文件。但在安全增强模式下，所有配置文件都必须先被信任。
 
-Also, in normal mode, a config file only needs to be trusted a single time.
-In paranoid, the contents of the file are hashed to check if the file changes.
-If you change your config file, you'll need to trust it again.
+此外，在正常模式下，配置文件只需信任一次。在安全增强模式下，文件内容会被哈希以检测变更。如果你修改了配置文件，需要重新信任它。
 
-Note that global and system config files (e.g., `~/.config/mise/config.toml`) are implicitly trusted and exempt from this check. This allows paranoid mode to be enabled in a global config without requiring a trust prompt for that file itself.
+请注意，全局和系统级配置文件（如 `~/.config/mise/config.toml`）是隐式受信任的，不受此检查限制。这使得可以在全局配置中启用安全增强模式，而不需要对该配置文件本身进行信任提示。
 
-## Community plugins
+## 社区插件
 
-Community plugins can not be directly installed via short-name under paranoid.
-You can install plugins that are either core, maintained by the mise team,
-or plugins that mise has marked as "first-party"—meaning plugins developed by
-the same team that builds the tool the plugin installs.
+在安全增强模式下，不能通过短名称直接安装社区插件。你只能安装核心插件、由 mise 团队维护的插件，或者 mise 标记为"第一方"的插件——即由构建该工具的同一团队开发的插件。
 
-Other than that, say for "shfmt", you'll need to specify the full git repo
-to install:
+对于其他插件，比如 "shfmt"，你需要指定完整的 git 仓库地址来安装：
 
 ```sh
 mise plugin install shfmt https://github.com/luizm/asdf-shfmt
 ```
 
-Unlike in normal mode where `mise plugin install shfmt` would be sufficient.
+而在正常模式下 `mise plugin install shfmt` 就够了。
 
-## Always uses HTTPS
+## 始终使用 HTTPS
 
-Some endpoints in mise are fetched over HTTP such as checking for the latest mise
-version and pulling version lists of tools. These are not security risks and a
-malicious actor injecting false data would not introduce a security risk.
-Normally mise uses HTTP because loading the TLS module takes about 10ms and this
-affects commonly used commands so it is a noticeably delay.
-In paranoid mode, all endpoints will be fetched over HTTPS.
+mise 中有些端点通过 HTTP 获取，例如检查最新 mise 版本和拉取工具版本列表。这些不是安全风险，恶意攻击者注入假数据也不会带来安全威胁。通常 mise 使用 HTTP 是因为加载 TLS 模块大约需要 10ms，这会影响常用命令，造成明显的延迟。在安全增强模式下，所有端点都将通过 HTTPS 获取。
 
-## More?
+## 更多？
 
-If you have suggestions for more that could be added to paranoid, please let
-me know.
+如果你有更多建议可以添加到安全增强模式中，请告诉我。

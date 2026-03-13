@@ -1,78 +1,77 @@
-# HTTP Backend
+# HTTP 工具源
 
-You may install tools directly from HTTP URLs using the `http` backend. This backend downloads files from any HTTP/HTTPS URL and is ideal for tools that distribute pre-built binaries or archives through direct download links.
+你可以使用 `http` 工具源直接从 HTTP URL 安装工具。此工具源从任何 HTTP/HTTPS URL 下载文件，非常适合通过直接下载链接分发预构建二进制文件或归档文件的工具。
 
-The code for this is inside of the mise repository at [`./src/backend/http.rs`](https://github.com/jdx/mise/blob/main/src/backend/http.rs).
+相关代码位于 mise 仓库的 [`./src/backend/http.rs`](https://github.com/jdx/mise/blob/main/src/backend/http.rs)。
 
-## Usage
+## 用法
 
-The following installs a tool from a direct HTTP URL:
+以下命令从直接 HTTP URL 安装工具：
 
 ```sh
 mise use -g http:my-tool[url=https://example.com/releases/my-tool-v1.0.0.tar.gz]@1.0.0
 ```
 
-The version will be set in `~/.config/mise/config.toml` with the following format:
+版本将以如下格式写入 `~/.config/mise/config.toml`：
 
 ```toml
 [tools]
 "http:my-tool" = { version = "1.0.0", url = "https://example.com/releases/my-tool-v1.0.0.tar.gz" }
 ```
 
-## Supported HTTP Syntax
+## 支持的 HTTP 语法
 
-- **HTTP with URL parameter:** `http:my-tool[url=https://example.com/releases/my-tool-v1.0.0.tar.gz]@1.0.0`
+- **带 URL 参数的 HTTP：**`http:my-tool[url=https://example.com/releases/my-tool-v1.0.0.tar.gz]@1.0.0`
 
-## Tool Options
+## 工具选项
 
-The following [tool-options](/dev-tools/#tool-options) are available for the `http` backend—these
-go in `[tools]` in `mise.toml`.
+以下[工具选项](/dev-tools/#tool-options)可用于 `http` 工具源——在 `mise.toml` 的 `[tools]` 中配置。
 
-### `url` (Required)
+### `url`（必需）
 
-Specifies the HTTP URL to download the tool from. The URL supports templating with variables like `version`, `os()`, and `arch()`:
+指定下载工具的 HTTP URL。URL 支持使用 `version`、`os()` 和 `arch()` 等变量进行模板化：
 
 ```toml
 [tools]
 "http:my-tool" = { version = "1.0.0", url = "https://example.com/releases/my-tool-v{{version}}.tar.gz" }
 ```
 
-You can also use static URLs without templating:
+你也可以使用不含模板的静态 URL：
 
 ```toml
 [tools]
 "http:my-tool" = { version = "1.0.0", url = "https://example.com/releases/my-tool-v1.0.0.tar.gz" }
 ```
 
-#### Template Variables
+#### 模板变量
 
-The following template functions are available in URLs (use double curly braces, e.g., `version` becomes <code v-pre>{{version}}</code>):
+以下模板函数可在 URL 中使用（使用双花括号，例如 `version` 写作 <code v-pre>{{version}}</code>）：
 
-- `version` - The tool version
-- `os()` - Operating system: `macos`, `linux`, or `windows`
-- `arch()` - Architecture: `x64` or `arm64`
-- `os_family()` - OS family: `unix` or `windows`
+- `version` - 工具版本
+- `os()` - 操作系统：`macos`、`linux` 或 `windows`
+- `arch()` - 架构：`x64` 或 `arm64`
+- `os_family()` - 操作系统系列：`unix` 或 `windows`
 
-The `os()` and `arch()` functions support remapping for tools that use different naming conventions:
+`os()` 和 `arch()` 函数支持重映射，以适应使用不同命名约定的工具：
 
 ```toml
 [tools]
-# HashiCorp tools use "darwin" instead of "macos" and "amd64" instead of "x64"
+# HashiCorp 的工具使用 "darwin" 而非 "macos"，使用 "amd64" 而非 "x64"
 "http:sentinel" = {
   version = "latest",
   url = 'https://releases.hashicorp.com/sentinel/{{version}}/sentinel_{{version}}_{{os(macos="darwin")}}_{{arch(x64="amd64")}}.zip',
 }
 ```
 
-This produces URLs like:
+生成的 URL 如下：
 
-- macOS arm64: `sentinel_0.26.3_darwin_arm64.zip`
-- macOS x64: `sentinel_0.26.3_darwin_amd64.zip`
-- Linux x64: `sentinel_0.26.3_linux_amd64.zip`
+- macOS arm64：`sentinel_0.26.3_darwin_arm64.zip`
+- macOS x64：`sentinel_0.26.3_darwin_amd64.zip`
+- Linux x64：`sentinel_0.26.3_linux_amd64.zip`
 
-### Platform-specific URLs
+### 特定平台的 URL
 
-For tools that need different downloads per platform, use the table format:
+对于需要为不同平台提供不同下载的工具，使用表格格式：
 
 ```toml
 [tools."http:my-tool"]
@@ -85,17 +84,16 @@ linux-x64 = { url = "https://example.com/releases/my-tool-v1.0.0-linux-x64.tar.g
 ```
 
 ::: tip
-You can use either `macos` or `darwin`, and `x64` or `amd64` for platform keys. `macos` and `x64` are preferred in documentation and examples, but all variants are accepted.
+平台键可以使用 `macos` 或 `darwin`，以及 `x64` 或 `amd64`。文档和示例中推荐使用 `macos` 和 `x64`，但所有变体都会被接受。
 
-OS/architecture values use mise's conventions: `linux`, `macos`, `windows` for operating systems and `x64`, `arm64` for architectures. For platform-specific URLs, use the appropriate platform key (e.g., `macos-x64`, `linux-arm64`) and specify the full URL for each platform.
+OS/架构值使用 mise 的命名约定：操作系统为 `linux`、`macos`、`windows`，架构为 `x64`、`arm64`。对于特定平台的 URL，使用适当的平台键（如 `macos-x64`、`linux-arm64`）并为每个平台指定完整的 URL。
 
-If you mess up and use something like `darwin-aarch64` mise will try to figure out what
-you meant and do the right thing anyhow.
+如果你不小心使用了类似 `darwin-aarch64` 这样的写法，mise 会尝试理解你的意思并做出正确处理。
 :::
 
 ### `checksum`
 
-Verify the downloaded file with a checksum:
+使用校验和验证下载的文件：
 
 ```toml
 [tools."http:my-tool"]
@@ -104,9 +102,9 @@ url = "https://example.com/releases/my-tool-v1.0.0.tar.gz"
 checksum = "sha256:a1b2c3d4e5f6789..."
 ```
 
-_Instead of specifying the checksum here, you can use [mise.lock](/dev-tools/mise-lock) to manage checksums._
+_你也可以使用 [mise.lock](/dev-tools/mise-lock) 来管理校验和，而不是在此处指定。_
 
-### Platform-specific Checksums
+### 特定平台的校验和
 
 ```toml
 [tools."http:my-tool"]
@@ -129,7 +127,7 @@ linux-x64 = {
 
 ### `size`
 
-Verify the downloaded file size:
+验证下载文件的大小：
 
 ```toml
 [tools."http:my-tool"]
@@ -138,9 +136,9 @@ url = "https://example.com/releases/my-tool-v1.0.0.tar.gz"
 size = "12345678"
 ```
 
-### Platform-specific Size
+### 特定平台的大小
 
-You can specify different sizes for different platforms:
+你可以为不同平台指定不同的大小：
 
 ```toml
 [tools."http:my-tool"]
@@ -163,7 +161,7 @@ linux-x64 = {
 
 ### `strip_components`
 
-Number of directory components to strip when extracting archives:
+解压归档文件时要去除的目录层级数：
 
 ```toml
 [tools."http:my-tool"]
@@ -173,59 +171,59 @@ strip_components = 1
 ```
 
 ::: info
-If `strip_components` is not explicitly set, mise will automatically detect when to apply `strip_components = 1`. This happens when the extracted archive contains exactly one directory at the root level and no files. This is common with tools like ripgrep that package their binaries in a versioned directory (e.g., `ripgrep-14.1.0-x86_64-unknown-linux-musl/rg`). The auto-detection ensures the binary is placed directly in the install path where mise expects it.
+如果未显式设置 `strip_components`，当解压的归档文件根目录下只有一个目录而没有文件时，mise 会自动应用 `strip_components = 1`。这在工具将二进制文件打包在版本目录中时很常见（如 `ripgrep-14.1.0-x86_64-unknown-linux-musl/rg`）。自动检测确保二进制文件被放置在 mise 期望的安装路径中。
 :::
 
 ### `bin`
 
-Rename the downloaded binary to a specific name. This is useful when downloading single binaries that have platform-specific names:
+将下载的二进制文件重命名为特定名称。当下载的单个二进制文件有特定于平台的名称时很有用：
 
 ```toml
 [tools."http:docker-compose"]
 version = "2.29.1"
 url = "https://github.com/docker/compose/releases/download/v{{ version }}/docker-compose-linux-x86_64"
-bin = "docker-compose"  # Rename from docker-compose-linux-x86_64 to docker-compose
+bin = "docker-compose"  # 从 docker-compose-linux-x86_64 重命名为 docker-compose
 ```
 
 ::: info
-When downloading single binaries (not archives), mise automatically removes OS/arch suffixes from the filename. For example, `docker-compose-linux-x86_64` becomes `docker-compose` automatically. Use the `bin` option only when you need a specific custom name.
+下载单个二进制文件（非归档文件）时，mise 会自动去除文件名中的 OS/arch 后缀。例如，`docker-compose-linux-x86_64` 会自动变为 `docker-compose`。仅在需要特定自定义名称时才使用 `bin` 选项。
 :::
 
 ### `rename_exe`
 
-Rename the executable inside an extracted archive to a specific name. This is useful when archives contain binaries with platform-specific names or when installing kubectl plugins that need specific naming:
+将归档文件内的可执行文件重命名为特定名称。当归档文件中的二进制文件有特定于平台的名称，或安装需要特定命名的 kubectl 插件时很有用：
 
 ```toml
 [tools."http:openunison-cli"]
 version = "1.0.0"
 url = "https://nexus.tremolo.io/repository/openunison-cli/openunison-cli-v{{version}}-linux.zip"
-rename_exe = "kubectl-openunison-cli"  # Rename extracted binary for kubectl plugin
+rename_exe = "kubectl-openunison-cli"  # 为 kubectl 插件重命名提取的二进制文件
 ```
 
-This works by searching for the first executable in the extracted directory (or `bin_path` if specified) and renaming it to the specified name.
+此选项会搜索解压目录（或指定的 `bin_path`）中的第一个可执行文件并将其重命名为指定的名称。
 
 ::: tip
-Use `bin` for renaming single binary downloads, and `rename_exe` for renaming executables inside archives.
+对于单个二进制文件下载的重命名使用 `bin`，对于归档文件内可执行文件的重命名使用 `rename_exe`。
 :::
 
 ### `format`
 
-Explicitly specify the archive format when the URL lacks a file extension or has an incorrect extension:
+当 URL 没有文件扩展名或扩展名不正确时，显式指定归档格式：
 
 ```toml
 [tools."http:my-tool"]
 version = "1.0.0"
 url = "https://example.com/releases/my-tool-v1.0.0"
-format = "tar.xz"  # Explicitly specify the format
+format = "tar.xz"  # 显式指定格式
 ```
 
 ::: info
-If `format` is not specified, mise will automatically detect the format from the file extension in the URL. Only use `format` when the URL doesn't have a proper extension or when you need to override the detected format.
+如果未指定 `format`，mise 会自动从 URL 中的文件扩展名检测格式。仅在 URL 没有正确扩展名或需要覆盖检测到的格式时才使用 `format`。
 :::
 
-### Platform-specific Format
+### 特定平台的格式
 
-You can specify different formats for different platforms:
+你可以为不同平台指定不同的格式：
 
 ```toml
 [tools."http:my-tool"]
@@ -248,7 +246,7 @@ windows-x64 = {
 
 ### `version_list_url`
 
-Fetch available versions from a remote URL. This enables `mise ls-remote` to list available versions for HTTP-based tools:
+从远程 URL 获取可用版本。这使得 `mise ls-remote` 能够列出基于 HTTP 的工具的可用版本：
 
 ```toml
 [tools."http:my-tool"]
@@ -257,19 +255,19 @@ url = "https://example.com/releases/my-tool-v{{version}}.tar.gz"
 version_list_url = "https://example.com/releases/versions.txt"
 ```
 
-The version list URL can return data in multiple formats:
+版本列表 URL 可以返回多种格式的数据：
 
-- **Plain text**: A single version number (e.g., `2.0.53`)
-- **Line-separated**: One version per line
-- **JSON array of strings**: `["1.0.0", "1.1.0", "2.0.0"]`
-- **JSON array of objects**: `[{"version": "1.0.0"}, {"tag_name": "v2.0.0"}]`
-- **JSON object with versions array**: `{"versions": ["1.0.0", "2.0.0"]}`
+- **纯文本**：单个版本号（如 `2.0.53`）
+- **按行分隔**：每行一个版本
+- **JSON 字符串数组**：`["1.0.0", "1.1.0", "2.0.0"]`
+- **JSON 对象数组**：`[{"version": "1.0.0"}, {"tag_name": "v2.0.0"}]`
+- **包含 versions 数组的 JSON 对象**：`{"versions": ["1.0.0", "2.0.0"]}`
 
-Version prefixes like `v` are automatically stripped.
+版本前缀（如 `v`）会被自动去除。
 
 ### `version_regex`
 
-Extract versions from the version list URL response using a regular expression:
+使用正则表达式从版本列表 URL 的响应中提取版本：
 
 ```toml
 [tools."http:my-tool"]
@@ -279,11 +277,11 @@ version_list_url = "https://example.com/releases/"
 version_regex = 'my-tool-v(\d+\.\d+\.\d+)\.tar\.gz'
 ```
 
-The first capturing group is used as the version. If no capturing group is present, the entire match is used.
+使用第一个捕获组作为版本。如果没有捕获组，则使用整个匹配。
 
 ### `version_json_path`
 
-Extract versions from JSON responses using a jq-like path expression:
+使用类 jq 的路径表达式从 JSON 响应中提取版本：
 
 ```toml
 [tools."http:my-tool"]
@@ -293,38 +291,38 @@ version_list_url = "https://api.example.com/releases"
 version_json_path = ".[].tag_name"
 ```
 
-Supported path expressions:
+支持的路径表达式：
 
-- `.` - root value
-- `.[]` - iterate over array elements
-- `.[].field` - extract field from each array element
-- `.field` - extract field from object
-- `.field[]` - iterate over array in field
-- `.field.subfield` - nested field access
-- `.data.versions[]` - complex nested paths
-- `.[?field=value]` - filter array elements where field equals value
+- `.` - 根值
+- `.[]` - 遍历数组元素
+- `.[].field` - 从每个数组元素中提取字段
+- `.field` - 从对象中提取字段
+- `.field[]` - 遍历字段中的数组
+- `.field.subfield` - 嵌套字段访问
+- `.data.versions[]` - 复杂嵌套路径
+- `.[?field=value]` - 过滤字段等于指定值的数组元素
 
-Examples:
+示例：
 
 ```toml
-# GitHub releases API format
+# GitHub releases API 格式
 version_json_path = ".[].tag_name"
 
-# Nested versions array
+# 嵌套的 versions 数组
 version_json_path = ".data.versions[]"
 
-# Release info objects
+# Release info 对象
 version_json_path = ".releases[].info.version"
 
-# Filter for stable releases only (e.g., Flutter)
+# 仅过滤稳定版本（如 Flutter）
 version_json_path = ".releases[?channel=stable].version"
 ```
 
-The filter syntax `[?field=value]` allows filtering JSON arrays before extraction. This is useful for APIs that return multiple release channels (stable, beta, dev) and you only want specific ones.
+过滤语法 `[?field=value]` 允许在提取之前过滤 JSON 数组。这在 API 返回多个发布渠道（stable、beta、dev）而你只需要特定渠道时很有用。
 
 ### `version_expr`
 
-Extract versions using an [expr-lang](https://expr-lang.org/) expression. This provides the most flexibility for complex version extraction logic:
+使用 [expr-lang](https://expr-lang.org/) 表达式提取版本。这为复杂的版本提取逻辑提供了最大的灵活性：
 
 ```toml
 [tools."http:my-tool"]
@@ -334,71 +332,71 @@ version_list_url = "https://example.com/versions.txt"
 version_expr = 'split(body, "\n")'
 ```
 
-The expression receives the HTTP response body as the `body` variable and should return an array of version strings.
+表达式接收 HTTP 响应体作为 `body` 变量，应返回版本字符串数组。
 
-Example expressions:
+表达式示例：
 
 ```toml
-# Split newline-separated versions
+# 按换行符分割版本
 version_expr = 'split(body, "\n")'
 
-# Split and filter empty lines
+# 分割并过滤空行
 version_expr = 'filter(split(body, "\n"), # != "")'
 
-# Parse JSON and extract object keys (useful for HashiCorp-style JSON)
-# e.g., {"versions": {"1.0.0": {}, "2.0.0": {}}}
+# 解析 JSON 并提取对象键（适用于 HashiCorp 风格的 JSON）
+# 例如 {"versions": {"1.0.0": {}, "2.0.0": {}}}
 version_expr = 'keys(fromJSON(body).versions)'
 ```
 
-The [expr-lang](https://expr-lang.org/) library provides built-in functions including:
+[expr-lang](https://expr-lang.org/) 库提供的内置函数包括：
 
-- **`fromJSON(string)`**: Parse a JSON string into a value
-- **`toJSON(value)`**: Convert a value to a JSON string
-- **`keys(map)`**: Get the keys of an object/map as an array
-- **`values(map)`**: Get the values of an object/map as an array
-- **`len(value)`**: Get the length of a string, array, or map
+- **`fromJSON(string)`**：将 JSON 字符串解析为值
+- **`toJSON(value)`**：将值转换为 JSON 字符串
+- **`keys(map)`**：以数组形式获取对象/映射的键
+- **`values(map)`**：以数组形式获取对象/映射的值
+- **`len(value)`**：获取字符串、数组或映射的长度
 
 ::: tip
-`version_expr` takes precedence over `version_regex` and `version_json_path` if multiple are specified. Use it when the other options aren't flexible enough for your use case.
+如果同时指定了多个选项，`version_expr` 的优先级高于 `version_regex` 和 `version_json_path`。当其他选项的灵活性不够时使用它。
 :::
 
 ### `bin_path`
 
-Specify the directory containing binaries within the extracted archive, or where to place the downloaded file. This supports templating with `{{version}}`:
+指定解压归档文件中包含二进制文件的目录，或下载文件的放置位置。支持使用 `{{version}}` 进行模板化：
 
 ```toml
 [tools."http:my-tool"]
 version = "1.0.0"
 url = "https://example.com/releases/my-tool-v1.0.0.tar.gz"
-bin_path = "my-tool-{{version}}/bin" # expands to my-tool-1.0.0/bin
+bin_path = "my-tool-{{version}}/bin" # 展开为 my-tool-1.0.0/bin
 ```
 
-**Binary path lookup order:**
+**二进制路径查找顺序：**
 
-1. If `bin_path` is specified, use that directory
-2. If `bin_path` is not set, look for a `bin/` directory in the install path
-3. If no `bin/` directory exists, search subdirectories for `bin/` directories
-4. If no `bin/` directories are found, use the root of the extracted directory
+1. 如果指定了 `bin_path`，使用该目录
+2. 如果未设置 `bin_path`，在安装路径中查找 `bin/` 目录
+3. 如果不存在 `bin/` 目录，在子目录中搜索 `bin/` 目录
+4. 如果未找到 `bin/` 目录，使用解压目录的根目录
 
-## Caching Behavior
+## 缓存行为
 
-The HTTP backend implements an intelligent caching system to optimize disk usage and installation speed:
+HTTP 工具源实现了智能缓存系统，以优化磁盘使用和安装速度。
 
-### Cache Location
+### 缓存位置
 
-Downloaded and extracted files are cached in `$MISE_CACHE_DIR/http-tarballs/` instead of being stored separately for each tool installation. By default:
+下载和解压的文件缓存在 `$MISE_CACHE_DIR/http-tarballs/` 中，而不是为每个工具安装单独存储。默认路径：
 
-- **Linux**: `~/.cache/mise/http-tarballs/`
-- **macOS**: `~/Library/Caches/mise/http-tarballs/`
+- **Linux**：`~/.cache/mise/http-tarballs/`
+- **macOS**：`~/Library/Caches/mise/http-tarballs/`
 
-### Cache Key Generation
+### 缓存键生成
 
-Cache keys are generated based on the file content to ensure identical downloads are shared across tools:
+缓存键基于文件内容生成，确保相同的下载在不同工具之间共享：
 
-1. **Blake3 hash of file content**: When no checksum is provided, mise calculates a Blake3 hash of the downloaded file
-2. **Extraction options**: `strip_components` is included in the cache key since it affects the extracted structure
+1. **文件内容的 Blake3 哈希**：未提供校验和时，mise 计算下载文件的 Blake3 哈希
+2. **解压选项**：`strip_components` 包含在缓存键中，因为它影响解压后的结构
 
-Example cache directory structure:
+缓存目录结构示例：
 
 ```
 ~/.cache/mise/http-tarballs/
@@ -412,23 +410,23 @@ Example cache directory structure:
     └── metadata.json
 ```
 
-### Symlinked Installations
+### 符号链接安装
 
-Tool installations are symlinks to the cached extracted content:
+工具安装是指向缓存解压内容的符号链接：
 
 ```bash
 ~/.local/share/mise/installs/http-my-tool/1.0.0 → ~/.cache/mise/http-tarballs/71f774.../extracted
 ```
 
-This approach provides several benefits:
+这种方式提供了以下优势：
 
-- **Space efficiency**: Multiple tools using the same tarball share a single cached copy
-- **Faster installations**: Cache hits avoid re-downloading and re-extracting files
-- **Consistency**: Identical file content always uses the same cache entry
+- **空间效率**：使用相同 tarball 的多个工具共享一个缓存副本
+- **更快的安装**：缓存命中时无需重新下载和解压
+- **一致性**：相同的文件内容始终使用相同的缓存条目
 
-### Cache Metadata
+### 缓存元数据
 
-Each cache entry includes a `metadata.json` file with information about the cached content:
+每个缓存条目包含一个 `metadata.json` 文件，记录缓存内容的信息：
 
 ```json
 {
@@ -440,11 +438,11 @@ Each cache entry includes a `metadata.json` file with information about the cach
 }
 ```
 
-### Cache Management
+### 缓存管理
 
-The HTTP backend cache follows mise's standard cache management:
+HTTP 工具源的缓存遵循 mise 的标准缓存管理：
 
-- Cache entries can be cleared with `mise cache clear`
-- The cache directory respects the `MISE_CACHE_DIR` environment variable
-- **Autopruner**: mise automatically cleans up unused cache entries after 30 days of inactivity
-- Manual cleanup is available with `mise cache clear` if needed
+- 可以使用 `mise cache clear` 清除缓存条目
+- 缓存目录遵循 `MISE_CACHE_DIR` 环境变量
+- **自动清理**：mise 会自动清理 30 天未使用的缓存条目
+- 如需手动清理，可使用 `mise cache clear`

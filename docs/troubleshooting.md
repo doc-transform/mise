@@ -1,57 +1,33 @@
-# Troubleshooting
+# 故障排查
 
-## `mise activate` doesn't work in `~/.profile`, `~/.bash_profile`, `~/.zprofile`
+## `mise activate` 在 `~/.profile`、`~/.bash_profile`、`~/.zprofile` 中不生效
 
-`mise activate` should only be used in `rc` files. These are the interactive ones used when
-a real user is using the terminal. (As opposed to being executed by an IDE or something). The prompt
-isn't displayed in non-interactive environments so PATH won't be modified.
+`mise activate` 只应在 `rc` 文件中使用。这些是用户在终端中交互时使用的文件（与被 IDE 等执行的场景不同）。非交互式环境中不会显示提示符，因此 PATH 不会被修改。
 
-For non-interactive setups, consider using shims instead which will route calls to the correct
-directory by looking at `PWD` every time they're executed. You can also call `mise exec` instead of
-expecting things to be directly on PATH. You can also run `mise env` in a non-interactive shell,
-however that
-will only setup the global tools. It won't modify the environment variables when entering into a
-different project.
+对于非交互式场景，建议改用 shims，它会在每次执行时通过检查 `PWD` 来路由调用到正确的目录。你也可以直接调用 `mise exec`，而不是期望工具直接在 PATH 中。你也可以在非交互式 shell 中运行 `mise env`，但这只会配置全局工具，进入不同项目时不会修改环境变量。
 
 ::: warning
-`mise activate --shims` does not support all the features of `mise activate`.<br>
-See [shims vs path](/dev-tools/shims.html#shims-vs-path) for more info.
+`mise activate --shims` 不支持 `mise activate` 的所有功能。<br>
+详见 [shims vs path](/dev-tools/shims.html#shims-vs-path)。
 :::
 
-Also see the [shebang](/tips-and-tricks#shebang) example for a way to make scripts call mise to get
-the runtime.
-That is another way to use mise without activation.
+另外参见 [shebang](/tips-and-tricks#shebang) 示例，了解如何让脚本调用 mise 来获取运行时。这是另一种不需要激活 mise 就能使用的方式。
 
-## mise is failing or not working right
+## mise 无法正常工作
 
-First try setting `MISE_DEBUG=1` or `MISE_TRACE=1` and see if that gives you more information.
-You can also set `MISE_LOG_FILE_LEVEL=debug MISE_LOG_FILE=/path/to/logfile` to write logs to a file.
+首先尝试设置 `MISE_DEBUG=1` 或 `MISE_TRACE=1`，看看是否能获得更多信息。你也可以设置 `MISE_LOG_FILE_LEVEL=debug MISE_LOG_FILE=/path/to/logfile` 将日志写入文件。
 
-If something is happening with the activate hook, you can try disabling it and
-calling `eval "$(mise hook-env)"` manually.
-It can also be helpful to use `mise env` which will just output environment variables that would be
-set.
-Also consider using [shims](/dev-tools/shims.md) which can be more compatible.
+如果问题出在激活钩子上，可以尝试禁用它并手动调用 `eval "$(mise hook-env)"`。使用 `mise env` 也有帮助，它只会输出将要设置的环境变量。也可以考虑使用 [shims](/dev-tools/shims.md)，兼容性可能更好。
 
-If runtime installation isn't working right, try using the `--raw` flag which will install things in
-series and connect stdin/stdout/stderr directly to the terminal. If a plugin is trying to interact
-with you for some reason this will make it work.
+如果工具安装不正常，尝试使用 `--raw` 标志，它会串行安装并将 stdin/stdout/stderr 直接连接到终端。如果插件因为某种原因需要与你交互，这个标志可以使其正常工作。
 
-Of course check the version of mise with `mise --version` and make sure it is the latest.
-Use `mise self-update`
-to update it. `mise cache clean` can be used to wipe the internal cache and `mise implode` can be
-used
-to remove everything except config.
+当然要用 `mise --version` 检查 mise 版本，确保是最新的。使用 `mise self-update` 来更新。`mise cache clean` 可以清除内部缓存，`mise implode` 可以移除除配置以外的所有内容。
 
-Lastly, there is `mise doctor` which will show diagnostic information and any warnings about issues
-detected with your setup. If you submit a bug report, please include the output of `mise doctor`.
+最后，还有 `mise doctor`，它会显示诊断信息和检测到的配置问题警告。如果你提交 bug 报告，请包含 `mise doctor` 的输出。
 
-## The wrong version of a tool is being used
+## 使用了错误版本的工具
 
-Likely this means that mise isn't first in PATH—using shims or `mise activate`. You can verify if
-this is the case by calling `which -a`, for example, if node@20.0.0 is being used but mise specifies
-node@24.0.0, first make sure that mise has this version installed and active by running `mise ls node`.
-It should not say missing and have the correct "Requested" version:
+这通常意味着 mise 不在 PATH 的最前面——无论是使用 shims 还是 `mise activate`。你可以通过 `which -a` 来验证，例如，如果正在使用 node@20.0.0 但 mise 指定了 node@24.0.0，首先通过运行 `mise ls node` 确保 mise 安装了这个版本并且是激活状态。它不应该显示 missing，并且应该有正确的 "Requested" 版本：
 
 ```bash
 $ mise ls node
@@ -59,61 +35,45 @@ Plugin  Version  Config Source       Requested
 node    24.0.0  ~/.mise/config.toml  24.0.0
 ```
 
-If `node -v` isn't showing the right version, make sure mise is activated by running `mise doctor`.
-It should not have a "problem" listed about mise not being activated. Lastly, run `which -a node`.
-If the directory listed is not a mise directory, then mise is not first in PATH. Whichever node is
-being run first needs to have its directory set before mise is. Typically this means setting PATH for
-mise shims at the end of bashrc/zshrc.
+如果 `node -v` 没有显示正确版本，通过运行 `mise doctor` 确认 mise 已激活。它不应该列出关于 mise 未激活的"问题"。最后运行 `which -a node`。如果列出的目录不是 mise 的目录，那么 mise 不在 PATH 的最前面。先被执行的那个 node 所在的目录需要设置在 mise 之后。通常这意味着在 bashrc/zshrc 的末尾设置 mise shims 的 PATH。
 
-If using `mise activate`, you have another option of enabling `MISE_ACTIVATE_AGGRESSIVE=1` which will
-have mise always prepend its tools to be first in PATH. If you're using something that also modifies
-paths dynamically like `mise activate` does, this may not work because the other tool may be modifying
-PATH after mise does.
+如果使用 `mise activate`，你还有另一个选择：启用 `MISE_ACTIVATE_AGGRESSIVE=1`，这会让 mise 始终将其工具路径放在 PATH 最前面。如果你使用了其他也像 `mise activate` 一样动态修改路径的工具，这可能不起作用，因为其他工具可能在 mise 之后修改了 PATH。
 
-If nothing else, you can run things with [`mise x --`](/cli/exec) to ensure that the correct version is being used.
+如果以上都不行，你可以用 [`mise x --`](/cli/exec) 来运行命令，以确保使用的是正确版本。
 
-## New version of a tool is not available
+## 新版本的工具没有出现
 
-There are 2 places that versions are cached so a brand new release might not appear right away.
+版本缓存在两个地方，所以全新的发布可能不会立即出现。
 
-The first is that the mise CLI caches versions for. The cache can be cleared with `mise cache clear`.
+第一个是 mise CLI 的版本缓存。可以用 `mise cache clear` 清除缓存。
 
-The second uses the <https://mise-versions.jdx.dev> host as a centralized
-place to list all of the versions of most plugins. This is intended to speed up mise and also
-get around GitHub rate limits when querying for new versions. Check that repo for your plugin to
-see if it has an updated version. This service can be disabled by
-setting `MISE_USE_VERSIONS_HOST=0`.
+第二个是使用 <https://mise-versions.jdx.dev> 作为集中式的版本列表托管。这是为了加速 mise 运行，同时避免查询新版本时触发 GitHub 速率限制。查看该仓库中对应的插件，看看是否有更新的版本。可以通过设置 `MISE_USE_VERSIONS_HOST=0` 来禁用此服务。
 
-mise-versions itself also struggles with rate limits but you can help it to fetch more frequently by authenticating
-with its [GitHub app](https://github.com/apps/mise-versions). It does not require any permissions since it simply
-fetches public repository information. The more people do this, the quicker
-mise will be able to fetch new versions of tools.
+mise-versions 本身也会受到速率限制，但你可以通过其 [GitHub app](https://github.com/apps/mise-versions) 进行认证来帮助它更频繁地获取。它不需要任何权限，因为它只获取公开的仓库信息。越多人这样做，mise 就能越快获取到工具的新版本。
 
-## Windows problems
+## Windows 相关问题
 
 ::: warning
-Very basic support for windows is currently available, however because Windows can't support asdf
-plugins, they must use core and vfox only—which means only a handful of tools are available on
-Windows.
+Windows 目前只有基础支持。由于 Windows 无法支持 asdf 插件，只能使用 core 和 vfox——这意味着 Windows 上只有少量工具可用。
 :::
 
-### Path limits
+### 路径长度限制
 
-If you have many tools defined in your `mise.toml` hierarchy, then it is possible that `mise x` will produce a `Path` environment variable that is too long for certain tools to handle, most notably, `cmd.exe`. This will affect `mise` tools that invoke `cmd.exe` (like `npm install`).
+如果你在 `mise.toml` 层级中定义了很多工具，`mise x` 生成的 `Path` 环境变量可能会过长，某些工具无法处理，尤其是 `cmd.exe`。这会影响调用 `cmd.exe` 的 mise 工具（比如 `npm install`）。
 
-You have a few options:
+你有以下几个选择：
 
-1. Set the `MISE_INSTALLS_DIR` environment variable to a shorter location, e.g. `C:\.mise-installs`.
-1. Use `powershell.exe` or `pwsh.exe` instead of `cmd.exe`, since they can handle a longer `Path`.
-1. Re-organise the `mise.toml` files in your monorepo, to specify only the tools they need.
+1. 将 `MISE_INSTALLS_DIR` 环境变量设置为更短的路径，例如 `C:\.mise-installs`。
+1. 使用 `powershell.exe` 或 `pwsh.exe` 代替 `cmd.exe`，因为它们能处理更长的 `Path`。
+1. 重新组织 monorepo 中的 `mise.toml` 文件，只指定它们需要的工具。
 
-You can run the following command to test whether you have hit the `cmd.exe` `Path` limitation:
+你可以运行以下命令测试是否遇到了 `cmd.exe` 的 `Path` 限制：
 
 ```powershell
-# Path is within limits
+# Path 在限制范围内
 ❯ mise x -- cmd.exe /d /s /c "where.exe where"
 C:\Windows\System32\where.exe
-# Path exceeds cmd.exe limits
+# Path 超出了 cmd.exe 的限制
 ❯ mise x -- cmd.exe /d /s /c "where.exe where"
 'where.exe' is not recognized as an internal or external command,
 operable program or batch file.
@@ -121,64 +81,55 @@ mise ERROR command failed: exit code 1
 mise ERROR Run with --verbose or MISE_VERBOSE=1 for more information
 ```
 
-## mise isn't working when calling from tmux or another shell initialization script
+## 在 tmux 或其他 shell 初始化脚本中调用 mise 不生效
 
-`mise activate` will not update PATH until the shell prompt is displayed. So if you need to access a
-tool provided by mise before the prompt is displayed you can either
-[add the shims to your PATH](/dev-tools/shims.html#how-to-add-mise-shims-to-path) e.g.
+`mise activate` 在 shell 提示符显示之前不会更新 PATH。因此如果你需要在提示符显示之前访问 mise 提供的工具，可以[将 shims 添加到 PATH](/dev-tools/shims.html#how-to-add-mise-shims-to-path)，例如：
 
 ```bash
 export PATH="$HOME/.local/share/mise/shims:$PATH"
-python --version # will work after adding shims to PATH
+python --version # 添加 shims 到 PATH 后即可使用
 ```
 
-Or you can manually call `hook-env`:
+或者你可以手动调用 `hook-env`：
 
 ```bash
 eval "$(mise activate bash)"
 eval "$(mise hook-env)"
-python --version # will work only after calling hook-env explicitly
+python --version # 只有在显式调用 hook-env 后才能使用
 ```
 
-For more information, see [What does `mise activate` do?](/faq#what-does-mise-activate-do)
+更多信息请参见 [`mise activate` 做了什么？](/faq#what-does-mise-activate-do)
 
-## Is mise secure?
+## mise 安全吗？
 
-Providing a secure supply chain is incredibly important. mise already provides a more secure
-experience when compared to asdf. Security-oriented evaluations and contributions are welcome.
-We also urge users to look after the plugins they use, and urge plugin authors to look after
-the users they serve.
+提供安全的供应链至关重要。与 asdf 相比，mise 已经提供了更安全的使用体验。欢迎安全方面的评估和贡献。我们也敦促用户关注所使用的插件安全性，敦促插件作者保护用户安全。
 
-For more details see [SECURITY.md](https://github.com/jdx/mise/blob/main/SECURITY.md).
+更多详情请参阅 [SECURITY.md](https://github.com/jdx/mise/blob/main/SECURITY.md)。
 
-## 403 Forbidden when installing a tool
+## 安装工具时遇到 403 Forbidden
 
-You may get an error like one of the following:
+你可能会看到类似以下的错误：
 
 ```text
 HTTP status client error (403 Forbidden) for url
 403 API rate limit exceeded for
 ```
 
-This can happen if the tool is hosted on GitHub, and you've hit the API rate limit. This is especially
-common running mise in a CI environment like GitHub Actions. If you don't have a `GITHUB_TOKEN`
-set, the rate limit is quite low. You can fix this by creating a GitHub token (which needs no scopes)
-by going to [https://github.com/settings/tokens/new](https://github.com/settings/tokens/new?description=MISE_GITHUB_TOKEN) and setting it as an environment variable. You can
-use any of the following (in order of preference):
+如果工具托管在 GitHub 上，且你达到了 API 速率限制，就会发生这种情况。这在 GitHub Actions 等 CI 环境中尤其常见。如果没有设置 `GITHUB_TOKEN`，速率限制会非常低。你可以到 [https://github.com/settings/tokens/new](https://github.com/settings/tokens/new?description=MISE_GITHUB_TOKEN) 创建一个 GitHub token（不需要任何权限范围），然后设置为环境变量。可以使用以下任一变量（按优先级排序）：
 
 - `MISE_GITHUB_TOKEN`
 - `GITHUB_TOKEN`
 - `GITHUB_API_TOKEN`
 
-## Auto-install on command not found handler does not work for new tools
+## 命令未找到时的自动安装功能对新工具不生效
 
-If you are expecting mise to automatically install a tool when you run a command that is not found (using the [`not_found_auto_install`](/configuration/settings.html#not_found_auto_install) feature), be aware of an important limitation:
+如果你期望 mise 在运行未找到的命令时自动安装工具（使用 [`not_found_auto_install`](/configuration/settings.html#not_found_auto_install) 功能），请注意一个重要的限制：
 
-**mise can only auto-install missing versions of tools that already have at least one version installed.**
+**mise 只能自动安装已经至少安装了一个版本的工具的缺失版本。**
 
-This is because mise does not have a way of knowing which binaries a tool provides unless there is already an installed (even inactive) version of that tool. If you have never installed any version of a tool, mise cannot determine which tool is responsible for a given binary name, and so it cannot auto-install it on demand.
+这是因为除非已经有一个已安装（即使是未激活的）版本，mise 无法知道某个工具会提供哪些可执行文件。如果你从未安装过某个工具的任何版本，mise 就无法确定哪个工具负责某个可执行文件名称，因此无法按需自动安装。
 
-**Workarounds:**
+**解决方法：**
 
-- Manually install at least one version of the tool you want to be auto-installed in the future. After that, the auto-install feature will work for missing versions of that tool.
-- Use [`mise x|exec`](/cli/exec) or [`mise r|run`](/cli/run) to trigger auto-install for missing tools, even if no version is currently installed. These commands will attempt to install the required tool versions automatically.
+- 手动安装至少一个版本的目标工具。之后，自动安装功能就能正常工作了。
+- 使用 [`mise x|exec`](/cli/exec) 或 [`mise r|run`](/cli/run) 来触发缺失工具的自动安装，即使当前没有安装任何版本。这些命令会自动尝试安装所需的工具版本。

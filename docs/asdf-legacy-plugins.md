@@ -1,112 +1,112 @@
-# asdf (Legacy) Plugins
+# asdf（旧版）插件
 
 ::: warning
-asdf plugins are considered legacy. For new tools, prefer [vfox plugins](/dev-tools/backends/vfox.html) which are written in Lua, work cross-platform (including Windows), and have access to built-in modules. See the [feature comparison](/dev-tools/backends/asdf.html#feature-comparison-asdf-vs-vfox) and [hook migration table](/dev-tools/backends/asdf.html#hook-migration-asdf-to-vfox) for details.
+asdf 插件被视为旧版。对于新工具，建议使用 [vfox 插件](/dev-tools/backends/vfox.html)，它们使用 Lua 编写，支持跨平台（包括 Windows），并且可以访问内置模块。详见[功能对比](/dev-tools/backends/asdf.html#feature-comparison-asdf-vs-vfox)和[钩子迁移表](/dev-tools/backends/asdf.html#hook-migration-asdf-to-vfox)。
 :::
 
-mise maintains compatibility with the asdf plugin ecosystem through its asdf backend. These plugins are considered legacy because they have limitations compared to mise's modern plugin system.
+mise 通过其 asdf 工具源维护与 asdf 插件生态系统的兼容性。这些插件被视为旧版，因为与 mise 的现代插件系统相比存在局限性。
 
-## What are asdf (Legacy) Plugins?
+## 什么是 asdf（旧版）插件？
 
-asdf plugins are shell script-based plugins that follow the asdf plugin specification. They were the original way to extend tool management in the asdf ecosystem and are now supported by mise for backward compatibility.
+asdf 插件是基于 shell 脚本的插件，遵循 asdf 插件规范。它们是 asdf 生态系统中扩展工具管理的原始方式，现在由 mise 提供向后兼容支持。
 
-## Limitations
+## 局限性
 
-asdf plugins have several limitations compared to mise's modern plugin system:
+与 mise 的现代插件系统相比，asdf 插件有以下局限性：
 
-- **Platform Support**: Only work on Linux and macOS (no Windows support)
-- **Performance**: Shell script execution is slower than mise's native backends
-- **Features**: Limited compared to modern backends like aqua, github, or tool/backend plugins
-- **Maintenance**: Harder to maintain and debug
-- **Security**: Less secure than sandboxed modern backends
+- **平台支持**：仅支持 Linux 和 macOS（不支持 Windows）
+- **性能**：shell 脚本执行比 mise 的原生工具源更慢
+- **功能**：与 aqua、github 或工具/工具源插件等现代工具源相比功能有限
+- **维护**：更难维护和调试
+- **安全**：不如沙盒化的现代工具源安全
 
-## When to Use asdf (Legacy) Plugins
+## 何时使用 asdf（旧版）插件
 
-Only use asdf plugins when:
+仅在以下情况使用 asdf 插件：
 
-- The tool is not available through modern backends (aqua, github, etc.)
-- You need compatibility with existing asdf workflows
-- The tool requires complex shell-based installation logic that can't be handled by modern backends
+- 工具无法通过现代工具源（aqua、github 等）获得
+- 你需要与现有 asdf 工作流兼容
+- 工具需要复杂的基于 shell 的安装逻辑，而现代工具源无法处理
 
-**For new tools, consider these alternatives first:**
+**对于新工具，请优先考虑以下替代方案：**
 
-1. [aqua backend](dev-tools/backends/aqua.md) - Preferred for GitHub releases
-2. [github backend](dev-tools/backends/github.md) - Simple GitHub releases
-3. [Language package managers](dev-tools/backends/) - npm, pipx, cargo, gem, etc.
-4. [backend plugins](backend-plugin-development.md) - Enhanced plugins with backend methods
-5. [tool plugins](tool-plugin-development.md) - Hook-based cross-platform plugins
+1. [aqua 工具源](dev-tools/backends/aqua.md) - 首选，适用于 GitHub 发布
+2. [github 工具源](dev-tools/backends/github.md) - 简单的 GitHub 发布
+3. [语言包管理器](dev-tools/backends/) - npm、pipx、cargo、gem 等
+4. [工具源插件](backend-plugin-development.md) - 具有工具源方法的增强插件
+5. [工具插件](tool-plugin-development.md) - 基于钩子的跨平台插件
 
-## Installing asdf (Legacy) Plugins
+## 安装 asdf（旧版）插件
 
-### From the Registry
+### 从注册表安装
 
-Most popular asdf plugins are available through mise's registry:
+大多数流行的 asdf 插件可通过 mise 注册表获得：
 
 ```bash
-# Install from registry shorthand
+# 从注册表简写安装
 mise use postgres@15
 
-# This is equivalent to
+# 等同于
 mise use asdf:mise-plugins/mise-postgres@15
 ```
 
-### From Git Repository
+### 从 Git 仓库安装
 
 ```bash
-# Install plugin directly from repository
+# 直接从仓库安装插件
 mise plugin install <plugin-name> <git-url>
 
-# Example: PostgreSQL plugin
+# 示例：PostgreSQL 插件
 mise plugin install postgres https://github.com/mise-plugins/mise-postgres
 ```
 
-### Manual Installation
+### 手动安装
 
 ```bash
-# Add plugin manually
+# 手动添加插件
 mise plugin add postgres https://github.com/mise-plugins/mise-postgres
 
-# Install tool version
+# 安装工具版本
 mise install postgres@15.0.0
 
-# Use the tool
+# 使用工具
 mise use postgres@15.0.0
 ```
 
-## Plugin Structure
+## 插件结构
 
-asdf plugins follow this directory structure:
+asdf 插件遵循以下目录结构：
 
 ```
 plugin-name/
 ├── bin/
-│   ├── list-all          # List all available versions
-│   ├── download          # Download source code/binary
-│   ├── install           # Install the tool
-│   ├── latest-stable     # Get latest stable version [optional]
-│   ├── help.overview     # Plugin description [optional]
-│   ├── help.deps         # Plugin dependencies [optional]
-│   ├── help.config       # Plugin configuration [optional]
-│   ├── help.links        # Plugin links [optional]
-│   ├── list-legacy-filenames  # Legacy version files [optional]
-│   ├── parse-legacy-file # Parse legacy version files [optional]
-│   ├── post-plugin-add   # Post plugin addition hook [optional]
-│   ├── post-plugin-update # Post plugin update hook [optional]
-│   ├── pre-plugin-remove # Pre plugin removal hook [optional]
-│   └── exec-env          # Set execution environment [optional]
-├── lib/                  # Shared library code [optional]
+│   ├── list-all          # 列出所有可用版本
+│   ├── download          # 下载源码/二进制文件
+│   ├── install           # 安装工具
+│   ├── latest-stable     # 获取最新稳定版本 [可选]
+│   ├── help.overview     # 插件描述 [可选]
+│   ├── help.deps         # 插件依赖 [可选]
+│   ├── help.config       # 插件配置 [可选]
+│   ├── help.links        # 插件链接 [可选]
+│   ├── list-legacy-filenames  # 旧版版本文件 [可选]
+│   ├── parse-legacy-file # 解析旧版版本文件 [可选]
+│   ├── post-plugin-add   # 插件添加后钩子 [可选]
+│   ├── post-plugin-update # 插件更新后钩子 [可选]
+│   ├── pre-plugin-remove # 插件移除前钩子 [可选]
+│   └── exec-env          # 设置执行环境 [可选]
+├── lib/                  # 共享库代码 [可选]
 └── README.md
 ```
 
-## Required Scripts
+## 必需脚本
 
 ### bin/list-all
 
-Lists all available versions of the tool:
+列出工具的所有可用版本：
 
 ```bash
 #!/usr/bin/env bash
-# List all available versions
+# 列出所有可用版本
 curl -s https://api.github.com/repos/owner/repo/releases |
   grep '"tag_name":' |
   sed -E 's/.*"([^"]+)".*/\1/' |
@@ -115,66 +115,66 @@ curl -s https://api.github.com/repos/owner/repo/releases |
 
 ### bin/download
 
-Downloads the tool source/binary:
+下载工具的源码/二进制文件：
 
 ```bash
 #!/usr/bin/env bash
 set -e
 
-# Input variables from mise
-# ASDF_INSTALL_TYPE (version or ref)
-# ASDF_INSTALL_VERSION (version number or git ref)
-# ASDF_INSTALL_PATH (where to install)
-# ASDF_DOWNLOAD_PATH (where to download)
+# mise 提供的输入变量
+# ASDF_INSTALL_TYPE (version 或 ref)
+# ASDF_INSTALL_VERSION (版本号或 git ref)
+# ASDF_INSTALL_PATH (安装位置)
+# ASDF_DOWNLOAD_PATH (下载位置)
 
 version="$ASDF_INSTALL_VERSION"
 download_path="$ASDF_DOWNLOAD_PATH"
 
-# Download logic here
+# 下载逻辑
 curl -Lo "$download_path/archive.tar.gz" \
   "https://github.com/owner/repo/archive/v${version}.tar.gz"
 ```
 
 ### bin/install
 
-Installs the tool:
+安装工具：
 
 ```bash
 #!/usr/bin/env bash
 set -e
 
-# Input variables from mise
-# ASDF_INSTALL_TYPE (version or ref)
-# ASDF_INSTALL_VERSION (version number or git ref)
-# ASDF_INSTALL_PATH (where to install)
-# ASDF_DOWNLOAD_PATH (where source is downloaded)
+# mise 提供的输入变量
+# ASDF_INSTALL_TYPE (version 或 ref)
+# ASDF_INSTALL_VERSION (版本号或 git ref)
+# ASDF_INSTALL_PATH (安装位置)
+# ASDF_DOWNLOAD_PATH (源码下载位置)
 
 install_path="$ASDF_INSTALL_PATH"
 download_path="$ASDF_DOWNLOAD_PATH"
 
-# Extract and install
+# 解压并安装
 cd "$download_path"
 tar -xzf archive.tar.gz --strip-components=1
 make install PREFIX="$install_path"
 ```
 
-## Optional Scripts
+## 可选脚本
 
 ### bin/exec-env
 
-Set environment variables when executing tools:
+执行工具时设置环境变量：
 
 ```bash
 #!/usr/bin/env bash
 
-# Set environment variables
+# 设置环境变量
 export TOOL_HOME="$ASDF_INSTALL_PATH"
 export PATH="$ASDF_INSTALL_PATH/bin:$PATH"
 ```
 
 ### bin/latest-stable
 
-Get the latest stable version:
+获取最新稳定版本：
 
 ```bash
 #!/usr/bin/env bash
@@ -185,7 +185,7 @@ curl -s https://api.github.com/repos/owner/repo/releases/latest |
 
 ### bin/list-legacy-filenames
 
-List legacy version file names:
+列出旧版版本文件名：
 
 ```bash
 #!/usr/bin/env bash
@@ -195,47 +195,47 @@ echo ".tool-versions"
 
 ### bin/parse-legacy-file
 
-Parse legacy version files:
+解析旧版版本文件：
 
 ```bash
 #!/usr/bin/env bash
 cat "$1" | head -n 1
 ```
 
-## Environment Variables
+## 环境变量
 
-asdf plugins have access to these environment variables:
+asdf 插件可以访问以下环境变量：
 
-- `ASDF_INSTALL_TYPE` - `version` or `ref`
-- `ASDF_INSTALL_VERSION` - Version number or git ref
-- `ASDF_INSTALL_PATH` - Installation directory
-- `ASDF_DOWNLOAD_PATH` - Download directory
-- `ASDF_PLUGIN_PATH` - Plugin directory
-- `ASDF_PLUGIN_PREV_REF` - Previous git ref (for updates)
-- `ASDF_PLUGIN_POST_REF` - New git ref (for updates)
-- `ASDF_CMD_FILE` - Path to executable being run
+- `ASDF_INSTALL_TYPE` - `version` 或 `ref`
+- `ASDF_INSTALL_VERSION` - 版本号或 git ref
+- `ASDF_INSTALL_PATH` - 安装目录
+- `ASDF_DOWNLOAD_PATH` - 下载目录
+- `ASDF_PLUGIN_PATH` - 插件目录
+- `ASDF_PLUGIN_PREV_REF` - 上一个 git ref（用于更新）
+- `ASDF_PLUGIN_POST_REF` - 新的 git ref（用于更新）
+- `ASDF_CMD_FILE` - 正在运行的可执行文件路径
 
-## Best Practices
+## 最佳实践
 
-### Error Handling
+### 错误处理
 
 ```bash
 #!/usr/bin/env bash
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+set -euo pipefail  # 遇到错误退出、禁止未定义变量、管道失败退出
 
-# Check dependencies
+# 检查依赖
 command -v curl >/dev/null 2>&1 || {
   echo "Error: curl is required" >&2
   exit 1
 }
 ```
 
-### Cross-Platform Compatibility
+### 跨平台兼容性
 
 ```bash
 #!/usr/bin/env bash
 
-# Detect platform
+# 检测平台
 case "$(uname -s)" in
   Darwin*) platform="darwin" ;;
   Linux*)  platform="linux" ;;
@@ -249,47 +249,47 @@ case "$(uname -m)" in
 esac
 ```
 
-### Version Parsing
+### 版本解析
 
 ```bash
 #!/usr/bin/env bash
 
-# Parse semantic version
+# 解析语义化版本
 parse_version() {
   local version="$1"
-  # Remove 'v' prefix if present
+  # 移除 'v' 前缀（如存在）
   version="${version#v}"
   echo "$version"
 }
 ```
 
-## Testing Plugins
+## 测试插件
 
-### Local Development
+### 本地开发
 
 ```bash
-# Link plugin for development
+# 链接插件用于开发
 mise plugin add my-plugin /path/to/local/plugin
 
-# Test basic functionality
+# 测试基本功能
 mise list-all my-plugin
 mise install my-plugin@1.0.0
 mise which my-plugin
 ```
 
-### Debugging
+### 调试
 
 ```bash
-# Enable debug mode
+# 启用调试模式
 export MISE_DEBUG=1
 
-# Or use --verbose flag
+# 或使用 --verbose 标志
 mise install --verbose my-plugin@1.0.0
 ```
 
-## Example Plugin
+## 示例插件
 
-Here's a minimal example for a fictional tool:
+以下是一个虚构工具的最小示例：
 
 ```bash
 #!/usr/bin/env bash
@@ -322,34 +322,34 @@ cp tool "$ASDF_INSTALL_PATH/bin/"
 chmod +x "$ASDF_INSTALL_PATH/bin/tool"
 ```
 
-## Migration Path
+## 迁移路径
 
-Consider migrating from asdf plugins to modern alternatives:
+考虑从 asdf 插件迁移到现代替代方案：
 
-1. **Check if tool is available in [aqua registry](https://aquaproj.github.io/aqua-registry/)**
-2. **Use [github backend](dev-tools/backends/github.md) for simple GitHub releases**
-3. **Create a [mise plugin](tool-plugin-development.md) for complex tools** - use the [mise-tool-plugin-template](https://github.com/jdx/mise-tool-plugin-template) for a quick start
-4. **Use language-specific package managers** (npm, pipx, cargo, gem)
+1. **检查工具是否在 [aqua 注册表](https://aquaproj.github.io/aqua-registry/)中可用**
+2. **对于简单的 GitHub 发布使用 [github 工具源](dev-tools/backends/github.md)**
+3. **为复杂工具创建 [mise 插件](tool-plugin-development.md)** - 使用 [mise-tool-plugin-template](https://github.com/jdx/mise-tool-plugin-template) 快速开始
+4. **使用语言特定的包管理器**（npm、pipx、cargo、gem）
 
-## Community Resources
+## 社区资源
 
-- **[asdf Plugin List](https://github.com/asdf-vm/asdf-plugins)** - Official asdf plugin registry
-- **[mise-plugins Organization](https://github.com/mise-plugins)** - Community-maintained plugins
-- **[Plugin Template (asdf)](https://github.com/asdf-vm/asdf-plugin-template)** - Template for creating asdf plugins
-- **[Plugin Template (mise)](https://github.com/jdx/mise-tool-plugin-template)** - Modern template for creating mise plugins with Lua
+- **[asdf 插件列表](https://github.com/asdf-vm/asdf-plugins)** - 官方 asdf 插件注册表
+- **[mise-plugins 组织](https://github.com/mise-plugins)** - 社区维护的插件
+- **[插件模板 (asdf)](https://github.com/asdf-vm/asdf-plugin-template)** - 创建 asdf 插件的模板
+- **[插件模板 (mise)](https://github.com/jdx/mise-tool-plugin-template)** - 使用 Lua 创建 mise 插件的现代模板
 
-## Security Considerations
+## 安全注意事项
 
-asdf plugins execute arbitrary shell scripts, which poses security risks:
+asdf 插件执行任意 shell 脚本，这带来安全风险：
 
-- **Only install plugins from trusted sources**
-- **Review plugin code before installation**
-- **Avoid plugins with complex installation scripts when possible**
-- **Consider using modern backends for better security**
+- **只从受信任的来源安装插件**
+- **安装前审查插件代码**
+- **尽可能避免使用复杂安装脚本的插件**
+- **考虑使用现代工具源以获得更好的安全性**
 
-## Next Steps
+## 下一步
 
-- [Explore modern backends](dev-tools/backends/) for better alternatives
-- [Learn about backend plugins](backend-plugin-development.md) for enhanced functionality
-- [Learn about tool plugins](tool-plugin-development.md) for cross-platform support
-- [Check the registry](registry.md) for available tools
+- [探索现代工具源](dev-tools/backends/)了解更好的替代方案
+- [了解工具源插件](backend-plugin-development.md)获取增强功能
+- [了解工具插件](tool-plugin-development.md)获取跨平台支持
+- [查看注册表](registry.md)了解可用工具

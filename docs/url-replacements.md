@@ -1,22 +1,21 @@
-# URL Replacements
+# URL 替换
 
-mise does not include a built-in registry for downloading artifacts.
-Instead, it retrieves remote registry manifests, which specify the URLs for downloading tools.
+mise 不包含内置的制品下载注册表。它从远程注册表清单中获取工具的下载 URL。
 
-In some environments — such as enterprises or DMZs — these URLs may not be directly accessible and must be accessed through a proxy or internal mirror.
+在某些环境中——例如企业网络或 DMZ 区域——这些 URL 可能无法直接访问，必须通过代理或内部镜像访问。
 
-URL replacements allow you to modify or redirect any URL that mise attempts to access, making it possible to use internal proxies, mirrors, or alternative sources as needed.
+URL 替换允许你修改或重定向 mise 尝试访问的任何 URL，从而可以使用内部代理、镜像或其他替代来源。
 
-## Configuration Examples
+## 配置示例
 
-In mise.toml (single line):
+在 mise.toml 中（单行）：
 
 ```toml
 [settings]
 url_replacements = { "example.com" = "mirror.example.com" }
 ```
 
-In mise.toml (multiline):
+在 mise.toml 中（多行）：
 
 ```toml
 [settings.url_replacements]
@@ -24,7 +23,7 @@ In mise.toml (multiline):
 "releases.hashicorp.com" = "hashicorp.example.com"
 ```
 
-RegEx example:
+正则表达式示例：
 
 ```toml
 [settings.url_replacements]
@@ -32,30 +31,26 @@ RegEx example:
 "regex:^https://github\\.com/([^/]+)/([^/]+)/releases/download/(.+)" = "https://hub.example.com/artifactory/github/$1/$2/$3"
 ```
 
-## Simple Hostname Replacement
+## 简单的主机名替换
 
-For simple hostname-based mirroring, the key is the original hostname/domain to replace,
-and the value is the replacement string. The replacement happens by searching and replacing
-the pattern anywhere in the full URL string (including protocol, hostname, path, and query parameters).
+对于简单的基于主机名的镜像替换，键是要替换的原始主机名/域名，值是替换字符串。替换会在完整 URL 字符串（包括协议、主机名、路径和查询参数）中搜索并替换该模式。
 
-Examples:
+示例：
 
-- `github.com` -> `mirror.example.com` replaces GitHub hostnames
-- `https://github.com` -> `https://mirror.example.com` with protocol excludes e.g. 'api.github.com'
-- `https://github.com` -> `https://proxy.example.com/github-mirror` replaces GitHub with corporate proxy
-- `http://example.net` -> `https://example.net` replaces protocol from HTTP to HTTPS
+- `github.com` -> `mirror.example.com` 替换 GitHub 主机名
+- `https://github.com` -> `https://mirror.example.com` 带协议匹配，排除如 'api.github.com' 的情况
+- `https://github.com` -> `https://proxy.example.com/github-mirror` 将 GitHub 替换为企业代理
+- `http://example.net` -> `https://example.net` 将协议从 HTTP 替换为 HTTPS
 
-See [Security Considerations](#security-considerations) for important warnings about credential handling.
+参见[安全注意事项](#security-considerations)了解关于凭据处理的重要警告。
 
-## Advanced Regex Replacement
+## 高级正则替换
 
-For more complex URL transformations, you can use regex patterns. When a key starts with `regex:`,
-it is treated as a regular expression pattern that can match and transform any part of the URL.
-The value can use capture groups from the regex pattern.
+对于更复杂的 URL 转换，可以使用正则表达式模式。当键以 `regex:` 开头时，它被视为正则表达式模式，可以匹配和转换 URL 的任何部分。值可以使用正则模式中的捕获组。
 
-### Regex Examples
+### 正则示例
 
-#### 1. Protocol Conversion (HTTP to HTTPS)
+#### 1. 协议转换（HTTP 到 HTTPS）
 
 ```toml
 [settings]
@@ -64,9 +59,9 @@ url_replacements = {
 }
 ```
 
-This converts any HTTP URL to HTTPS by capturing everything after "http://" and replacing it with "https://".
+通过捕获 "http://" 后面的所有内容，将任何 HTTP URL 转换为 HTTPS。
 
-#### 2. GitHub Release Mirroring with Path Restructuring
+#### 2. GitHub Release 镜像与路径重组
 
 ```toml
 [settings]
@@ -76,10 +71,10 @@ url_replacements = {
 }
 ```
 
-Transforms `https://github.com/owner/repo/releases/download/v1.0.0/file.tar.gz`
-to `https://hub.example.com/artifactory/github/owner/repo/v1.0.0/file.tar.gz`
+将 `https://github.com/owner/repo/releases/download/v1.0.0/file.tar.gz`
+转换为 `https://hub.example.com/artifactory/github/owner/repo/v1.0.0/file.tar.gz`
 
-#### 3. Subdomain to Path Conversion
+#### 3. 子域名转路径
 
 ```toml
 [settings]
@@ -89,9 +84,9 @@ url_replacements = {
 }
 ```
 
-Converts subdomain-based URLs to path-based URLs on a unified CDN.
+将基于子域名的 URL 转换为统一 CDN 上基于路径的 URL。
 
-#### 4. Multiple Replacement Patterns (processed in order)
+#### 4. 多个替换模式（按顺序处理）
 
 ```toml
 [settings]
@@ -104,58 +99,54 @@ url_replacements = {
 }
 ```
 
-First regex catches Microsoft repositories specifically, second catches all other GitHub URLs,
-and the simple replacement handles HashiCorp.
+第一条正则专门匹配 Microsoft 仓库，第二条匹配所有其他 GitHub URL，简单替换处理 HashiCorp。
 
-## Use Cases
+## 使用场景
 
-1. **Corporate Mirrors**: Replace public download URLs with internal corporate mirrors
-2. **Custom Registries**: Redirect package downloads to custom or private registries
-3. **Geographic Optimization**: Route downloads to geographically closer mirrors
-4. **Protocol Changes**: Convert HTTP URLs to HTTPS or vice versa
+1. **企业镜像**：将公共下载 URL 替换为内部企业镜像
+2. **自定义注册表**：将包下载重定向到自定义或私有注册表
+3. **地理优化**：将下载路由到地理位置更近的镜像
+4. **协议变更**：将 HTTP URL 转换为 HTTPS 或反之
 
-## Regex Syntax
+## 正则语法
 
-mise uses Rust regex engine which supports:
+mise 使用 Rust 正则引擎，支持：
 
-- `^` and `$` for anchors (start/end of string)
-- `(.+)` for capture groups (use `$1`, `$2`, etc. in replacement)
-- `[^/]+` for character classes (matches any character except `/`)
-- `\\.` for escaping special characters (note: double backslash required in TOML)
-- `*`, `+`, `?` for quantifiers
-- `|` for alternation
+- `^` 和 `$` 锚点（字符串开头/结尾）
+- `(.+)` 捕获组（在替换中使用 `$1`、`$2` 等）
+- `[^/]+` 字符类（匹配除 `/` 外的任何字符）
+- `\\.` 转义特殊字符（注意：TOML 中需要双反斜杠）
+- `*`、`+`、`?` 量词
+- `|` 选择
 
-You can check on regex101.com if your regex works (see [example](https://regex101.com/r/rmcIE1/1)).
-Full regex syntax documentation: <https://docs.rs/regex/latest/regex/#syntax>
+你可以在 regex101.com 上检查正则是否有效（参见[示例](https://regex101.com/r/rmcIE1/1)）。完整正则语法文档：<https://docs.rs/regex/latest/regex/#syntax>
 
-## Precedence and Matching
+## 优先级和匹配
 
-- URL replacements are processed in the order they appear in the configuration (IndexMap insertion order)
-- Both regex patterns (keys starting with `regex:`) and simple string replacements are processed in this same order
-- The first matching pattern is used; subsequent patterns are ignored for that URL
-- If no patterns match, the original URL is used unchanged
+- URL 替换按配置中出现的顺序处理（IndexMap 插入顺序）
+- 正则模式（以 `regex:` 开头的键）和简单字符串替换按相同顺序处理
+- 使用第一个匹配的模式；后续模式对该 URL 将被忽略
+- 如果没有模式匹配，使用原始 URL
 
-## Security Considerations
+## 安全注意事项
 
-When using regex patterns, ensure your replacement URLs point to trusted sources,
-as this feature can redirect tool downloads to arbitrary locations.
+使用正则模式时，请确保替换 URL 指向受信任的来源，因为此功能可以将工具下载重定向到任意位置。
 
 > [!WARNING]
-> **Credential Leaking**: When using `url_replacements`, any authentication headers (like `Authorization: Bearer <TOKEN>`) generated for the original URL (e.g., `api.github.com`) are **preserved** and sent to the replaced URL.
+> **凭据泄露**：使用 `url_replacements` 时，为原始 URL（如 `api.github.com`）生成的任何认证头（如 `Authorization: Bearer <TOKEN>`）会被**保留**并发送到替换后的 URL。
 >
-> This is by design to allow authentication with internal proxies that forward requests to upstream services (GitHub, GitLab, Forgejo, etc.). However, it means you must **only** replace URLs with trusted servers. Redirecting to an untrusted server will leak your credentials to that server.
+> 这是有意为之的，目的是允许向转发请求到上游服务（GitHub、GitLab、Forgejo 等）的内部代理进行认证。但这意味着你**只能**将 URL 替换为受信任的服务器。重定向到不受信任的服务器会导致凭据泄露。
 >
-> **Best Practice**: Use the `^` anchor in your regex patterns to ensure you are matching the start of the URL.
+> **最佳实践**：在正则模式中使用 `^` 锚点确保匹配 URL 的开头。
 >
-> **Bad**: `"regex:github\\.com"` (matches `evil-github.com`)
-> **Good**: `"regex:^https://github\\.com"` (only matches actual GitHub URLs)
+> **不好的做法**：`"regex:github\\.com"`（会匹配 `evil-github.com`）
+> **好的做法**：`"regex:^https://github\\.com"`（只匹配真正的 GitHub URL）
 
-## Authentication
+## 认证
 
-URL replacements can be used with `~/.netrc` (or `~/_netrc` on Windows) to authenticate with the replaced URL.
-Replacements are applied _before_ the netrc lookup, so you should use the hostname of the _replaced_ URL in your netrc file.
+URL 替换可以与 `~/.netrc`（Windows 上为 `~/_netrc`）配合使用来对替换后的 URL 进行认证。替换在 netrc 查找*之前*应用，因此你应该在 netrc 文件中使用*替换后*的 URL 的主机名。
 
-For example, if you have this in `mise.toml`:
+例如，如果你的 `mise.toml` 中有：
 
 ```toml
 [settings]
@@ -163,9 +154,9 @@ url_replacements = { "regex:^https://github\\.com" = "https://nexus.example.com"
 ```
 
 > [!NOTE]
-> Credentials from `.netrc` take precedence over and will **overwrite** any default authentication headers (such as those from `MISE_GITHUB_TOKEN` or other environment variables).
+> `.netrc` 中的凭据优先级更高，会**覆盖**任何默认认证头（如来自 `MISE_GITHUB_TOKEN` 或其他环境变量的头）。
 
-You should have this in `~/.netrc`:
+你的 `~/.netrc` 应该这样写：
 
 ```netrc
 machine nexus.example.com

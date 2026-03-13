@@ -1,38 +1,33 @@
-# Tool Aliases
+# 工具别名
 
 ::: tip
-`[alias]` has been renamed to `[tool_alias]` to distinguish it from `[shell_alias]`.
-The old `[alias]` key still works but is deprecated.
+`[alias]` 已更名为 `[tool_alias]`，以便与 `[shell_alias]` 区分。旧的 `[alias]` 键仍然有效，但已弃用。
 
-For shell command aliases (like `alias ll='ls -la'`), see [Shell Aliases](/shell-aliases).
+关于 shell 命令别名（如 `alias ll='ls -la'`），请参阅 [Shell 别名](/shell-aliases)。
 :::
 
-## Aliased Backends
+## 工具源别名
 
-Tools can be aliased so that something like `node` which normally maps to `core:node` can be changed
-to something like `asdf:company/our-custom-node` instead.
+可以为工具设置别名，例如将 `node`（默认映射到 `core:node`）改为 `asdf:company/our-custom-node`。
 
 ```toml [~/.config/mise/config.toml]
 [tool_alias]
-node = 'asdf:company/our-custom-node' # shorthand for https://github.com/company/our-custom-node
+node = 'asdf:company/our-custom-node' # https://github.com/company/our-custom-node 的简写
 erlang = 'asdf:https://github.com/company/our-custom-erlang'
 ```
 
-## Aliased Versions
+## 版本别名
 
-mise supports aliasing the versions of runtimes. One use-case for this is to define aliases for LTS
-versions of runtimes. For example, you may want to specify `lts-hydrogen` as the version for <node@20.x>
-so you can use set it with `node lts-hydrogen` in `mise.toml`/`.tool-versions`.
+mise 支持为运行时版本设置别名。一个常见用途是为运行时的 LTS 版本定义别名。例如，你可能想将 `lts-hydrogen` 指定为 <node@20.x> 的别名，这样就可以在 `mise.toml`/`.tool-versions` 中使用 `node lts-hydrogen`。
 
-User aliases can be created by adding a `tool_alias.<PLUGIN>` section to `~/.config/mise/config.toml`:
+用户别名可以在 `~/.config/mise/config.toml` 中添加 `tool_alias.<PLUGIN>` 节来创建：
 
 ```toml
 [tool_alias.node.versions]
 my_custom_20 = '20'
 ```
 
-Plugins can also provide aliases via a `bin/list-aliases` script. Here is an example showing node.js
-versions:
+插件也可以通过 `bin/list-aliases` 脚本提供别名。以下是一个 Node.js 版本的示例：
 
 ```bash
 #!/usr/bin/env bash
@@ -43,13 +38,12 @@ echo "lts-fermium 14"
 ```
 
 ::: info
-Because this is mise-specific functionality not currently used by asdf it isn't likely to be in any
-plugin currently, but plugin authors can add this script without impacting asdf users.
+由于这是 mise 特有的功能，目前 asdf 并未使用，所以现有插件中可能没有这个脚本。但插件作者可以添加它而不影响 asdf 用户。
 :::
 
-## Templates
+## 模板
 
-Alias values can be templates, see [Templates](/templates) for details.
+别名值可以使用模板，详见[模板](/templates)。
 
 ```toml
 [tool_alias.node.versions]

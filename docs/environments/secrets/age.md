@@ -1,95 +1,95 @@
-# Direct age Encryption <Badge type="warning" text="experimental" />
+# age 直接加密 <Badge type="warning" text="experimental" />
 
-Encrypt individual environment variable values directly in `mise.toml` using [age](https://github.com/FiloSottile/age) encryption. The age tool is not required—mise has support built-in.
+使用 [age](https://github.com/FiloSottile/age) 加密直接在 `mise.toml` 中加密单个环境变量值。无需安装 age 工具——mise 已内置支持。
 
-This is a simple method of storing encrypted environment variables directly in `mise.toml`. You can use it simply by running `mise set --age-encrypt <key>=<value>`. By default, mise will use your ssh key (`~/.ssh/id_ed25519` or `~/.ssh/id_rsa`) if it exists.
+这是一种将加密环境变量直接存储在 `mise.toml` 中的简单方法。你只需运行 `mise set --age-encrypt <key>=<value>` 即可。默认情况下，如果存在 SSH 密钥（`~/.ssh/id_ed25519` 或 `~/.ssh/id_rsa`），mise 会自动使用。
 
-- **Inline storage**: values live alongside other env vars in `mise.toml`
-- **Multiple recipients**: x25519 age keys and SSH recipients
-- **Automatic decryption**: at runtime when identities are available
+- **内联存储**：值与其他环境变量一起存储在 `mise.toml` 中
+- **多接收者**：支持 x25519 age 密钥和 SSH 接收者
+- **自动解密**：运行时当身份凭证可用时自动解密
 
-## Quick start
+## 快速开始
 
-1. [optional] Generate an age key (if you want to create a new age key and don't want to use your ssh key):
+1. [可选] 生成 age 密钥（如果你想创建新的 age 密钥而不使用 SSH 密钥）：
 
 ```bash
 age-keygen -o ~/.config/mise/age.txt
-# Note the public key output for encryption
+# 记下输出的公钥用于加密
 ```
 
-2. Encrypt a value:
+2. 加密一个值：
 
 ```bash
 mise set --age-encrypt --prompt DB_PASSWORD
-# Enter value for DB_PASSWORD: [hidden input]
+# Enter value for DB_PASSWORD: [隐藏输入]
 ```
 
-::: warning
-It's recommended to use `--prompt` to avoid accidentally exposing the value to your shell history. You don't have to though, you can use `mise set --age-encrypt DB_PASSWORD="password123"`.
-:::
+:::: warning
+建议使用 `--prompt` 以避免将值暴露在 shell 历史记录中。当然你也可以直接使用 `mise set --age-encrypt DB_PASSWORD="password123"`。
+::::
 
-3. Values are stored encrypted in `mise.toml` as an age directive:
+3. 值会以 age 指令的形式加密存储在 `mise.toml` 中：
 
 ```toml
 [env]
 DB_PASSWORD = { age = { value = "<base64>" } }
 ```
 
-4. Decryption happens automatically:
+4. 解密自动完成：
 
 ```bash
-mise env  # Variables are decrypted automatically
+mise env  # 变量自动解密
 ```
 
-## CLI flags
+## CLI 选项
 
-- `--age-encrypt` — enable age encryption for the value
-- `--age-recipient <KEY>` — x25519 recipient (can be set multiple times)
-- `--age-ssh-recipient <PATH|KEY>` — SSH public key or path to `.pub`/private key (can be set multiple times)
-- `--age-key-file <PATH>` — use recipients derived from an age identity file
-- `--prompt` — prompt for the value to avoid accidentally exposing it to your shell history
+- `--age-encrypt` — 对值启用 age 加密
+- `--age-recipient <KEY>` — x25519 接收者（可多次设置）
+- `--age-ssh-recipient <PATH|KEY>` — SSH 公钥或 `.pub`/私钥文件路径（可多次设置）
+- `--age-key-file <PATH>` — 使用从 age 身份文件派生的接收者
+- `--prompt` — 提示输入值，避免暴露在 shell 历史记录中
 
-If no recipients are provided explicitly, mise will try defaults (see below).
+如果未明确提供接收者，mise 会尝试使用默认值（见下文）。
 
-## Storage format
+## 存储格式
 
-Encrypted values are stored as base64 along with a `format` field:
+加密值以 base64 存储，并带有 `format` 字段：
 
-- `format = "raw"` — uncompressed ciphertext (typically for small values)
-- `format = "zstd"` — zstd-compressed ciphertext (used when ciphertext > 1KB)
+- `format = "raw"` — 未压缩的密文（通常用于小值）
+- `format = "zstd"` — zstd 压缩的密文（当密文 > 1KB 时使用）
 
-## Decryption identities
+## 解密身份凭证
 
-mise looks for identities in this order:
+mise 按以下顺序查找身份凭证：
 
-1. `MISE_AGE_KEY` environment variable
-   - Can contain one or more raw `AGE-SECRET-KEY-...` lines, or an age identity file payload
-2. `settings.age.identity_files` (list of paths)
-3. `settings.age.key_file` (single path)
-4. Default `~/.config/mise/age.txt` if it exists
-5. SSH identities from `settings.age.ssh_identity_files` and common defaults (`~/.ssh/id_ed25519`, `~/.ssh/id_rsa`)
+1. `MISE_AGE_KEY` 环境变量
+   - 可以包含一个或多个原始的 `AGE-SECRET-KEY-...` 行，或 age 身份文件内容
+2. `settings.age.identity_files`（路径列表）
+3. `settings.age.key_file`（单个路径）
+4. 默认路径 `~/.config/mise/age.txt`（如果存在）
+5. `settings.age.ssh_identity_files` 中的 SSH 身份凭证以及常见默认路径（`~/.ssh/id_ed25519`、`~/.ssh/id_rsa`）
 
-Decrypted values are always marked as redacted.
+解密后的值始终被标记为脱敏。
 
-If no identities are found or decryption fails, mise returns the encrypted value as-is (non-strict behavior).
+如果找不到身份凭证或解密失败，mise 会原样返回加密值（非严格模式）。
 
-## Defaults for recipients (encryption)
+## 加密时的默认接收者
 
-When `--age-encrypt` is used without explicit recipients, mise attempts to derive recipients from:
+当使用 `--age-encrypt` 但未明确指定接收者时，mise 会尝试从以下来源派生接收者：
 
-- The public keys corresponding to identities in the default key file `~/.config/mise/age.txt`
-- Public keys inferred from SSH private keys if a corresponding `.pub` file exists
+- 默认密钥文件 `~/.config/mise/age.txt` 中身份凭证对应的公钥
+- 如果存在对应的 `.pub` 文件，则从 SSH 私钥推断出的公钥
 
-If none are found, the command fails with an error asking you to provide recipients or configure `settings.age.key_file`.
+如果都找不到，命令会报错并提示你提供接收者或配置 `settings.age.key_file`。
 
-## Settings
+## 设置
 
 <script setup>
 import Settings from '/components/settings.vue';
 </script>
 <Settings child="age" :level="2" />
 
-## Notes
+## 注意事项
 
-- Feature is experimental; flags and behavior may change.
-- `mise set KEY` will print the decrypted value
+- 此功能为实验性功能；选项和行为可能会变化。
+- `mise set KEY` 会打印解密后的值

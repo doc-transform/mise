@@ -1,18 +1,18 @@
-# Mise + Ruby Cookbook
+# Mise + Ruby 实践手册
 
-Here are some tips on managing Ruby projects with mise.
+以下是使用 mise 管理 Ruby 项目的一些技巧。
 
-## A Ruby on Rails Project
+## Ruby on Rails 项目
 
 ```toml [mise.toml]
 min_version = "2024.9.5"
 
 [env]
-# Project information
+# 项目信息
 PROJECT_NAME = "{{ config_root | basename }}"
 
 [tools]
-# Install Ruby with the specified version
+# 使用指定版本安装 Ruby
 ruby = "{{ get_env(name='RUBY_VERSION', default='3.3.3') }}"
 
 [tasks."bundle:install"]

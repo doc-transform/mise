@@ -1,26 +1,24 @@
-# Environments
+# 环境变量
 
-> Like [direnv](https://github.com/direnv/direnv) it
-> manages _environment variables_ for
-> different project directories.
+> 类似 [direnv](https://github.com/direnv/direnv)，mise 可以为不同的项目目录管理_环境变量_。
 
-Use mise to specify environment variables used for different projects.
+使用 mise 为不同项目指定环境变量。
 
-To get started, create a `mise.toml` file in the root of your project directory:
+首先，在项目根目录创建一个 `mise.toml` 文件：
 
 ```toml [mise.toml]
 [env]
 NODE_ENV = 'production'
 ```
 
-To clear an env var, set it to `false`:
+要清除一个环境变量，将其设为 `false`：
 
 ```toml [mise.toml]
 [env]
-NODE_ENV = false # unset a previously set NODE_ENV
+NODE_ENV = false # 取消之前设置的 NODE_ENV
 ```
 
-You can also use the CLI to get/set env vars:
+你也可以通过命令行来获取/设置环境变量：
 
 ```sh
 mise set NODE_ENV=development
@@ -38,11 +36,11 @@ cat mise.toml
 mise unset NODE_ENV
 ```
 
-Additionally, the [mise env [--json] [--dotenv]](/cli/env.html) command can be used to export the environment variables in various formats (including `PATH` and environment variables set by tools or plugins).
+此外，[`mise env [--json] [--dotenv]`](/cli/env.html) 命令可以将环境变量导出为多种格式（包括 `PATH` 以及由工具或插件设置的环境变量）。
 
-## Using environment variables
+## 使用环境变量
 
-Environment variables are available when using [`mise x|exec`](/cli/exec.html), or with [`mise r|run`](/cli/run.html) (i.e. with [tasks](/tasks/)):
+环境变量在使用 [`mise x|exec`](/cli/exec.html) 或 [`mise r|run`](/cli/run.html)（即[任务](/tasks/)）时可用：
 
 ```shell
 mise set MY_VAR=123
@@ -50,7 +48,7 @@ mise exec -- echo $MY_VAR
 # 123
 ```
 
-You can of course combine them with [tools](/dev-tools/):
+当然，你也可以将环境变量与[开发工具](/dev-tools/)配合使用：
 
 ```sh
 mise use node@24
@@ -64,7 +62,7 @@ mise exec -- node --eval 'console.log(process.env.MY_VAR)'
 # 123
 ```
 
-If [mise is activated](/getting-started.html#activate-mise), it will automatically set environment variables in the current shell session when you `cd` into a directory.
+如果 [mise 已激活](/getting-started.html#activate-mise)，当你 `cd` 进入一个目录时，它会自动在当前 shell 会话中设置环境变量。
 
 ```shell
 cd /path/to/project
@@ -77,16 +75,16 @@ echo $NODE_ENV
 # production
 ```
 
-If you are using [`shims`](/dev-tools/shims.html), the environment variables will be available when using the shim:
+如果你使用的是 [`shims`](/dev-tools/shims.html)，环境变量在使用 shim 时同样可用：
 
 ```shell
 mise set NODE_ENV=production
 mise use node@24
-# using the absolute path for the example
+# 使用绝对路径作为示例
 ~/.local/share/mise/shims/node --eval 'console.log(process.env.NODE_ENV)'
 ```
 
-Finally, you can also use [`mise en`](/cli/en.html) to start a new shell session with the environment variables set.
+最后，你还可以使用 [`mise en`](/cli/en.html) 启动一个新的 shell 会话，其中已设置好环境变量。
 
 ```shell
 mise set FOO=bar
@@ -95,9 +93,9 @@ mise en
 # bar
 ```
 
-## Environment in tasks
+## 在任务中使用环境变量
 
-It is also possible to define environment inside a task
+你也可以在任务中定义环境变量：
 
 ```toml [mise.toml]
 [tasks.print]
@@ -105,22 +103,20 @@ run = "echo $MY_VAR"
 env = { _.file = '/path/to/file.env', "MY_VAR" = "my variable" }
 ```
 
-## Lazy eval
+## 延迟求值
 
-Environment variables typically are resolved before tools—that way you can configure tool installation
-with environment variables. However, sometimes you want to access environment variables produced by
-tools. To do that, turn the value into a map with `tools = true`:
+环境变量通常在工具之前解析——这样你可以用环境变量来配置工具安装。但有时你需要访问工具产生的环境变量。要实现这一点，将值改为带有 `tools = true` 的映射：
 
 ```toml
 [env]
 MY_VAR = { value = "tools path: {{env.PATH}}", tools = true }
-_.path = { path = ["{{env.GEM_HOME}}/bin"], tools = true } # directives may also set tools = true
+_.path = { path = ["{{env.GEM_HOME}}/bin"], tools = true } # 指令也可以设置 tools = true
 NODE_VERSION = { value = "{{ tools.node.version }}", tools = true }
 ```
 
-## Redactions
+## 脱敏处理
 
-Variables can be redacted from the output by setting `redact = true`:
+可以通过设置 `redact = true` 来对输出中的变量进行脱敏：
 
 ```toml
 [env]
@@ -128,7 +124,7 @@ SECRET = { value = "my_secret", redact = true }
 _.file = { path = ".env.json", redact = true }
 ```
 
-You can also use the `redactions` array to mark multiple environment variables as sensitive:
+你也可以使用 `redactions` 数组将多个环境变量标记为敏感信息：
 
 ```toml
 redactions = ["SECRET_*", "*_TOKEN", "PASSWORD"]
@@ -138,61 +134,39 @@ API_TOKEN = "token_123"
 PASSWORD = "my_password"
 ```
 
-### Viewing Redacted Environment Variables
+### 查看脱敏的环境变量
 
-The `mise env` command provides flags to work with redacted variables:
+`mise env` 命令提供了处理脱敏变量的选项：
 
 ```bash
-# Show only redacted environment variables
+# 仅显示脱敏的环境变量
 mise env --redacted
 
-# Show only values (useful for piping)
+# 仅显示值（便于管道操作）
 mise env --values
 
-# Show only values of redacted variables
+# 仅显示脱敏变量的值
 mise env --redacted --values
 ```
 
-::: warning
-Redactions work by intercepting task output line-by-line, so they require a non-`raw` output mode.
-Tasks with `raw = true` bypass this interception (stdout/stderr are passed directly to the terminal), so redactions cannot be applied.
+:::: danger
+由于 mise 可能输出敏感值，这些值可能出现在 CI 日志中，你需要配置 CI 来识别哪些值是敏感的。
 
-By default, `mise run` uses the `replacing` output mode which shows a progress spinner rather than full output.
-In CI environments, you may want to use `prefix` or `interleave` output instead so you can see full task logs
-while still having redactions applied:
+例如，在使用 GitHub Actions 时，你应该使用 `::add-mask::` 来防止密钥出现在日志中：
 
 ```bash
-MISE_TASK_OUTPUT=prefix mise run mytask
-```
-
-Or set it globally in your config:
-
-```toml
-[settings]
-task.output = "prefix"
-```
-
-:::
-
-::: danger
-Because mise may output sensitive values that could show up in CI logs you'll need to configure your CI setup
-to know which values are sensitive.
-
-For example, when using GitHub Actions, you should use `::add-mask::` to prevent secrets from appearing in logs:
-
-```bash
-# In a GitHub Actions workflow
+# 在 GitHub Actions 工作流中
 for value in $(mise env --redacted --values); do
   echo "::add-mask::$value"
 done
 ```
 
-Note: If you're using [mise-action](https://github.com/jdx/mise-action), it will automatically redact values marked with `redact = true` or matching patterns in the `redactions` array.
-:::
+注意：如果你使用 [mise-action](https://github.com/jdx/mise-action)，它会自动对标记了 `redact = true` 或匹配 `redactions` 数组中模式的值进行脱敏。
+::::
 
-## Required Variables
+## 必需变量
 
-You can mark environment variables as required by setting `required = true`. This ensures that the variable is defined either before mise runs or in a later config file (like `mise.local.toml`):
+你可以通过设置 `required = true` 将环境变量标记为必需。这确保该变量在 mise 运行之前已定义，或在后续配置文件（如 `mise.local.toml`）中定义：
 
 ```toml
 [env]
@@ -200,139 +174,134 @@ DATABASE_URL = { required = true }
 API_KEY = { required = true }
 ```
 
-You can also provide help text to guide users on how to set the variable:
+你还可以提供帮助文本来指导用户如何设置变量：
 
 ```toml
 [env]
 DATABASE_URL = {
-  required = "Set DATABASE_URL to your PostgreSQL connection string (e.g., postgres://user:pass@localhost/dbname)",
+  required = "请将 DATABASE_URL 设置为你的 PostgreSQL 连接字符串（例如 postgres://user:pass@localhost/dbname）",
 }
 API_KEY = {
-  required = "Get your API key from https://example.com/api-keys",
+  required = "请从 https://example.com/api-keys 获取你的 API 密钥",
 }
 AWS_REGION = {
-  required = "Set to your AWS region (e.g., us-east-1, eu-west-1)",
+  required = "请设置你的 AWS 区域（例如 us-east-1、eu-west-1）",
 }
 ```
 
-When a required variable is missing, mise will show the help text in the error message to assist users.
+当必需变量缺失时，mise 会在错误信息中显示帮助文本以协助用户。
 
-### Required Variable Behavior
+### 必需变量的行为
 
-When a variable is marked as `required = true`, mise validates that it is defined through one of these sources:
+当变量被标记为 `required = true` 时，mise 会验证它是否通过以下来源之一被定义：
 
-1. **Pre-existing environment** - Variable was set before running mise
-2. **Later config file** - Variable is defined in a config file processed after the one declaring it as required
+1. **预先存在的环境** - 变量在运行 mise 之前已设置
+2. **后续配置文件** - 变量在声明其为必需的配置文件之后处理的配置文件中定义
 
 ```toml
-# In mise.toml
+# 在 mise.toml 中
 [env]
 DATABASE_URL = { required = true }
 ```
 
 ```toml
-# In mise.local.toml (processed later)
+# 在 mise.local.toml 中（后处理）
 [env]
-DATABASE_URL = "postgres://prod.example.com/db"  # This satisfies the requirement
+DATABASE_URL = "postgres://prod.example.com/db"  # 这满足了必需要求
 ```
 
-### Validation Behavior
+### 验证行为
 
-- **Regular commands** (like `mise env`): Fail with clear error messages when required variables are missing
-- **Shell activation** (`hook-env`): Warns about missing required variables but continues execution to avoid breaking shell setup
+- **常规命令**（如 `mise env`）：当必需变量缺失时，会报出清晰的错误信息
+- **Shell 激活**（`hook-env`）：对缺失的必需变量发出警告但继续执行，以避免中断 shell 设置
 
 ```bash
-# This will fail if DATABASE_URL is not pre-defined or in a later config
+# 如果 DATABASE_URL 未预定义或不在后续配置中，这将失败
 $ mise env
 Error: Required environment variable 'DATABASE_URL' is not defined...
 
-# This will warn but continue (used by shell activation)
+# 这将发出警告但继续执行（用于 shell 激活）
 $ mise hook-env --shell bash
 mise WARN Required environment variable 'DATABASE_URL' is not defined...
-# Shell activation continues successfully
+# Shell 激活继续成功
 ```
 
-### Use Cases
+### 使用场景
 
-Required variables are useful for:
+必需变量适用于：
 
-- **Database connections** - Ensure critical connection strings are explicitly set
-- **API keys** - Require explicit configuration of sensitive credentials
-- **Environment-specific settings** - Force explicit configuration per environment
-- **Team collaboration** - Document which variables team members must configure
+- **数据库连接** - 确保关键连接字符串已明确设置
+- **API 密钥** - 要求明确配置敏感凭证
+- **环境特定设置** - 强制每个环境进行明确配置
+- **团队协作** - 记录团队成员必须配置哪些变量
 
 ```toml
 [env]
-# API keys (must be set in environment or mise.local.toml)
+# API 密钥（必须在环境变量或 mise.local.toml 中设置）
 STRIPE_API_KEY = { required = true }
 SENTRY_DSN = { required = true }
 
-# Database connection (must be set in environment or mise.local.toml)
+# 数据库连接（必须在环境变量或 mise.local.toml 中设置）
 DATABASE_URL = { required = true }
 
-# Feature flags (must be explicitly configured)
+# 功能开关（必须明确配置）
 ENABLE_BETA_FEATURES = { required = true }
 ```
 
 ## `config_root`
 
-`config_root` is the canonical project root directory that mise uses when resolving relative paths inside configuration files. Generally, when you use relative paths in mise you're referring to this directory.
+`config_root` 是 mise 在解析配置文件中相对路径时使用的规范项目根目录。通常，当你在 mise 中使用相对路径时，指的就是这个目录。
 
-- When your config lives at nested paths like `.config/mise/config.toml` or `.mise/config.toml`, `config_root` points to the project directory that contains those files (for example, `/path/to/project`).
-- When your config lives at the project root (for example, `mise.toml`), `config_root` is simply the current directory.
-- Relative paths in environment directives are resolved against `config_root` so they behave consistently regardless of where the config file itself lives.
+- 当你的配置位于嵌套路径（如 `.config/mise/config.toml` 或 `.mise/config.toml`）时，`config_root` 指向包含这些文件的项目目录（例如 `/path/to/project`）。
+- 当你的配置位于项目根目录（如 `mise.toml`）时，`config_root` 就是当前目录。
+- 环境指令中的相对路径都相对于 `config_root` 解析，因此无论配置文件本身位于何处，行为都是一致的。
 
-Here's some example config files and their `config_root`:
+以下是一些配置文件及其 `config_root` 的示例：
 
-| Config File                                 | `config_root` |
-| ------------------------------------------- | ------------- |
-| `~/src/foo/.config/mise/conf.d/config.toml` | `~/src/foo`   |
-| `~/src/foo/.config/mise/config.toml`        | `~/src/foo`   |
-| `~/src/foo/.mise/config.toml`               | `~/src/foo`   |
-| `~/src/foo/mise.toml`                       | `~/src/foo`   |
+| 配置文件                                     | `config_root`  |
+| ------------------------------------------- | -------------- |
+| `~/src/foo/.config/mise/conf.d/config.toml` | `~/src/foo`    |
+| `~/src/foo/.config/mise/config.toml`        | `~/src/foo`    |
+| `~/src/foo/.mise/config.toml`               | `~/src/foo`    |
+| `~/src/foo/mise.toml`                       | `~/src/foo`    |
 
-You can see the implementation in [config_root.rs](https://github.com/jdx/mise/blob/main/src/config/config_file/config_root.rs).
+你可以在 [config_root.rs](https://github.com/jdx/mise/blob/main/src/config/config_file/config_root.rs) 中查看实现。
 
-Examples:
+示例：
 
 ```toml
 [env]
-# These are equivalent and both resolve against the project root
+# 以下两种写法等价，都相对于项目根目录解析
 _.path = ["tools/bin", "{{config_root}}/tools/bin"]
 
-# Likewise, a relative source path resolves against the project root
-_.source = "scripts/env.sh"          # == "{{config_root}}/scripts/env.sh"
+# 同样，相对路径的 source 文件也相对于项目根目录解析
+_.source = "scripts/env.sh"          # 等同于 "{{config_root}}/scripts/env.sh"
 ```
 
-## `env._` directives
+## `env._` 指令
 
-`env._.*` define special behavior for setting environment variables. (e.g.: reading env vars
-from a file). Since nested environment variables do not make sense,
-we make use of this fact by creating a key named "\_" which is a
-TOML table for the configuration of these directives.
+`env._.*` 用于定义设置环境变量的特殊行为（例如：从文件中读取环境变量）。由于嵌套环境变量没有意义，我们利用这一特性创建了一个名为 "\_" 的键，它是一个 TOML 表，用于配置这些指令。
 
 ### `env._.file`
 
-In `mise.toml`: `env._.file` can be used to specify a [dotenv](https://dotenv.org) file to load.
+在 `mise.toml` 中：`env._.file` 可用于指定要加载的 [dotenv](https://dotenv.org) 文件。
 
 ```toml
 [env]
 _.file = '.env'
 ```
 
-::: info
-This uses [dotenvy](https://crates.io/crates/dotenvy) under the hood. If you have problems with
-the way `env._.file` works, you will likely need to post an issue there,
-not to mise since there is not much mise can do about the way that crate works.
-:::
+:::: info
+底层使用 [dotenvy](https://crates.io/crates/dotenvy) 实现。如果你在使用 `env._.file` 时遇到问题，可能需要到 dotenvy 项目提交 issue，因为 mise 对该库的工作方式无法做太多干预。
+::::
 
-The `env._.file` directive supports:
+`env._.file` 指令支持：
 
-- A single file as a string or an object
-- Multiple files as an array of strings and objects
-- Using relative or absolute paths
-- Using `dotenv`, `json`, or `yaml` file formats
-- The `redact` and `tools` options
+- 单个文件（字符串或对象）
+- 多个文件（字符串和对象的数组）
+- 使用相对路径或绝对路径
+- 使用 `dotenv`、`json` 或 `yaml` 文件格式
+- `redact` 和 `tools` 选项
 
 ```toml
 [env]
@@ -341,42 +310,41 @@ _.file = '.env.yaml'
 
 ```toml
 [env]
-# Load env from the dotenv file after tools have defined environment variables
+# 在工具定义环境变量之后从 dotenv 文件加载环境变量
 _.file = { path = ".env", tools = true }
 ```
 
 ```toml
 [env]
 _.file = [
-    # Load env from the json file relative to this config file
+    # 从相对于此配置文件的 json 文件加载环境变量
     '.env.json',
-    # Load env from the dotenv file at an absolute path
+    # 从绝对路径的 dotenv 文件加载环境变量
     '/User/bob/.env',
-    # Load env from the yaml file relative to this config file and redacts the values
+    # 从相对于此配置文件的 yaml 文件加载环境变量，并对值进行脱敏
     { path = ".secrets.yaml", redact = true }
 ]
 ```
 
-You can set [`MISE_ENV_FILE=.env`](/configuration#mise-env-file) to automatically load dotenv files in any
-directory.
+你可以设置 [`MISE_ENV_FILE=.env`](/configuration#mise-env-file) 来在任何目录中自动加载 dotenv 文件。
 
-See [secrets](/environments/secrets/) for ways to read encrypted files with `env._.file`.
+参阅[密钥管理](/environments/secrets/)了解如何使用 `env._.file` 读取加密文件。
 
 ### `env._.path`
 
-`PATH` is treated specially. Use `env._.path` to add extra directories to the `PATH`, making any executables in those directories available in the shell without needing to type the full path:
+`PATH` 有特殊处理。使用 `env._.path` 可以向 `PATH` 添加额外的目录，使这些目录中的可执行文件在 shell 中无需输入完整路径即可使用：
 
 ```toml
 [env]
 _.path = './bin'
 ```
 
-The `env._.path` directive supports:
+`env._.path` 指令支持：
 
-- A single path as a string or an object
-- Multiple paths as an array of strings and objects
-- Using relative or absolute paths
-- The `tools` option
+- 单个路径（字符串或对象）
+- 多个路径（字符串和对象的数组）
+- 使用相对路径或绝对路径
+- `tools` 选项
 
 ```toml
 [env]
@@ -385,50 +353,49 @@ _.path = 'scripts'
 
 ```toml
 [env]
-# Define this path directory after tools have defined environment variables
+# 在工具定义环境变量之后定义此路径目录
 _.path = { path = ["{{env.GEM_HOME}}/bin"], tools = true }
 ```
 
 ```toml
 [env]
 _.path = [
-    # adds an absolute path
+    # 添加绝对路径
     "~/.local/share/bin",
-    # adds a path relative to the project root (config_root)
+    # 添加相对于项目根目录（config_root）的路径
     "{{config_root}}/node_modules/.bin",
-    # adds a relative path (equivalent to "{{config_root}}/tools/bin")
+    # 添加相对路径（等同于 "{{config_root}}/tools/bin"）
     "tools/bin",
 ]
 ```
 
-Relative paths like `tools/bin` or `./tools/bin` are resolved against <span v-pre>`{{config_root}}`</span>. For example, with a config file at `/path/to/project/.config/mise/config.toml`, `tools/bin` resolves to `/path/to/project/tools/bin`.
+相对路径（如 `tools/bin` 或 `./tools/bin`）相对于 <span v-pre>`{{config_root}}`</span> 解析。例如，配置文件位于 `/path/to/project/.config/mise/config.toml` 时，`tools/bin` 解析为 `/path/to/project/tools/bin`。
 
 ### `env._.source`
 
-Source an external bash script and pull exported environment variables out of it:
+加载外部 bash 脚本并提取其中导出的环境变量：
 
 ```toml
 [env]
 _.source = "./script.sh"
 ```
 
-::: info
-This **must** be a script that runs in bash as if it were executed like this:
+:::: info
+此脚本**必须**是一个 bash 脚本，执行方式如下：
 
 ```sh
 source ./script.sh
 ```
 
-The shebang will be **ignored**. See [#1448](https://github.com/jdx/mise/discussions/6734)
-for a potential alternative that would work with binaries or other script languages.
-:::
+shebang 行会被**忽略**。参阅 [#1448](https://github.com/jdx/mise/discussions/6734) 了解可能支持二进制文件或其他脚本语言的替代方案。
+::::
 
-The `env._.source` directive supports:
+`env._.source` 指令支持：
 
-- A single source as a string or an object
-- Multiple sources as an array of strings and objects
-- Using relative or absolute paths
-- The `redact` and `tools` options
+- 单个来源（字符串或对象）
+- 多个来源（字符串和对象的数组）
+- 使用相对路径或绝对路径
+- `redact` 和 `tools` 选项
 
 ```toml
 [env]
@@ -437,99 +404,98 @@ _.source = 'source.sh'
 
 ```toml
 [env]
-# Source this file after tools have defined environment variables
+# 在工具定义环境变量之后加载此文件
 _.source = { path = "my/env.sh", tools = true }
 ```
 
 ```toml
 [env]
 _.source = [
-    # Sources the file relative to the config root
+    # 加载相对于配置根目录的文件
     './scripts/base.sh',
-    # Sources a file at an absolute path
+    # 加载绝对路径的文件
     '/User/bob/env.sh',
-    # Sources the file relative to the config root and redacts the values
+    # 加载相对于配置根目录的文件，并对值进行脱敏
     { path = ".secrets.sh", redact = true }
 ]
 ```
 
-## Plugin-provided `env._` Directives
+## 插件提供的 `env._` 指令
 
-Plugins can provide their own `env._` directives that dynamically set environment variables and modify your PATH. This is particularly useful for:
+插件可以提供自己的 `env._` 指令，用于动态设置环境变量和修改 PATH。这在以下场景特别有用：
 
-- Integrating with external secret management systems
-- Setting environment variables based on dynamic conditions
-- Managing complex PATH configurations
-- Providing team-wide environment standardization
+- 集成外部密钥管理系统
+- 基于动态条件设置环境变量
+- 管理复杂的 PATH 配置
+- 提供团队级别的环境标准化
 
-### Basic Usage
+### 基本用法
 
-Simple plugin activation:
+简单的插件激活：
 
 ```toml
 [env]
 _.my-plugin = {}
 ```
 
-Plugin with configuration options:
+带配置选项的插件：
 
 ```toml
 [env]
 _.my-plugin = { option1 = "value1", option2 = "value2" }
 ```
 
-### How It Works
+### 工作原理
 
-When you use `env._.<plugin-name>`, mise:
+当你使用 `env._.<plugin-name>` 时，mise 会：
 
-1. Loads the plugin from your installed plugins
-2. Calls the plugin's `MiseEnv` hook to get environment variables
-3. Calls the plugin's `MisePath` hook to get PATH entries (if defined)
-4. Applies these to your environment when running `mise env` or using shell integration
+1. 从已安装的插件中加载该插件
+2. 调用插件的 `MiseEnv` 钩子获取环境变量
+3. 调用插件的 `MisePath` 钩子获取 PATH 条目（如果有定义）
+4. 在运行 `mise env` 或使用 shell 集成时将这些应用到你的环境中
 
-The configuration options you provide (the TOML table after `=`) are passed to the plugin's hooks via `ctx.options`, allowing plugins to be configured per-project or per-environment.
+你提供的配置选项（`=` 后面的 TOML 表）会通过 `ctx.options` 传递给插件的钩子，允许按项目或按环境配置插件。
 
-### Example: Secret Management Plugin
+### 示例：密钥管理插件
 
 ```toml
 [env]
-# Fetch secrets from a vault
+# 从密钥库获取密钥
 _.vault-secrets = {
   vault_url = "https://vault.example.com",
   secrets_path = "secret/myapp"
 }
 ```
 
-The plugin could then fetch secrets from HashiCorp Vault and expose them as environment variables.
+该插件可以从 HashiCorp Vault 获取密钥并将其暴露为环境变量。
 
-### Example: Dynamic Environment Plugin
+### 示例：动态环境插件
 
 ```toml
 [env]
-# Set environment based on git branch
+# 基于 git 分支设置环境
 _.git-env = { production_branch = "main" }
 ```
 
-The plugin could detect the current git branch and set `ENVIRONMENT=production` when on `main`, or `ENVIRONMENT=development` otherwise.
+该插件可以检测当前 git 分支，在 `main` 分支时设置 `ENVIRONMENT=production`，否则设置 `ENVIRONMENT=development`。
 
-### Creating Environment Plugins
+### 创建环境插件
 
-See [Environment Plugins](/plugins#environment-plugins) in the Plugins documentation for a complete guide to creating your own environment plugins.
+参阅插件文档中的[环境插件](/plugins#environment-plugins)，获取创建自己的环境插件的完整指南。
 
-For a working example, see the [mise-env-plugin-template](https://github.com/jdx/mise-env-plugin-template) repository.
+工作示例请参考 [mise-env-plugin-template](https://github.com/jdx/mise-env-plugin-template) 仓库。
 
-## Multiple `env._` Directives
+## 多个 `env._` 指令
 
-It may be necessary to use multiple `env._` directives, however TOML fails with this syntax
-because it has 2 identical keys in a table:
+有时你需要使用多个 `env._` 指令，但以下 TOML 语法会失败，因为同一个表中有两个相同的键：
 
 ```toml
 [env]
 _.source = "./script_1.sh"
-_.source = "./script_2.sh" # invalid // [!code error]
+_.source = "./script_2.sh" # 无效 // [!code error]
 ```
 
-For this use-case, you can optionally make `[env]` an array-of-tables instead by using `[[env]]` instead:
+对于这种情况，你可以将 `[env]` 改为数组表（array-of-tables），使用 `[[env]]` 代替：
 
 ```toml
 [[env]]
@@ -538,20 +504,20 @@ _.source = "./script_1.sh"
 _.source = "./script_2.sh"
 ```
 
-It works identically but you can have multiple tables.
+这种方式功能完全相同，但你可以有多个表。
 
-## Templates
+## 模板
 
-Environment variable values can be templates, see [Templates](/templates) for details.
+环境变量的值可以使用模板，详见[模板](/templates)。
 
 ```toml
 [env]
 LD_LIBRARY_PATH = "/some/path:{{env.LD_LIBRARY_PATH}}"
 ```
 
-## Using env vars in other env vars
+## 在环境变量中引用其他环境变量
 
-You can use the value of an environment variable in later env vars:
+你可以在后续的环境变量中引用前面定义的环境变量：
 
 ```toml
 [env]
@@ -559,12 +525,11 @@ MY_PROJ_LIB = "{{config_root}}/lib"
 LD_LIBRARY_PATH = "/some/path:{{env.MY_PROJ_LIB}}"
 ```
 
-Of course the ordering matters when doing this.
+当然，这样做时顺序很重要。
 
-## Shell-style variable expansion
+## Shell 风格的变量展开
 
-As a simpler alternative to Tera templates for referencing env vars, you can use shell-style `$VAR` syntax
-by enabling the [`env_shell_expand`](/configuration/settings.html#env_shell_expand) setting:
+作为 Tera 模板引用环境变量的更简便替代方案，你可以启用 [`env_shell_expand`](/configuration/settings.html#env_shell_expand) 设置来使用 shell 风格的 `$VAR` 语法：
 
 ```toml
 [settings]
@@ -575,26 +540,25 @@ MY_PROJ_LIB = "{{config_root}}/lib"
 LD_LIBRARY_PATH = "$MY_PROJ_LIB:$LD_LIBRARY_PATH"
 ```
 
-Supported syntax:
+支持的语法：
 
-| Syntax            | Description                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| `$VAR`            | Expands to the value of `VAR`                                                         |
-| `${VAR}`          | Same, useful when followed by alphanumeric characters (e.g., `${VAR}_suffix`)         |
-| `${VAR:-default}` | Uses `default` if `VAR` is unset or empty                                             |
-| `${VAR:-}`        | Expands to empty string if `VAR` is unset (suppresses the undefined variable warning) |
+| 语法               | 说明                                                                         |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `$VAR`            | 展开为 `VAR` 的值                                                             |
+| `${VAR}`          | 相同，当后面紧跟字母数字字符时很有用（例如 `${VAR}_suffix`）                       |
+| `${VAR:-default}` | 当 `VAR` 未设置或为空时使用 `default`                                           |
+| `${VAR:-}`        | 当 `VAR` 未设置时展开为空字符串（抑制未定义变量警告）                                |
 
-Expansion runs after Tera template rendering, so both syntaxes can be mixed.
-Undefined variables without a default are left unexpanded and produce a warning.
+展开在 Tera 模板渲染之后执行，因此两种语法可以混合使用。未定义且没有默认值的变量不会被展开，并会产生警告。
 
-The setting is a 3-way toggle:
+该设置是一个三态开关：
 
-- **`true`** — enable shell expansion
-- **`false`** — disable shell expansion, no warning
-- **unset** (default) — disable shell expansion but warn if `$` is detected
+- **`true`** — 启用 shell 展开
+- **`false`** — 禁用 shell 展开，不发出警告
+- **未设置**（默认） — 禁用 shell 展开，但检测到 `$` 时发出警告
 
 <!-- TODO(2026.7.0): update this to say shell expansion is enabled by default -->
 
-::: tip
-Shell expansion will become the default behavior in the 2026.7.0 release. Set `env_shell_expand = true` now to opt in early, or `env_shell_expand = false` to preserve the current behavior.
-:::
+:::: tip
+Shell 展开将在 2026.7.0 版本中成为默认行为。现在设置 `env_shell_expand = true` 可以提前启用，或设置 `env_shell_expand = false` 保持当前行为。
+::::

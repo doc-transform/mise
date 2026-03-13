@@ -1,17 +1,17 @@
-# Mise + Docker Cookbook
+# Mise + Docker 实践手册
 
-Here are some tips on using Docker with mise.
+以下是在 Docker 中使用 mise 的一些技巧。
 
-## Docker image with mise
+## 包含 mise 的 Docker 镜像
 
-Here is an example Dockerfile showing how to install mise in a Docker image.
+以下是一个示例 Dockerfile，展示如何在 Docker 镜像中安装 mise。
 
 ```Dockerfile [Dockerfile]
-FROM debian:13-slim
+FROM debian:12-slim
 
 RUN apt-get update  \
     && apt-get -y --no-install-recommends install  \
-        # install any other dependencies you might need
+        # 安装你可能需要的其他依赖
         sudo curl git ca-certificates build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,30 +26,35 @@ ENV PATH="/mise/shims:$PATH"
 RUN curl https://mise.run | sh
 ```
 
-Build and run the Docker image:
+构建并运行 Docker 镜像：
 
 ```shell
 docker build -t debian-mise .
 docker run -it --rm debian-mise
 ```
 
-## Task to run mise in a Docker container
+## 在 Docker 容器中运行 mise 的任务
 
-This can be useful if you need to reproduce an issue you're having with mise in a clean environment.
+当你需要在干净的环境中复现 mise 的问题时，这个方法很有用。
 
 ```toml [mise.toml]
 [tasks.docker]
-run = "docker run -it --rm debian-mise"
+run = "docker run --pull=always -it --rm --entrypoint bash jdxcode/mise:latest"
 ```
 
-Build the image first (see above), then:
+使用示例：
 
 ```shell
 ❯ mise docker
-[docker] $ docker run -it --rm debian-mise
-root@75f179a190a1:/# eval "$(mise activate bash)"
-# overwrite configuration and prune to give us a clean state
-root@75f179a190a1:/# echo "" > /mise/config.toml
-root@75f179a190a1:/# mise prune --yes
+[docker] $ docker run --pull=always -it --rm --entrypoint bash jdxcode/mise:latest
+# latest: Pulling from jdxcode/mise
+# Digest: sha256:eecc479b6259479ffca5a4f9c68dbfe8631ca62dc59aa60c9ab5e4f6e9982701
+# Status: Image is up to date for jdxcode/mise:latest
+root@75f179a190a1:/mise# eval "$(mise activate bash)"
+# 覆盖配置并清理以获得干净的状态
+root@75f179a190a1:/mise# echo "" >/mise/config.toml
+root@75f179a190a1:/mise# mise prune --yes
+# mise pruned configuration links
+# mise python@3.13.1 ✓ remove /mise/cache/python/3.13.1
 # ...
 ```

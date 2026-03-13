@@ -1,13 +1,10 @@
-# Mise + Terraform/Opentofu Cookbook
+# Mise + Terraform/Opentofu 实践手册
 
-Here are some tips on managing Terraform projects with mise.
+以下是使用 mise 管理 Terraform 项目的一些技巧。
 
-## Managing `terraform`/`opentofu` Projects
+## 管理 `terraform`/`opentofu` 项目
 
-It is often necessary to have your terraform configuration in a `terraform/` subdirectory.
-This necessitates the use of syntax like `terraform -chdir=terraform plan` to use appropriate
-terraform command. The following config allows you to invoke all of them from `mise`, leveraging
-`mise` tasks.
+通常需要将 terraform 配置放在 `terraform/` 子目录中。这就需要使用类似 `terraform -chdir=terraform plan` 的语法来执行相应的 terraform 命令。以下配置允许你通过 `mise` 调用所有命令，利用 `mise` 任务来简化操作。
 
 ```toml [mise.toml]
 [tools]

@@ -1,16 +1,16 @@
-# Demo
+# 演示
 
-The following demo shows:
+以下演示展示了：
 
-- how to use `mise exec` to run a command with a specific version of a tool
-- how you can use `mise` to install many other tools such as `jq`, `terraform`, or `go`.
-- how to use `mise` to manage multiple versions of `node` on the same system.
+- 如何使用 `mise exec` 以指定版本运行工具
+- 如何用 `mise` 安装和管理 `jq`、`terraform`、`go` 等各种工具
+- 如何用 `mise` 在同一系统上管理多个 `node` 版本
 
 <video style="max-width: 100%; height: auto;" controls="controls" src="./tapes/demo.mp4" />
 
-## Transcript
+## 操作记录
 
-`mise exec <tool> -- <command>` allows you to run any tools with mise
+`mise exec <tool> -- <command>` 可以让你通过 mise 运行任意工具
 
 ```shell
 mise exec node@24 -- node -v
@@ -18,7 +18,7 @@ mise exec node@24 -- node -v
 # v24.x.x
 ```
 
-node is only available in the mise environment, not globally
+此时 node 仅在 mise 环境中可用，并非全局安装
 
 ```shell
 node -v
@@ -27,7 +27,7 @@ node -v
 
 ---
 
-Here is another example where we run terraform with `mise exec`
+再来一个例子，通过 `mise exec` 运行 terraform
 
 ```shell
 mise exec terraform -- terraform -v
@@ -37,9 +37,9 @@ mise exec terraform -- terraform -v
 
 ---
 
-`mise exec` is great for running one-off commands, however it can be convenient to activate mise. When activated, mise will automatically update your `PATH` to include the tools you have installed, making them available directly.
+`mise exec` 非常适合运行一次性命令，但激活 mise 会更方便。激活后，mise 会自动更新 `PATH`，让已安装的工具可以直接使用。
 
-We will start by installing node@lts and make it the global default
+先安装 node@lts 并设为全局默认版本
 
 ```shell
 mise use --global node@lts
@@ -56,11 +56,11 @@ which node
 # /root/.local/share/mise/installs/node/22.14.0/bin/node
 ```
 
-Note that we get back the path to the real node here, not a shim.
+注意这里返回的是真实的 node 路径，而不是 shim。
 
 ---
 
-We can also install other tools with mise. For example, we will install terraform, jq, and go
+我们还可以用 mise 安装其他工具。例如安装 terraform、jq 和 go
 
 ```shell
 mise use -g terraform jq go
@@ -96,7 +96,7 @@ mise ls
 
 ---
 
-Let's enter a project directory where we will set up node@23
+进入一个项目目录，为它设置 node@23
 
 ```shell
 cd myproj
@@ -112,7 +112,7 @@ pnpm -v
 # 10.7.0
 ```
 
-As expected, `node -v` is now v23.x
+如预期一样，`node -v` 现在是 v23.x
 
 ```shell
 cat mise.toml
@@ -121,7 +121,7 @@ cat mise.toml
 # pnpm = "10"
 ```
 
-We will leave this directory. The node version will revert to the global LTS version
+离开这个目录后，node 版本会恢复为全局的 LTS 版本
 
 ```shell
 cd ..

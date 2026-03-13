@@ -1,163 +1,163 @@
-# Plugin Publishing
+# 插件发布
 
-This guide shows how to publish and distribute your plugins, whether they are backend plugins or tool plugins. Publishing makes your plugins available to other users and ensures they can be easily installed and maintained.
+本指南介绍如何发布和分发你的插件，无论是工具源插件还是工具插件。发布使你的插件可供其他用户使用，并确保它们能够被轻松安装和维护。
 
-## Publishing Checklist
+## 发布清单
 
-Before publishing your plugin, ensure you have:
+发布插件之前，请确保你已准备好：
 
-### Essential Files
+### 必需文件
 
-- **`metadata.lua`** - Plugin metadata with name, version, description, and author
-- **Plugin implementation** - Either backend methods or hook functions
-- **Test coverage** - Automated tests to verify functionality
+- **`metadata.lua`** - 包含名称、版本、描述和作者的插件元数据
+- **插件实现** - 工具源方法或钩子函数
+- **测试覆盖** - 验证功能的自动化测试
 
-### Optional but Recommended
+### 可选但推荐
 
-- **`README.md`** - Basic usage instructions and examples
-- **`test/`** directory - Test scripts for verification
-- **Version control** - Git repository with proper versioning
+- **`README.md`** - 基本使用说明和示例
+- **`test/`** 目录 - 用于验证的测试脚本
+- **版本控制** - 使用正确版本管理的 Git 仓库
 
-## Repository Setup
+## 仓库设置
 
-### 1. Initialize Repository
+### 1. 初始化仓库
 
-The easiest way to start is with the [mise-tool-plugin-template](https://github.com/jdx/mise-tool-plugin-template):
+最简单的起步方式是使用 [mise-tool-plugin-template](https://github.com/jdx/mise-tool-plugin-template)：
 
 ```bash
-# Clone the template
+# 克隆模板
 git clone https://github.com/jdx/mise-tool-plugin-template my-plugin
 cd my-plugin
 
-# Remove template history and set up your own repository
+# 移除模板历史并设置你自己的仓库
 rm -rf .git
 git init
 git remote add origin https://github.com/username/my-plugin.git
 
-# Customize for your plugin
-# Edit metadata.lua, hooks/*.lua, README.md, etc.
+# 为你的插件自定义
+# 编辑 metadata.lua、hooks/*.lua、README.md 等
 ```
 
-Alternatively, create a repository from scratch:
+或者从头创建仓库：
 
 ```bash
-# Create plugin directory
+# 创建插件目录
 mkdir my-plugin
 cd my-plugin
 
-# Initialize git repository
+# 初始化 git 仓库
 git init
 git remote add origin https://github.com/username/my-plugin.git
 
-# Create initial structure
+# 创建初始结构
 touch metadata.lua
 mkdir -p test
 echo "# My Plugin" > README.md
 ```
 
-### 2. Basic Directory Structure
+### 2. 基本目录结构
 
-Organize your plugin with this structure:
+按以下结构组织你的插件：
 
 ```
 my-plugin/
-├── metadata.lua          # Plugin metadata
-├── README.md            # Basic documentation
-├── test/                # Test scripts
+├── metadata.lua          # 插件元数据
+├── README.md            # 基本文档
+├── test/                # 测试脚本
 │   └── test.sh
-├── .gitignore           # Git ignore rules
-└── [implementation files]
+├── .gitignore           # Git 忽略规则
+└── [实现文件]
 ```
 
-For backend plugins:
+工具源插件：
 
 ```
 backend-plugin/
-├── metadata.lua          # Backend methods implementation
+├── metadata.lua          # 工具源方法实现
 ├── README.md
 └── test/
     └── test.sh
 ```
 
-For tool plugins:
+工具插件：
 
 ```
 tool-plugin/
-├── metadata.lua          # Plugin metadata
-├── hooks/               # Hook implementations
+├── metadata.lua          # 插件元数据
+├── hooks/               # 钩子实现
 │   ├── available.lua
 │   ├── pre_install.lua
 │   └── env_keys.lua
-├── lib/                 # Helper libraries
+├── lib/                 # 辅助库
 │   └── helper.lua
 ├── README.md
 └── test/
     └── test.sh
 ```
 
-### 3. Git Ignore Configuration
+### 3. Git 忽略配置
 
-Create a `.gitignore` file:
+创建 `.gitignore` 文件：
 
 ```gitignore
-# Temporary files
+# 临时文件
 *.tmp
 *.temp
 .DS_Store
 Thumbs.db
 
-# Test artifacts
+# 测试产物
 test/tmp/
 test/output/
 
-# IDE files
+# IDE 文件
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
+# 系统文件
 *.log
 ```
 
-## Versioning Strategy
+## 版本策略
 
-### Semantic Versioning
+### 语义化版本
 
-Use semantic versioning (SemVer) for your plugin releases:
+为插件发布使用语义化版本（SemVer）：
 
-- **Major version** (1.0.0 → 2.0.0): Breaking changes
-- **Minor version** (1.0.0 → 1.1.0): New features, backward compatible
-- **Patch version** (1.0.0 → 1.0.1): Bug fixes, backward compatible
+- **主版本号** (1.0.0 → 2.0.0)：破坏性变更
+- **次版本号** (1.0.0 → 1.1.0)：新功能，向后兼容
+- **修订号** (1.0.0 → 1.0.1)：Bug 修复，向后兼容
 
-### Version Management
+### 版本管理
 
-Update version in `metadata.lua`:
+在 `metadata.lua` 中更新版本：
 
 ```lua
 PLUGIN = {
     name = "my-plugin",
-    version = "1.2.3",  -- Update this for each release
+    version = "1.2.3",  -- 每次发布时更新
     description = "My awesome plugin",
     author = "Your Name"
 }
 ```
 
-Create git tags for releases:
+创建 git 标签用于发布：
 
 ```bash
-# Tag the current commit
+# 标记当前提交
 git tag -a v1.2.3 -m "Release version 1.2.3"
 
-# Push tags to repository
+# 推送标签到仓库
 git push origin --tags
 ```
 
-## Testing Before Publication
+## 发布前测试
 
-### Automated Testing
+### 自动化测试
 
-Create comprehensive test scripts:
+创建完整的测试脚本：
 
 ```bash
 #!/bin/bash
@@ -166,41 +166,41 @@ set -e
 
 echo "Testing plugin functionality..."
 
-# Install plugin locally
+# 本地安装插件
 mise plugin install my-plugin .
 
-# Test basic functionality
+# 测试基本功能
 if [[ "$(mise ls-remote my-plugin)" == "" ]]; then
     echo "ERROR: No versions available"
     exit 1
 fi
 
-# Test installation
+# 测试安装
 mise install my-plugin@latest
 
-# Test execution
+# 测试执行
 mise exec my-plugin:tool -- --version
 
-# Clean up
+# 清理
 mise plugin remove my-plugin
 
 echo "All tests passed!"
 ```
 
-### Manual Testing
+### 手动测试
 
-Test your plugin manually:
+手动测试你的插件：
 
 ```bash
-# Link for development
+# 链接用于开发
 mise plugin link my-plugin /path/to/plugin
 
-# Test all functionality
+# 测试所有功能
 mise ls-remote my-plugin
 mise install my-plugin@latest
 mise use my-plugin@latest
 
-# Test in different environments
+# 在不同环境中测试
 docker run --rm -it ubuntu:latest bash -c "
     curl -fsSL https://mise.jdx.dev/install.sh | sh
     mise plugin install my-plugin https://github.com/username/my-plugin
@@ -208,281 +208,281 @@ docker run --rm -it ubuntu:latest bash -c "
 "
 ```
 
-## Publishing Process
+## 发布流程
 
-### 1. Prepare for Release
+### 1. 准备发布
 
-Before publishing, ensure everything is ready:
+发布前确保一切就绪：
 
 ```bash
-# Run tests
+# 运行测试
 ./test/test.sh
 
-# Check git status
+# 检查 git 状态
 git status
 
-# Update version in metadata.lua
+# 更新 metadata.lua 中的版本
 vim metadata.lua
 
-# Commit changes
+# 提交变更
 git add .
 git commit -m "Prepare release v1.2.3"
 ```
 
-### 2. Create Release
+### 2. 创建发布
 
-Create a tagged release:
+创建带标签的发布：
 
 ```bash
-# Create and push tag
+# 创建并推送标签
 git tag -a v1.2.3 -m "Release version 1.2.3"
 git push origin v1.2.3
 git push origin main
 ```
 
-### 3. GitHub Releases (Recommended)
+### 3. GitHub 发布（推荐）
 
-Create a GitHub release for better discoverability:
+创建 GitHub 发布以提高可发现性：
 
-1. Go to your repository on GitHub
-2. Click "Releases" → "Create a new release"
-3. Choose your tag (v1.2.3)
-4. Write release notes describing changes
-5. Publish the release
+1. 在 GitHub 上进入你的仓库
+2. 点击 "Releases" → "Create a new release"
+3. 选择你的标签 (v1.2.3)
+4. 编写描述变更的发布说明
+5. 发布
 
-### 4. Release Notes Template
+### 4. 发布说明模板
 
 ```markdown
-## Changes in v1.2.3
+## v1.2.3 更新内容
 
-### Added
+### 新增
 
-- New feature X
-- Support for Y
+- 新功能 X
+- 支持 Y
 
-### Changed
+### 变更
 
-- Improved performance of Z
-- Updated dependencies
+- 改进 Z 的性能
+- 更新依赖
 
-### Fixed
+### 修复
 
-- Fixed issue with A
-- Resolved bug in B
+- 修复 A 的问题
+- 解决 B 中的 Bug
 
-### Installation
+### 安装
 
 ```bash
 mise plugin install my-plugin https://github.com/username/my-plugin
 ```
 ```
 
-## Distribution Methods
+## 分发方式
 
-### 1. Direct Git Installation
+### 1. 直接 Git 安装
 
-Users can install directly from your repository:
+用户可以直接从你的仓库安装：
 
 ```bash
-# Install from GitHub
+# 从 GitHub 安装
 mise plugin install my-plugin https://github.com/username/my-plugin
 
-# Install specific version
+# 安装特定版本
 mise plugin install my-plugin https://github.com/username/my-plugin@v1.2.3
 
-# Install from other Git providers
+# 从其他 Git 提供商安装
 mise plugin install my-plugin https://gitlab.com/username/my-plugin
 ```
 
-### 2. Private Repository Access
+### 2. 私有仓库访问
 
-For private repositories, users need access:
+对于私有仓库，用户需要访问权限：
 
 ```bash
-# SSH access (recommended)
+# SSH 访问（推荐）
 mise plugin install my-plugin git@github.com:username/private-plugin.git
 
-# HTTPS with token
+# HTTPS 带令牌
 mise plugin install my-plugin https://username:token@github.com/username/private-plugin.git
 ```
 
-### 3. Archive Distribution
+### 3. 归档分发
 
-You can also distribute as archives:
+你也可以以归档形式分发：
 
 ```bash
-# Create release archive
+# 创建发布归档
 git archive --format=zip --output=my-plugin-v1.2.3.zip v1.2.3
 
-# Users can install from archive
+# 用户可以从归档安装
 mise plugin install my-plugin https://github.com/username/my-plugin/releases/download/v1.2.3/my-plugin-v1.2.3.zip
 ```
 
-## Maintenance and Updates
+## 维护和更新
 
-### 1. Update Workflow
+### 1. 更新工作流
 
-Establish a regular update process:
+建立常规更新流程：
 
 ```bash
-# Development workflow
+# 开发工作流
 git checkout -b feature/new-feature
-# ... make changes ...
+# ... 进行变更 ...
 git commit -m "Add new feature"
 git push origin feature/new-feature
 
-# After review and merge
+# 审查合并后
 git checkout main
 git pull origin main
 git tag -a v1.3.0 -m "Release v1.3.0"
 git push origin v1.3.0
 ```
 
-### 2. Backward Compatibility
+### 2. 向后兼容
 
-Maintain backward compatibility when possible:
+尽可能保持向后兼容：
 
-- Keep existing plugin interface unchanged
-- Add new features as optional
-- Deprecate old features gradually
-- Document breaking changes clearly
+- 保持现有插件接口不变
+- 将新功能设为可选
+- 逐步废弃旧功能
+- 清楚记录破坏性变更
 
-### 3. User Communication
+### 3. 用户沟通
 
-Keep users informed about updates:
+让用户了解更新：
 
-- Use clear release notes
-- Announce major changes
-- Provide migration guides for breaking changes
-- Maintain documentation
+- 使用清晰的发布说明
+- 宣布重大变更
+- 为破坏性变更提供迁移指南
+- 维护文档
 
-## Security Considerations
+## 安全注意事项
 
-### 1. Code Review
+### 1. 代码审查
 
-- Review all code changes before publishing
-- Check for security vulnerabilities
-- Validate external dependencies
-- Test with untrusted inputs
+- 发布前审查所有代码变更
+- 检查安全漏洞
+- 验证外部依赖
+- 使用不受信任的输入进行测试
 
-### 2. Dependency Management
+### 2. 依赖管理
 
-- Pin dependency versions where possible
-- Regularly update dependencies
-- Monitor for security advisories
-- Use trusted sources only
+- 尽可能锁定依赖版本
+- 定期更新依赖
+- 监控安全通告
+- 仅使用受信任的来源
 
-### 3. Access Control
+### 3. 访问控制
 
-- Limit repository access appropriately
-- Use strong authentication
-- Regularly audit access permissions
-- Consider signed releases for sensitive plugins
+- 适当限制仓库访问
+- 使用强认证
+- 定期审计访问权限
+- 对敏感插件考虑签名发布
 
-## Best Practices
+## 最佳实践
 
-### 1. Documentation
+### 1. 文档
 
-- Keep README.md concise but complete
-- Include usage examples
-- Document configuration options
-- Provide troubleshooting guide
+- 保持 README.md 简洁但完整
+- 包含使用示例
+- 记录配置选项
+- 提供故障排除指南
 
-### 2. Testing
+### 2. 测试
 
-- Test on multiple platforms
-- Include edge cases
-- Test upgrade scenarios
-- Automate testing where possible
+- 在多个平台上测试
+- 包含边界情况
+- 测试升级场景
+- 尽可能自动化测试
 
-### 3. Community
+### 3. 社区
 
-- Respond to issues promptly
-- Accept contributions gracefully
-- Maintain consistent code style
-- Be helpful and respectful
+- 及时回应 Issues
+- 优雅地接受贡献
+- 保持一致的代码风格
+- 保持友善和尊重
 
-### 4. Release Management
+### 4. 发布管理
 
-- Follow semantic versioning
-- Create clear release notes
-- Test releases thoroughly
-- Maintain stable branches
+- 遵循语义化版本
+- 创建清晰的发布说明
+- 彻底测试发布
+- 维护稳定分支
 
-## Troubleshooting
+## 故障排除
 
-### Common Issues
+### 常见问题
 
-**Plugin not installing:**
+**插件无法安装：**
 
 ```bash
-# Check repository URL
+# 检查仓库 URL
 git clone https://github.com/username/my-plugin.git
 
-# Verify metadata.lua exists
+# 验证 metadata.lua 存在
 ls -la my-plugin/metadata.lua
 
-# Test locally
+# 本地测试
 mise plugin link my-plugin ./my-plugin
 ```
 
-**Version conflicts:**
+**版本冲突：**
 
 ```bash
-# Check version in metadata.lua
+# 检查 metadata.lua 中的版本
 grep version my-plugin/metadata.lua
 
-# Verify git tags
+# 验证 git 标签
 git tag -l
 ```
 
-**Permission issues:**
+**权限问题：**
 
 ```bash
-# Check repository permissions
+# 检查仓库权限
 git ls-remote https://github.com/username/my-plugin.git
 
-# For private repos, verify access
+# 对于私有仓库，验证访问
 ssh -T git@github.com
 ```
 
-## Next Steps
+## 下一步
 
-- [Backend Plugin Development](backend-plugin-development.md)
-- [Tool Plugin Development](tool-plugin-development.md)
-- [Plugin Lua Modules](plugin-lua-modules.md)
+- [工具源插件开发](backend-plugin-development.md)
+- [工具插件开发](tool-plugin-development.md)
+- [插件 Lua 模块](plugin-lua-modules.md)
 
-## Examples
+## 示例
 
-### Simple Backend Plugin Release
+### 简单工具源插件发布
 
 ```bash
-# 1. Prepare plugin
+# 1. 准备插件
 cd my-backend-plugin
 echo "Updated backend methods" > metadata.lua
 
-# 2. Test locally
+# 2. 本地测试
 mise plugin link my-plugin .
 mise ls-remote my-plugin:tool
 
-# 3. Release
+# 3. 发布
 git add .
 git commit -m "v1.0.0: Initial release"
 git tag -a v1.0.0 -m "Initial release"
 git push origin v1.0.0
 ```
 
-### Tool Plugin with Hooks
+### 带钩子的工具插件
 
 ```bash
-# 1. Prepare plugin
+# 1. 准备插件
 cd my-tool-plugin
-./test/test.sh  # Run tests
+./test/test.sh  # 运行测试
 
-# 2. Update version
+# 2. 更新版本
 sed -i 's/version = "1.0.0"/version = "1.1.0"/' metadata.lua
 
-# 3. Release
+# 3. 发布
 git add .
 git commit -m "v1.1.0: Add new hook functionality"
 git tag -a v1.1.0 -m "Add new hook functionality"

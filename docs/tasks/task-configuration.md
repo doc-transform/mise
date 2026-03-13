@@ -1,30 +1,29 @@
-# Task Configuration
+# 任务配置
 
-This is an exhaustive list of all the configuration options available for tasks in `mise.toml` or
-as file tasks.
+这是 `mise.toml` 或文件任务中所有可用任务配置选项的完整列表。
 
-## Task properties
+## 任务属性
 
-All examples are in toml-task format instead of file, however they apply in both except where otherwise noted.
+所有示例使用 toml-task 格式而非文件格式，但除非另有说明，两者都适用。
 
 ### `run`
 
-- **Type**: `string | (string | { task: string } | { tasks: string[] })[]`
+- **类型**：`string | (string | { task: string } | { tasks: string[] })[]`
 
-The command(s) to run. This is the only required property for a task.
+要运行的命令。这是任务唯一必需的属性。
 
-You can now mix scripts with task references:
+你现在可以将脚本与任务引用混合使用：
 
 ```mise-toml
 [tasks.grouped]
 run = [
-  { task = "t1" },          # run t1 (with its dependencies)
-  { tasks = ["t2", "t3"] }, # run t2 and t3 in parallel (with their dependencies)
-  "echo end",               # then run a script
+  { task = "t1" },          # 运行 t1（包含其依赖）
+  { tasks = ["t2", "t3"] }, # 并行运行 t2 和 t3（包含其依赖）
+  "echo end",               # 然后运行一个脚本
 ]
 ```
 
-Simple forms still work and are equivalent:
+简单形式仍然有效且等价：
 
 ```mise-toml
 tasks.a = "echo hello"
@@ -38,9 +37,9 @@ run = ["echo hello"]
 
 ### `run_windows`
 
-- **Type**: `string | (string | { task: string } | { tasks: string[] })[]`
+- **类型**：`string | (string | { task: string } | { tasks: string[] })[]`
 
-Windows-specific variant of `run` supporting the same structured syntax:
+`run` 的 Windows 特定变体，支持相同的结构化语法：
 
 ```mise-toml
 [tasks.build]
@@ -50,10 +49,9 @@ run_windows = "cargo build --features windows"
 
 ### `description`
 
-- **Type**: `string`
+- **类型**：`string`
 
-A description of the task. This is used in (among other places)
-the help output, completions, `mise run` (without arguments), and `mise tasks`.
+任务描述。用于帮助输出、补全、`mise run`（无参数时）和 `mise tasks` 等场景。
 
 ```mise-toml
 [tasks.build]
@@ -63,24 +61,21 @@ run = "cargo build"
 
 ### `alias`
 
-- **Type**: `string | string[]`
+- **类型**：`string | string[]`
 
-An alias for the task so you can run it with `mise run <alias>` instead of the full task name.
+任务的别名，可以用 `mise run <alias>` 代替完整的任务名称来运行。
 
 ```mise-toml
 [tasks.build]
-alias = "b" # run with `mise run b`
+alias = "b" # 用 `mise run b` 运行
 run = "cargo build"
 ```
 
 ### `depends`
 
-- **Type**: `string | string[] | { task: string, args?: string[], env?: { [key]: string } }[]`
+- **类型**：`string | string[] | { task: string, args?: string[], env?: { [key]: string } }[]`
 
-Tasks that must be run before this task. This is a list of task names or aliases. Arguments can be
-passed to the task, e.g.: `depends = ["build --release"]`. If multiple tasks have the same dependency,
-that dependency will only be run once. mise will run whatever it can in parallel (up to [`--jobs`](/cli/run))
-through the use of `depends` and related properties.
+必须在此任务之前运行的任务。这是任务名称或别名的列表。可以向任务传递参数，例如：`depends = ["build --release"]`。如果多个任务有相同的依赖，该依赖只会运行一次。mise 将通过 `depends` 及相关属性尽可能并行运行任务（最多 [`--jobs`](/cli/run) 个）。
 
 ```mise-toml
 [tasks.build]
@@ -90,11 +85,11 @@ depends = ["build"]
 run = "cargo test"
 ```
 
-#### Passing environment variables to dependencies
+#### 向依赖传递环境变量
 
-You can pass environment variables to specific dependencies using two syntaxes:
+你可以使用两种语法向特定依赖传递环境变量：
 
-**Shell-style inline:**
+**Shell 风格内联：**
 
 ```mise-toml
 [tasks.test]
@@ -105,7 +100,7 @@ run = "npm test"
 run = 'echo "Setting up for $NODE_ENV"'
 ```
 
-**Structured object format:**
+**结构化对象格式：**
 
 ```mise-toml
 [tasks.test]
@@ -115,7 +110,7 @@ depends = [
 run = "npm test"
 ```
 
-The structured format also supports combining env vars with arguments:
+结构化格式还支持同时组合环境变量和参数：
 
 ```mise-toml
 [tasks.deploy]
@@ -126,14 +121,13 @@ depends = [
 run = "./deploy.sh"
 ```
 
-Note: These environment variables are passed only to the specified dependency, not to the current task or other dependencies.
+注意：这些环境变量仅传递给指定的依赖，不会传递给当前任务或其他依赖。
 
 ### `depends_post`
 
-- **Type**: `string | string[] | { task: string, args?: string[], env?: { [key]: string } }[]`
+- **类型**：`string | string[] | { task: string, args?: string[], env?: { [key]: string } }[]`
 
-Like `depends` but these tasks run _after_ this task and its dependencies complete. For example, you
-may want a `postlint` task that you can run individually without also running `lint`:
+类似 `depends`，但这些任务在此任务及其依赖完成_之后_运行。例如，你可能有一个 `postlint` 任务可以单独运行而不必运行 `lint`：
 
 ```mise-toml
 [tasks.lint]
@@ -143,49 +137,47 @@ depends_post = ["postlint"]
 run = "echo 'linting complete'"
 ```
 
-Supports the same argument and environment variable syntax as `depends`.
+支持与 `depends` 相同的参数和环境变量语法。
 
 ### `wait_for`
 
-- **Type**: `string | string[] | { task: string, args?: string[], env?: { [key]: string } }[]`
+- **类型**：`string | string[] | { task: string, args?: string[], env?: { [key]: string } }[]`
 
-Similar to `depends`, it will wait for these tasks to complete before running however they won't be
-added to the list of tasks to run. This is essentially optional dependencies.
+类似 `depends`，会等待这些任务完成后再运行，但不会将它们添加到运行列表中。本质上是可选依赖。
 
 ```mise-toml
 [tasks.lint]
-wait_for = ["render"] # creates some js files, so if it's running, wait for it to finish
+wait_for = ["render"] # 生成一些 js 文件，如果在运行，等待完成
 run = "eslint ."
 ```
 
-Supports the same argument and environment variable syntax as `depends`.
+支持与 `depends` 相同的参数和环境变量语法。
 
-`wait_for` matches tasks differently depending on whether args or env vars are specified:
+`wait_for` 根据是否指定了参数或环境变量来匹配任务的方式不同：
 
-- `wait_for = ["setup"]` — matches by name, regardless of args or env overrides. If another task runs `depends = ["DEBUG=1 setup"]`, this will still match and wait for it.
-- `wait_for = ["setup arg1"]` or `wait_for = ["DEBUG=1 setup"]` — matches only tasks running with that exact args/env configuration.
+- `wait_for = ["setup"]` — 按名称匹配，不管参数或环境变量覆盖。如果另一个任务运行 `depends = ["DEBUG=1 setup"]`，这仍然会匹配并等待它。
+- `wait_for = ["setup arg1"]` 或 `wait_for = ["DEBUG=1 setup"]` — 仅匹配具有完全相同参数/环境变量配置运行的任务。
 
 ### `env`
 
-- **Type**: `{ [key]: string | int | bool }`
+- **类型**：`{ [key]: string | int | bool }`
 
-Environment variables specific to this task. These will not be passed to `depends` tasks.
+此任务特有的环境变量。不会传递给 `depends` 任务。
 
 ```mise-toml
 [tasks.test]
 env.TEST_ENV_VAR = "ABC"
 run = [
     "echo $TEST_ENV_VAR",
-    "mise run some-other-task", # running tasks like this _will_ have TEST_ENV_VAR set of course
+    "mise run some-other-task", # 这样运行任务_会_有 TEST_ENV_VAR 设置
 ]
 ```
 
 ### `tools`
 
-- **Type**: `{ [key]: string }`
+- **类型**：`{ [key]: string }`
 
-Tools to install and activate before running the task. This is useful for tasks that require a specific tool to be
-installed or a tool with a different version. It will only be used for that task, not dependencies.
+运行任务前安装和激活的工具。适用于需要安装特定工具或使用不同版本工具的任务。仅用于该任务，不用于依赖。
 
 ```mise-toml
 [tasks.build]
@@ -195,11 +187,10 @@ run = "cargo build"
 
 ### `dir`
 
-- **Type**: `string`
-- **Default**: <code v-pre>"{{ config_root }}"</code> - the directory containing `mise.toml`, or in the case of something like `~/src/myproj/.config/mise.toml`, it will be `~/src/myproj`.
+- **类型**：`string`
+- **默认值**：<code v-pre>"{{ config_root }}"</code> - 包含 `mise.toml` 的目录，或如果是 `~/src/myproj/.config/mise.toml` 这样的路径，则为 `~/src/myproj`。
 
-The directory to run the task from. The most common way this is used is when you want the task to execute
-in the user's current directory:
+任务运行的目录。最常见的用法是让任务在用户当前目录中执行：
 
 ```mise-toml
 [tasks.test]
@@ -209,11 +200,10 @@ run = "cargo test"
 
 ### `hide`
 
-- **Type**: `bool`
-- **Default**: `false`
+- **类型**：`bool`
+- **默认值**：`false`
 
-Hide the task from help, completion, and other output like `mise tasks`. Useful for deprecated or internal
-tasks you don't want others to easily see.
+从帮助、补全和 `mise tasks` 等输出中隐藏任务。适用于已废弃或不希望他人轻易看到的内部任务。
 
 ```mise-toml
 [tasks.internal]
@@ -223,10 +213,9 @@ run = "echo my internal task"
 
 ### `confirm`
 
-- **Type**: `string`
+- **类型**：`string`
 
-A message to show before running the task. This is useful for tasks that are destructive or take a long
-time to run. The user will be prompted to confirm before the task is run.
+运行任务前显示的消息。适用于破坏性操作或耗时较长的任务。用户将在任务运行前被提示确认。
 
 ```mise-toml
 [tasks.release]
@@ -235,7 +224,7 @@ description = 'Cut a new release'
 file = 'scripts/release.sh'
 ```
 
-The confirm message supports Tera templates and can reference usage arguments:
+确认消息支持 Tera 模板，可以引用 usage 参数：
 
 ```mise-toml
 [tasks.deploy]
@@ -249,44 +238,22 @@ run = "deploy.sh ${usage_environment}"
 
 ### `raw`
 
-- **Type**: `bool`
-- **Default**: `false`
+- **类型**：`bool`
+- **默认值**：`false`
 
-Connects the task directly to the shell's stdin/stdout/stderr. This is useful for tasks that need to
-accept input or output in a way that mise's normal task handling doesn't support. This is not recommended
-to use because it really screws up the output whenever mise runs tasks in parallel. Ensure when using
-this that no other tasks are running at the same time.
-
-In the future we could have a property like `single = true` or something that prevents multiple tasks
-from running at the same time. If that sounds useful, search/file a ticket.
-
-### `interactive`
-
-- **Type**: `bool`
-- **Default**: `false`
-
-Connects the task directly to the shell's stdin/stdout/stderr. Instead of the broad `raw` setting that forces
-single-threaded execution (by setting `jobs = 1`), `interactive` tasks acquire an exclusive global write lock,
-ensuring sole access to standard I/O. Concurrently, non-interactive tasks can proceed in parallel, significantly
-enhancing task concurrency and user experience for interactive processes without sacrificing system stability.
+将任务直接连接到 shell 的 stdin/stdout/stderr。适用于需要以 mise 正常任务处理不支持的方式接受输入或输出的任务。不推荐使用，因为在 mise 并行运行任务时会严重扰乱输出。使用此选项时确保没有其他任务同时运行。
 
 ### `sources`
 
-- **Type**: `string | string[]`
+- **类型**：`string | string[]`
 
-Files or directories that this task uses as input, if this and `outputs` is defined, mise will skip
-executing tasks where the modification time of the oldest output file is newer than the modification
-time of the newest source file. This is useful for tasks that are expensive to run and only need to
-be run when their inputs change.
+此任务用作输入的文件或目录，如果同时定义了 `outputs`，且最旧输出文件的修改时间比最新源文件更新，mise 将跳过执行任务。适用于开销大且仅在输入变化时才需要运行的任务。
 
-The task itself will be automatically added as a source, so if you edit the definition that will also
-cause the task to be run.
+任务本身会自动作为源添加，因此编辑任务定义也会导致任务被运行。
 
-This is also used in `mise watch` to know which files/directories to watch.
+这也用于 `mise watch` 以确定要监视哪些文件/目录。
 
-This can be specified with relative paths to the config file and/or with glob patterns, e.g.: `src/**/*.rs`.
-Ensure you don't go crazy with adding a ton of files in a glob though—mise has to scan each and every one to check
-the timestamp.
+可以使用相对于配置文件的相对路径和/或 glob 模式，例如：`src/**/*.rs`。确保不要在 glob 中添加大量文件——mise 必须扫描每一个以检查时间戳。
 
 ```mise-toml
 [tasks.build]
@@ -295,41 +262,33 @@ sources = ["Cargo.toml", "src/**/*.rs"]
 outputs = ["target/debug/mycli"]
 ```
 
-Running the above will only execute `cargo build` if `mise.toml`, `Cargo.toml`, or any ".rs" file in the `src` directory
-has changed since the last build.
+运行上述配置将仅在 `mise.toml`、`Cargo.toml` 或 `src` 目录中的任何 ".rs" 文件自上次构建以来发生变化时执行 `cargo build`。
 
-The [`task_source_files`](../templates.md#task-source-files) function can be used to iterate over a task's
-`sources` within its template context.
+[`task_source_files`](../templates.md#task-source-files) 函数可用于在模板上下文中遍历任务的 `sources`。
 
 ### `outputs`
 
-- **Type**: `string | string[] | { auto = true }`
-- **Default**: `{ auto = true }`
+- **类型**：`string | string[] | { auto = true }`
+- **默认值**：`{ auto = true }`
 
-The counterpart to `sources`, these are the files or directories that the task will create/modify after
-it executes.
+`sources` 的对应项，这些是任务执行后将创建/修改的文件或目录。
 
-`auto = true` is an alternative to specifying output files manually. In that case, mise will touch
-an internally tracked file based on the hash of the task definition (stored in `~/.local/state/mise/task-outputs/<hash>` if you're curious).
-This is useful if you want `mise run` to execute when sources change but don't want to have to manually `touch`
-a file for `sources` to work.
+`auto = true` 是手动指定输出文件的替代方案。此时 mise 将基于任务定义的哈希触碰一个内部跟踪文件（如果好奇，存储在 `~/.local/state/mise/task-outputs/<hash>`）。当你希望 `mise run` 在源文件变化时执行但不想手动 `touch` 文件以使 `sources` 生效时很有用。
 
 ```mise-toml
 [tasks.build]
 run = "cargo build"
 sources = ["Cargo.toml", "src/**/*.rs"]
-outputs = { auto = true } # this is the default when sources is defined
+outputs = { auto = true } # 定义 sources 时这是默认值
 ```
 
 ### `shell`
 
-- **Type**: `string`
-- **Default**: [`unix_default_inline_shell_args`](/configuration/settings.html#unix_default_inline_shell_args) or [`windows_default_inline_shell_args`](/configuration/settings.html#windows_default_inline_shell_args)
-- **Note**: Only applies to toml-tasks.
+- **类型**：`string`
+- **默认值**：[`unix_default_inline_shell_args`](/configuration/settings.html#unix_default_inline_shell_args) 或 [`windows_default_inline_shell_args`](/configuration/settings.html#windows_default_inline_shell_args)
+- **注意**：仅适用于 toml-tasks。
 
-The shell to use to run the task. This is useful if you want to run a task with a different shell than
-the default such as `fish`, `zsh`, or `pwsh`. Generally though, it's recommended to use a [shebang](./toml-tasks#shell-shebang) instead
-because that will allow IDEs with mise support to show syntax highlighting and linting for the script.
+运行任务使用的 shell。如果你想用 `fish`、`zsh` 或 `pwsh` 等不同 shell 运行任务很有用。但通常建议使用 [shebang](./toml-tasks#shell-shebang)，因为支持 mise 的 IDE 可以为脚本提供语法高亮和代码检查。
 
 ```mise-toml
 [tasks.hello]
@@ -341,29 +300,27 @@ console.log('hello world')
 
 ### `quiet`
 
-- **Type**: `bool`
-- **Default**: `false`
+- **类型**：`bool`
+- **默认值**：`false`
 
-Suppress mise's output for the task such as showing the command that is run, e.g.: `[build] $ cargo build`.
-When this is set, mise won't show any output other than what the script itself outputs. If you'd also
-like to hide even the output that the task emits, use [`silent`](#silent).
+抑制 mise 对任务的输出，如显示运行的命令 `[build] $ cargo build`。设置后，mise 不会显示任何输出，只显示脚本本身的输出。如果还想隐藏任务发出的输出，使用 [`silent`](#silent)。
 
 ### `silent`
 
-- **Type**: `bool | "stdout" | "stderr"`
-- **Default**: `false`
+- **类型**：`bool | "stdout" | "stderr"`
+- **默认值**：`false`
 
-Suppress all output from the task. If set to `"stdout"` or `"stderr"`, only that stream will be suppressed.
+抑制任务的所有输出。如果设为 `"stdout"` 或 `"stderr"`，则仅抑制该流。
 
 ### `usage`
 
-- **Type**: `string`
+- **类型**：`string`
 
-::: tip
-For comprehensive information about task arguments and the usage field, see the dedicated [Task Arguments](/tasks/task-arguments) page.
-:::
+:::: tip
+关于任务参数和 usage 字段的完整信息，请参阅专门的[任务参数](/tasks/task-arguments)页面。
+::::
 
-More advanced usage specs can be added to the task's `usage` field. This only applies to toml-tasks.
+可以在任务的 `usage` 字段中添加更高级的 usage 规格。仅适用于 toml-tasks。
 
 ```mise-toml
 [tasks.test]
@@ -373,17 +330,17 @@ arg "<file>" help="The file to test" default="src/main.rs"
 run = 'cargo test ${usage_file?}'
 ```
 
-#### Environment Variable Support for Args and Flags
+#### 参数和标志的环境变量支持
 
-Both args and flags in usage specs can specify an environment variable as an alternative source for their value. This allows task arguments to be provided through environment variables when not specified on the command line.
+usage 规格中的参数和标志都可以指定环境变量作为其值的替代来源。这允许在命令行未指定时通过环境变量提供任务参数。
 
-The precedence order is:
+优先级顺序：
 
-1. CLI arguments/flags (highest priority)
-2. Environment variables (middle priority)
-3. Default values (lowest priority)
+1. CLI 参数/标志（最高优先级）
+2. 环境变量（中等优先级）
+3. 默认值（最低优先级）
 
-**For positional arguments:**
+**位置参数：**
 
 ```mise-toml
 [tasks.deploy]
@@ -397,26 +354,26 @@ echo "Deploying to ${usage_environment?} in ${usage_region?}"
 '''
 ```
 
-Usage examples:
+使用示例：
 
 ```bash
-# Using CLI args (highest priority)
+# 使用 CLI 参数（最高优先级）
 mise run deploy production us-west-2
 
-# Using environment variables
+# 使用环境变量
 export DEPLOY_ENV=production
 export AWS_REGION=us-west-2
 mise run deploy
 
-# Using defaults (lowest priority)
-mise run deploy  # deploys to staging in us-east-1
+# 使用默认值（最低优先级）
+mise run deploy  # 部署到 staging 的 us-east-1
 
-# CLI overrides environment variable
+# CLI 覆盖环境变量
 export DEPLOY_ENV=staging
-mise run deploy production  # deploys to production
+mise run deploy production  # 部署到 production
 ```
 
-**For flags:**
+**标志：**
 
 ```mise-toml
 [tasks.build]
@@ -431,23 +388,23 @@ echo "Verbose: ${usage_verbose:-false}"
 '''
 ```
 
-Usage examples:
+使用示例：
 
 ```bash
-# Using CLI flags
+# 使用 CLI 标志
 mise run build --profile release --verbose
 
-# Using environment variables
+# 使用环境变量
 export BUILD_PROFILE=release
 export VERBOSE=true
 mise run build
 
-# Mixed usage - env var provides one, CLI provides another
+# 混合使用 - 环境变量提供一个，CLI 提供另一个
 export BUILD_PROFILE=release
 mise run build --verbose
 ```
 
-**File tasks** (tasks defined as executable files in `mise-tasks/` or `.mise/tasks/`) also support the `env` attribute:
+**文件任务**（在 `mise-tasks/` 或 `.mise/tasks/` 中定义的可执行文件任务）也支持 `env` 属性：
 
 ```bash
 #!/usr/bin/env bash
@@ -457,9 +414,9 @@ mise run build --verbose
 echo "Processing ${usage_input?} -> ${usage_output?}"
 ```
 
-**Required arguments:**
+**必需参数：**
 
-Environment variables can satisfy required argument checks. If an argument is marked as required (using angle brackets `<arg>`), providing its value through the environment variable specified in the `env` attribute fulfills that requirement:
+环境变量可以满足必需参数检查。如果参数标记为必需（使用尖括号 `<arg>`），通过 `env` 属性指定的环境变量提供其值可以满足该要求：
 
 ```mise-toml
 [tasks.deploy]
@@ -470,22 +427,20 @@ run = 'deploy --api-key ${usage_api_key?}'
 ```
 
 ```bash
-# This will fail - no API_KEY provided
+# 这将失败 - 未提供 API_KEY
 mise run deploy
 
-# This succeeds - API_KEY provided via environment
+# 这将成功 - 通过环境提供 API_KEY
 export API_KEY=secret123
 mise run deploy
 
-# This also succeeds - provided via CLI
+# 这也成功 - 通过 CLI 提供
 mise run deploy secret123
 ```
 
 ## Vars
 
-Vars are variables that can be shared between tasks like environment variables but they are not
-passed as environment variables to the scripts. They are defined in the `vars` section of the
-`mise.toml` file.
+Vars 是可以在任务间共享的变量，类似环境变量但不会作为环境变量传递给脚本。它们定义在 `mise.toml` 文件的 `vars` 部分。
 
 ```mise-toml
 [vars]
@@ -495,31 +450,17 @@ e2e_args = '--headless'
 run = './scripts/test-e2e.sh {{vars.e2e_args}}'
 ```
 
-Tasks can also define task-local vars that override config vars for that task:
+与 mise 中的大多数配置一样，vars 可以跨多个文件定义。例如，你可以在全局 mise 配置 `~/.config/mise/config.toml` 中定义一些 vars，在 `~/src/work/myproject/mise.toml` 的任务中使用它们。你也可以在"后续"配置文件（如 `~/src/work/myproject/mise.local.toml`）中覆盖这些 vars，它们将在任何配置文件的任务中生效。
 
-```mise-toml
-[tasks.test]
-vars = { e2e_args = "--headed" }
-run = './scripts/test-e2e.sh {{vars.e2e_args}}'
-```
+目前 vars 仅在 TOML 任务中支持。我想添加对文件任务的支持，但不想仅因此功能就将所有文件任务变成 tera 模板。
 
-Like most configuration in mise, vars can be defined across several files. So for example, you could
-put some vars in your global mise config `~/.config/mise/config.toml`, use them in a task at
-`~/src/work/myproject/mise.toml`. You can also override those vars in "later" config files such
-as `~/src/work/myproject/mise.local.toml` and they will be used inside tasks of any config file.
+## `[task_config]` 选项
 
-As of this writing vars are only supported in TOML tasks. I want to add support for file tasks, but
-I don't want to turn all file tasks into tera templates just for this feature.
-
-## `[task_config]` options
-
-Options available in the top-level `mise.toml` `[task_config]` section. These apply to all tasks which
-are included by that config file or use the same root directory, e.g.: `~/src/myprojec/mise.toml`'s `[task_config]`
-applies to file tasks like `~/src/myproject/mise-tasks/mytask` but not to tasks in `~/src/myproject/subproj/mise.toml`.
+顶级 `mise.toml` 中 `[task_config]` 部分的可用选项。这些适用于该配置文件包含的所有任务或使用相同根目录的任务，例如 `~/src/myproject/mise.toml` 的 `[task_config]` 适用于 `~/src/myproject/mise-tasks/mytask` 等文件任务，但不适用于 `~/src/myproject/subproj/mise.toml` 中的任务。
 
 ### `task_config.dir`
 
-Change the default directory tasks are run from.
+更改任务运行的默认目录。
 
 ```toml
 [task_config]
@@ -528,20 +469,19 @@ dir = "{{cwd}}"
 
 ### `task_config.includes`
 
-Add toml files containing toml tasks, or file tasks to include when looking for tasks.
+添加包含 toml 任务的 toml 文件，或在查找任务时包含文件任务。
 
 ```toml
 [task_config]
 includes = [
-    "tasks.toml", # a task toml file
-    "mytasks"     # a directory containing file tasks (in addition to the default file tasks directories)
+    "tasks.toml", # 任务 toml 文件
+    "mytasks"     # 包含文件任务的目录（除默认文件任务目录外）
 ]
 ```
 
-If using included task toml files, note that they have a different format than the `mise.toml` file. They are just a list of tasks.
-The file should be the same format as the `[tasks]` section of `mise.toml` but without the `[task]` prefix:
+如果使用包含的任务 toml 文件，注意其格式与 `mise.toml` 文件不同。它们只是任务列表，格式与 `mise.toml` 的 `[tasks]` 部分相同，但不带 `[task]` 前缀：
 
-::: code-group
+:::: code-group
 
 ```mise-toml [tasks.toml]
 task1 = "echo task1"
@@ -550,18 +490,17 @@ task3 = "echo task3"
 
 [task4]
 run = "echo task4"
-vars = { target = "linux" }
 ```
 
-:::
+::::
 
-If you want auto-completion/validation in included toml tasks files, you can use the following JSON schema: <https://mise.jdx.dev/schema/mise-task.json>
+如果你想在包含的 toml 任务文件中使用自动补全/验证，可以使用以下 JSON schema：<https://mise.jdx.dev/schema/mise-task.json>
 
-#### Remote Git Includes <Badge type="warning" text="experimental" />
+#### 远程 Git 包含 <Badge type="warning" text="experimental" />
 
-You can include directories of tasks from git repositories using the `git::` URL syntax:
+你可以使用 `git::` URL 语法从 git 仓库包含任务目录：
 
-::: code-group
+:::: code-group
 
 ```mise-toml [ssh]
 [task_config]
@@ -577,84 +516,77 @@ includes = [
 ]
 ```
 
-:::
+::::
 
-URL format: `git::<protocol>://<url>//<path>?<ref>`
+URL 格式：`git::<protocol>://<url>//<path>?<ref>`
 
-Required fields:
+必填字段：
 
-- `protocol`: The git protocol (ssh or https).
-- `url`: The git repository URL.
-- `path`: The path to the directory in the repository.
+- `protocol`：git 协议（ssh 或 https）。
+- `url`：git 仓库 URL。
+- `path`：仓库中目录的路径。
 
-Optional fields:
+可选字段：
 
-- `ref`: The git reference (branch, tag, commit). Defaults to the repository's default branch.
+- `ref`：git 引用（分支、标签、提交）。默认为仓库的默认分支。
 
-The repository will be cloned and cached in `MISE_CACHE_DIR/remote-git-tasks-cache`. Tasks from the included directory will be loaded as if they were local file tasks. You can disable caching with `MISE_TASK_REMOTE_NO_CACHE=true` or the `--no-cache` flag.
+仓库将被克隆并缓存在 `MISE_CACHE_DIR/remote-git-tasks-cache`。包含目录中的任务将像本地文件任务一样加载。你可以使用 `MISE_TASK_REMOTE_NO_CACHE=true` 或 `--no-cache` 标志禁用缓存。
 
-## Monorepo Support <Badge type="warning" text="experimental" />
+## Monorepo 支持 <Badge type="warning" text="experimental" />
 
-mise supports monorepo-style task organization with target path syntax. Enable it by setting `experimental_monorepo_root = true` in your root `mise.toml`.
+mise 支持使用目标路径语法的 monorepo 风格任务组织。在根 `mise.toml` 中设置 `experimental_monorepo_root = true` 启用。
 
-For complete documentation on monorepo tasks including:
+完整文档包括：
 
-- Task path syntax and wildcards
-- Tool layering from parent configs
-- Performance tuning
-- Best practices and troubleshooting
+- 任务路径语法和通配符
+- 工具层叠
+- 性能调优
+- 最佳实践和故障排除
 
-See the dedicated [Monorepo Tasks](/tasks/monorepo) documentation.
+请参阅专门的 [Monorepo 任务](/tasks/monorepo)文档。
 
 ## `redactions` <Badge type="warning" text="experimental" />
 
-- **Type**: `string[]`
+- **类型**：`string[]`
 
-Redactions are a way to hide sensitive information from the output of tasks. This is useful for things like
-API keys, passwords, or other sensitive information that you don't want to accidentally leak in logs or
-other output.
+脱敏是一种从任务输出中隐藏敏感信息的方式。适用于 API 密钥、密码或其他不想在日志或其他输出中意外泄露的敏感信息。
 
-A list of environment variables to redact from the output.
+要脱敏的环境变量列表。
 
 ```toml
 redactions = ["API_KEY", "PASSWORD"]
 ```
 
-Running the above task will output `echo [redacted]` instead.
+运行上述任务将输出 `echo [redacted]` 而不是实际值。
 
-You can also specify these as a glob pattern, e.g.: `redactions.env = ["SECRETS_*"]`.
+也可以指定为 glob 模式，例如：`redactions.env = ["SECRETS_*"]`。
 
-## `[vars]` options
+## `[vars]` 选项
 
-Vars are variables that can be shared between tasks like environment variables but they are not
-passed as environment variables to the scripts. They are defined in the `vars` section of the
-`mise.toml` file.
+Vars 是可以在任务间共享的变量，类似环境变量但不会作为环境变量传递给脚本。它们定义在 `mise.toml` 文件的 `vars` 部分。
 
 ```mise-toml
 [vars]
 e2e_args = '--headless'
 [tasks.test]
 run = './scripts/test-e2e.sh {{vars.e2e_args}}'
-vars = { e2e_args = '--headed' }
 ```
 
-The task-level `vars` override any config-level vars with the same name. In the example above, `e2e_args` resolves to `'--headed'` instead of the config-level `'--headless'`.
-
-Like `[env]`, vars can also be read in as a file:
+与 `[env]` 类似，vars 也可以从文件中读取：
 
 ```toml
 [vars]
 _.file = ".env"
 ```
 
-[Secrets](/environments/secrets/) are also supported as vars.
+vars 也支持[密钥管理](/environments/secrets/)。
 
-## Task Configuration Settings
+## 任务配置设置
 
 <script setup>
 import Settings from '/components/settings.vue';
 </script>
 
-The following settings control task behavior. These can be set globally in `~/.config/mise/config.toml` or per-project in `mise.toml`:
+以下设置控制任务行为。可以在 `~/.config/mise/config.toml` 中全局设置，或在 `mise.toml` 中按项目设置：
 
 <Settings :level="3" prefix="task" />

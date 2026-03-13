@@ -1,52 +1,52 @@
-# Mise + Node.js Cookbook
+# Mise + Node.js 实践手册
 
-Here are some tips on managing [Node.js](/lang/node.html) projects with mise.
+以下是使用 mise 管理 [Node.js](/lang/node.html) 项目的一些技巧。
 
-## Getting started with Node.js
+## Node.js 入门
 
-To install Node.JS, in a directory, you can use the following command:
+要在目录中安装 Node.JS，可以使用以下命令：
 
 ```shell
 mise use node
 ```
 
-This will install the latest version of Node.js and create a `mise.toml` file with the following content:
+这将安装最新版本的 Node.js，并创建一个包含以下内容的 `mise.toml` 文件：
 
 ```toml
 node = "latest"
 ```
 
-If you want to install Node.JS globally instead (for example, node v24), you can use the following command:
+如果你想全局安装 Node.JS（例如 node v24），可以使用以下命令：
 
 ```shell
 mise use -g node@24
 ```
 
-## Add node modules binaries to the PATH
+## 将 node modules 二进制文件添加到 PATH
 
-When installing Node.js packages specified in `package.json`, you typically need to use `npx` or the full path to the binary. For example:
+安装 `package.json` 中指定的 Node.js 包时，通常需要使用 `npx` 或二进制文件的完整路径。例如：
 
 ```shell
 npm install --save eslint
-eslint --version # doesn't work
-npx eslint --version # works
+eslint --version # 不生效
+npx eslint --version # 生效
 ```
 
-Thanks to `mise`, you can add the node modules binaries to the `PATH`. This will make CLIs installed with npm available without `npx`.
+借助 `mise`，你可以将 node modules 的二进制文件添加到 `PATH` 中。这样通过 npm 安装的 CLI 工具无需 `npx` 即可直接使用。
 
 ```toml [mise.toml]
 [env]
 _.path = ['{{config_root}}/node_modules/.bin']
 ```
 
-Example:
+示例：
 
 ```shell
 npm install --save eslint
-eslint --version # works
+eslint --version # 生效
 ```
 
-## Example Node.js Project
+## Node.js 项目示例
 
 ```toml [mise.toml]
 min_version = "2024.9.5"
@@ -54,19 +54,19 @@ min_version = "2024.9.5"
 [env]
 _.path = ['{{config_root}}/node_modules/.bin']
 
-# Use the project name derived from the current directory
+# 使用从当前目录派生的项目名称
 PROJECT_NAME = "{{ config_root | basename }}"
 
-# Set up the path for node module binaries
+# 设置 node module 二进制文件的路径
 BIN_PATH = "{{ config_root }}/node_modules/.bin"
 
 NODE_ENV = "{{ env.NODE_ENV | default(value='development') }}"
 
 [tools]
-# Install Node.js using the specified version
+# 使用指定版本安装 Node.js
 node = "{{ env['NODE_VERSION'] | default(value='lts') }}"
 
-# Install some npm packages globally if needed
+# 按需全局安装一些 npm 包
 "npm:typescript" = "latest"
 "npm:eslint" = "latest"
 "npm:jest" = "latest"
@@ -104,21 +104,21 @@ echo "NODE_ENV: $NODE_ENV"
 '''
 ```
 
-## Example with `pnpm`
+## `pnpm` 示例
 
-This example uses `pnpm` as the package manager. This will skip installing dependencies if the lock file hasn't changed.
+此示例使用 `pnpm` 作为包管理器。如果 lock 文件未更改，将跳过依赖安装。
 
 ```toml [mise.toml]
 [tools]
 node = '22'
 
 [hooks]
-# Enabling corepack will install the `pnpm` package manager specified in your package.json
-# alternatively, you can also install `pnpm` with mise
+# 启用 corepack 将安装 package.json 中指定的 `pnpm` 包管理器
+# 或者，你也可以使用 mise 安装 `pnpm`
 postinstall = 'npx corepack enable'
 
 [settings]
-# This must be enabled to make the hooks work
+# 必须启用此选项才能使 hooks 生效
 experimental = true
 
 [env]
@@ -136,8 +136,8 @@ run = 'node --run dev'
 depends = ['pnpm-install']
 ```
 
-With this setup, getting started in a NodeJS project is as simple as running `mise dev`:
+通过这个配置，在 NodeJS 项目中开始开发只需运行 `mise dev`：
 
-- `mise` will install the correct version of NodeJS
-- `mise` will enable `corepack`
-- `pnpm install` will be run before `node --run dev`
+- `mise` 将安装正确版本的 NodeJS
+- `mise` 将启用 `corepack`
+- `pnpm install` 会在 `node --run dev` 之前运行

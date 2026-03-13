@@ -1,17 +1,7 @@
-# Contact
+# 联系方式
 
-`mise` is mostly built and maintained by me, [Jeff Dickey](https://jdx.dev). The goal is
-to make local development of software easy and consistent across languages. I
-have spent many years building dev tools and thinking about the problems that `mise`
-addresses.
+`mise` 主要由我 [Jeff Dickey](https://jdx.dev) 构建和维护。目标是让本地软件开发变得简单，并在各种编程语言之间保持一致。我多年来一直在构建开发工具，深入思考 `mise` 所解决的问题。
 
-I try to use the first-person in these docs since the reality is it's generally me
-writing them and I think it makes it more interesting having a bit of my personality
-in the text.
+我在这些文档中尽量使用第一人称，因为实际上通常是我在写它们，而且我觉得在文字中加入一些个人风格会让阅读更有趣。
 
-This project is simply a labor of love. I am making it because I want to make
-your life as a developer easier. I hope you find it useful. Feedback is a massive
-driver for me. If you have anything positive or negative to say-even if it's just
-to say hi-please reach out to me either on [Twitter](https://twitter.com/jdxcode),
-[Mastodon](https://fosstodon.org/@jdx), [Discord](https://discord.gg/UBa7pJUN7Z),
-or `jdx at this domain`.
+这个项目完全出于热爱。我做它是因为我想让你作为开发者的工作变得更轻松。希望你觉得它有用。反馈是我最大的驱动力。如果你有任何正面或负面的想法——哪怕只是打个招呼——请随时通过 [Twitter](https://twitter.com/jdxcode)、[Mastodon](https://fosstodon.org/@jdx)、[Discord](https://discord.gg/UBa7pJUN7Z) 或 `jdx at this domain` 联系我。

@@ -2,44 +2,37 @@
 outline: [1, 3]
 ---
 
-# Contributing
+# 贡献指南
 
-Before submitting a PR, unless it's something obvious, consider creating a
-[discussion](https://github.com/jdx/mise/discussions)
-or simply mention what you plan to do in the
-[Discord](https://discord.gg/UBa7pJUN7Z).
-PRs are often either rejected or need to change significantly after submission
-so make sure before you start working on something it won't be a wasted effort.
+提交 PR 之前，除非是很明显的改动，建议先创建一个 [discussion](https://github.com/jdx/mise/discussions) 或在 [Discord](https://discord.gg/UBa7pJUN7Z) 中提及你的计划。PR 经常被拒绝或在提交后需要大幅修改，所以在开始工作前请确保不会白费力气。
 
-## Contributing Guidelines
+## 贡献准则
 
-1. **Before starting**: Create a discussion or discuss in Discord for non-obvious changes
-2. **Test thoroughly**: Ensure both unit and E2E tests pass
-3. **Follow conventions**: Use existing code style and patterns
-4. **Update documentation**: Add/update docs for new features
+1. **开始之前**：对于非显而易见的改动，先创建 discussion 或在 Discord 中讨论
+2. **充分测试**：确保单元测试和 E2E 测试都通过
+3. **遵循规范**：使用现有的代码风格和模式
+4. **更新文档**：为新功能添加/更新文档
 
-### Pull Request Workflow
+### Pull Request 工作流
 
-1. **PR titles**: Must follow conventional commit format (validated
-   automatically)
-   - For new tools in registry: Use `registry: add tool-name (backend:full/name)`
-2. **Auto-formatting**: Code will be automatically formatted by autofix.ci
-3. **CI checks**: All tests must pass across Linux, macOS, and Windows
-4. **Coverage**: New code should maintain or improve test coverage
-5. **Dependencies**: New dependencies are validated with cargo-deny
+1. **PR 标题**：必须遵循约定式提交格式（自动验证）
+   - 对于注册表中的新工具：使用 `registry: add tool-name (backend:full/name)`
+2. **自动格式化**：代码会被 autofix.ci 自动格式化
+3. **CI 检查**：所有测试必须在 Linux、macOS 和 Windows 上通过
+4. **覆盖率**：新代码应保持或提升测试覆盖率
+5. **依赖**：新依赖通过 cargo-deny 验证
 
-### Development Tips
+### 开发技巧
 
-1. **Disable mise during development**: If you use mise in your shell, disable
-   it when running tests to avoid conflicts
-2. **Test specific features**: Use `cargo test test_name` for targeted testing
-4. **Update snapshots**: Use `mise run snapshots` when changing test outputs
-5. **Rate limiting**: Set `MISE_GITHUB_TOKEN` to avoid GitHub API rate limits
-   during development
+1. **开发时禁用 mise**：如果你在 shell 中使用了 mise，运行测试时请禁用以避免冲突
+2. **使用 dev container**：提供了 Docker 环境（目前需要修复）
+3. **测试特定功能**：使用 `cargo test test_name` 进行针对性测试
+4. **更新快照**：修改测试输出时使用 `mise run snapshots`
+5. **速率限制**：设置 `MISE_GITHUB_TOKEN` 以避免开发中的 GitHub API 速率限制
 
-## Packaging and Self-Update Instructions
+## 打包和自更新说明
 
-When mise is installed via a package manager, in-app self-update is disabled and users should update via their package manager. Packaging should install a TOML file with platform-specific instructions at `lib/mise-self-update-instructions.toml` (or `lib/mise/mise-self-update-instructions.toml`). Example contents:
+当 mise 通过包管理器安装时，应用内自更新会被禁用，用户应通过包管理器更新。打包时应在 `lib/mise-self-update-instructions.toml`（或 `lib/mise/mise-self-update-instructions.toml`）安装一个 TOML 文件，包含平台特定的更新说明。示例内容：
 
 ```toml
 # Debian/Ubuntu (APT)
@@ -51,383 +44,412 @@ message = "To update mise from the APT repository, run:\n\n  sudo apt update && 
 message = "To update mise from COPR, run:\n\n  sudo dnf upgrade mise\n"
 ```
 
-## Testing
+## 测试
 
-mise has a comprehensive test suite with multiple types of tests to ensure
-reliability and functionality across different platforms and scenarios.
+mise 拥有全面的测试套件，包含多种类型的测试以确保跨平台和不同场景下的可靠性和功能性。
 
-### Unit Tests
+### 单元测试
 
-Unit tests are fast, focused tests for individual components and functions:
+单元测试是快速、针对单个组件和函数的测试：
 
 ```bash
-# Run all unit tests
+# 运行所有单元测试
 cargo test --all-features
 
-# Run specific unit tests
+# 运行特定单元测试
 cargo test <test_name>
 ```
 
-**Unit test structure:**
+**单元测试结构：**
 
-- Located in `src/` directory alongside source code
-- Use Rust's built-in test framework
-- Test individual functions and modules
-- Fast execution (used for quick feedback during development)
+- 位于 `src/` 目录中，与源代码放在一起
+- 使用 Rust 内置测试框架
+- 测试单个函数和模块
+- 执行速度快（用于开发时的快速反馈）
 
-### E2E Tests
+### E2E 测试
 
-End-to-end tests validate the complete functionality of mise in realistic
-scenarios:
+端到端测试在真实场景中验证 mise 的完整功能：
 
 ```bash
-# Run all E2E tests
+# 运行所有 E2E 测试
 mise run test:e2e
 
-# Run specific E2E test
+# 运行特定 E2E 测试
 ./e2e/run_test test_name
 
-# Run E2E tests matching pattern
-./e2e/run_test task  # runs tests matching *task*
+# 运行匹配模式的 E2E 测试
+./e2e/run_test task  # 运行匹配 *task* 的测试
 
-# Run all tests including slow ones
+# 运行所有测试（包括慢速测试）
 TEST_ALL=1 mise run test:e2e
 ```
 
-**E2E test structure:**
+**E2E 测试结构：**
 
-- Located in `e2e/` directory
-- Organized by functionality:
-  - `e2e/cli/` - Command-line interface tests
-  - `e2e/core/` - Core functionality tests
-  - `e2e/env/` - Environment variable tests
-  - `e2e/tasks/` - Task runner tests
-  - `e2e/config/` - Configuration tests
-  - `e2e/tools/` - Tool management tests
-  - `e2e/shell/` - Shell integration tests
-  - `e2e/backend/` - Backend tests
-  - `e2e/plugins/` - Plugin tests
+- 位于 `e2e/` 目录
+- 按功能组织：
+  - `e2e/cli/` - 命令行接口测试
+  - `e2e/core/` - 核心功能测试
+  - `e2e/env/` - 环境变量测试
+  - `e2e/tasks/` - 任务运行器测试
+  - `e2e/config/` - 配置测试
+  - `e2e/tools/` - 工具管理测试
+  - `e2e/shell/` - Shell 集成测试
+  - `e2e/backend/` - 工具源测试
+  - `e2e/plugins/` - 插件测试
 
-**E2E test categories:**
+**E2E 测试分类：**
 
-- **Fast tests** (`test_*`): Run in normal test suites
-- **Slow tests** (`test_*_slow`): Only run when `TEST_ALL=1` is set
-- **Isolated environment**: Each test runs in a clean, isolated environment
+- **快速测试**（`test_*`）：在正常测试套件中运行
+- **慢速测试**（`test_*_slow`）：仅在 `TEST_ALL=1` 时运行
+- **隔离环境**：每个测试在干净的隔离环境中运行
 
-### Coverage Tests
+### 覆盖率测试
 
-Coverage tests measure how much of the codebase is covered by tests:
+覆盖率测试衡量代码库有多少被测试覆盖：
 
 ```bash
-# Run coverage tests
+# 运行覆盖率测试
 mise run test:coverage
 
-# Coverage tests run in parallel tranches for CI
+# 覆盖率测试在 CI 中并行分批运行
 TEST_TRANCHE=0 TEST_TRANCHE_COUNT=8 mise run test:coverage
 ```
 
-### Windows E2E Tests
+### Windows E2E 测试
 
-Windows has its own test suite written in PowerShell:
+Windows 有自己的用 PowerShell 编写的测试套件：
 
 ```powershell
-# Run all Windows E2E tests
+# 运行所有 Windows E2E 测试
 pwsh e2e-win\run.ps1
 
-# Run specific Windows tests
-pwsh e2e-win\run.ps1 task  # run tests matching *task*
+# 运行特定 Windows 测试
+pwsh e2e-win\run.ps1 task  # 运行匹配 *task* 的测试
 ```
 
-### Plugin Tests
+### 插件测试
 
-Test plugin functionality across different backends:
+测试不同工具源的插件功能：
 
 ```bash
-# Test specific plugin
+# 测试特定插件
 mise test-tool ripgrep
 
-# Test all plugins in registry
+# 测试注册表中的所有插件
 mise test-tool --all
 
-# Test all plugins in config files
+# 测试配置文件中的所有插件
 mise test-tool --all-config
 
-# Test with parallel jobs
+# 并行测试
 mise test-tool --all --jobs 4
 ```
 
-### Test Environment Setup
+### 测试环境配置
 
-Tests run in isolated environments to avoid conflicts:
+测试在隔离环境中运行以避免冲突：
 
 ```bash
-# Disable mise during development testing
+# 开发测试时禁用 mise
 export MISE_DISABLE_TOOLS=1
 
-# Run tests with specific environment
+# 在特定环境中运行测试
 MISE_TRUSTED_CONFIG_PATHS=$PWD cargo test
 ```
 
-### Test Assertions
+### 测试断言
 
-The E2E tests use a custom assertion framework (`e2e/assert.sh`):
+E2E 测试使用自定义断言框架（`e2e/assert.sh`）：
 
 ```bash
-# Basic assertions
+# 基本断言
 assert "command" "expected_output"
 assert_contains "command" "substring"
 assert_fail "command" "expected_error"
 
-# JSON assertions
+# JSON 断言
 assert_json "command" '{"key": "value"}'
 assert_json_partial_array "command" "fields" '[{...}]'
 
-# File/directory assertions
+# 文件/目录断言
 assert_directory_exists "/path/to/dir"
 assert_directory_not_exists "/path/to/dir"
 assert_empty "command"
 ```
 
-### Running Specific Test Categories
+### 运行特定测试类别
 
 ```bash
-# Run all tests (unit + e2e)
+# 运行所有测试（单元 + e2e）
 mise run test
 
-# Run only unit tests
+# 仅运行单元测试
 mise run test:unit
 
-# Run only e2e tests
+# 仅运行 e2e 测试
 mise run test:e2e
 
-# Run tests with shuffle (for detecting order dependencies)
+# 随机顺序运行测试（检测顺序依赖）
 mise run test:shuffle
 
-# Run nightly tests (with bleeding edge Rust)
+# 运行 nightly 测试（使用最新 Rust）
 rustup default nightly && mise run test
 ```
 
-### Running Individual Tests
+### 运行单个测试
 
-#### Running Single Unit Tests
+#### 运行单个单元测试
 
 ```bash
-# Run a specific unit test by name
+# 按名称运行特定单元测试
 cargo test test_name
 
-# Run tests matching a pattern
+# 运行匹配模式的测试
 cargo test pattern
 
-# Run tests in a specific module
+# 运行特定模块中的测试
 cargo test module_name
 
-# Run a single test with output
+# 运行单个测试并输出
 cargo test test_name -- --nocapture
 ```
 
-#### Running Single E2E Tests
+#### 运行单个 E2E 测试
 
 ```bash
-# Run a specific E2E test by name
+# 按名称运行特定 E2E 测试
 ./e2e/run_test test_name
 
-# Run E2E tests matching a pattern
+# 运行匹配模式的 E2E 测试
 mise run test:e2e pattern
 
-# Examples:
-./e2e/run_test test_use                    # Run specific test
-./e2e/run_test test_config_set            # Run config-related test
-mise run test:e2e task                     # Run all tests matching "task"
+# 示例：
+./e2e/run_test test_use                    # 运行特定测试
+./e2e/run_test test_config_set            # 运行配置相关测试
+mise run test:e2e task                     # 运行所有匹配 "task" 的测试
 ```
 
-#### Testing Individual Plugins
+#### 测试单个插件
 
 ```bash
-# Test a specific plugin
+# 测试特定插件
 mise test-tool ripgrep
 
-# Test a plugin with verbose output
+# 带详细输出测试插件
 mise test-tool ripgrep --raw
 
-# Test multiple plugins
+# 测试多个插件
 mise test-tool ripgrep jq terraform
 ```
 
-### Performance Testing
+### 性能测试
 
 ```bash
-# Run performance benchmarks
+# 运行性能基准测试
 mise run test:perf
 
-# Build performance test workspace
+# 构建性能测试工作区
 mise run test:build-perf-workspace
 ```
 
-### Snapshot Testing
+### 快照测试
 
-Used for testing output consistency:
+用于测试输出的一致性：
 
 ```bash
-# Update test snapshots when output changes
+# 输出变更时更新测试快照
 mise run snapshots
 
-# Use cargo-insta for snapshot testing
+# 使用 cargo-insta 进行快照测试
 cargo insta test --accept --unreferenced delete
 ```
 
-## Development Setup
+## 开发环境配置
 
-### Prerequisites
+### 前置要求
 
-- [Rust](https://www.rust-lang.org/) (latest stable, we don't use mise to
-  manage rust)
+- [Rust](https://www.rust-lang.org/)（最新稳定版，我们不用 mise 来管理 rust）
 - mise
 
-### Getting Started
+### 开始
 
 ```bash
-# Clone the repository
+# 克隆仓库
 git clone https://github.com/jdx/mise.git
 cd mise
 
-# Install dependencies
+# 安装依赖
 mise install
 
-# Build the project
+# 构建项目
 mise run build
 ```
 
-### Development Shim
+### 开发用 Shim
 
-Create a development shim to easily run mise during development:
+创建一个开发用 shim 以便在开发时轻松运行 mise：
 
 ```bash
-# Create ~/.local/bin/@mise
+# 创建 ~/.local/bin/@mise
 #!/bin/sh
 exec cargo run -q --all-features --manifest-path ~/src/mise/Cargo.toml -- "$@"
 ```
 
-Then use `@mise` to run the development version:
+然后使用 `@mise` 运行开发版本：
 
 ```bash
 @mise --help
 eval "$(@mise activate zsh)"
 ```
 
-## Project Structure
+## 项目结构
 
 ```text
 mise/
-├── src/           # Main Rust source code
-├── e2e/           # End-to-end tests
-├── docs/          # Documentation
-├── tasks.toml     # Development tasks
-├── mise.toml      # Project configuration
-├── Cargo.toml     # Rust project configuration
-└── xtasks/        # Additional build scripts
+├── src/           # 主 Rust 源代码
+├── e2e/           # 端到端测试
+├── docs/          # 文档
+├── tasks.toml     # 开发任务
+├── mise.toml      # 项目配置
+├── Cargo.toml     # Rust 项目配置
+└── xtasks/        # 额外构建脚本
 ```
 
-## Available Development Tasks
+## 可用的开发任务
 
-Use `mise tasks` to see all available development tasks:
+使用 `mise tasks` 查看所有可用的开发任务：
 
-### Common Tasks
+### 常用任务
 
-- `mise run build` - Build the project
-- `mise run test` - Run all tests (unit + E2E)
-- `mise run test:unit` - Run unit tests only
-- `mise run test:e2e` - Run E2E tests only
-- `mise run lint` - Run linting
-- `mise run lint:fix` - Run linting with fixes
-- `mise run format` - Format code
-- `mise run clean` - Clean build artifacts
-- `mise run snapshots` - Update test snapshots
-- `mise run render` - Generate documentation and completions
+- `mise run build` - 构建项目
+- `mise run test` - 运行所有测试（单元 + E2E）
+- `mise run test:unit` - 仅运行单元测试
+- `mise run test:e2e` - 仅运行 E2E 测试
+- `mise run lint` - 运行代码检查
+- `mise run lint:fix` - 运行代码检查并修复
+- `mise run format` - 格式化代码
+- `mise run clean` - 清理构建产物
+- `mise run snapshots` - 更新测试快照
+- `mise run render` - 生成文档和补全
 
-### Documentation Tasks
+### 文档任务
 
-- `mise run docs` - Start documentation development server
-- `mise run docs:build` - Build documentation
-- `mise run render:help` - Generate help documentation
-- `mise run render:completions` - Generate shell completions
+- `mise run docs` - 启动文档开发服务器
+- `mise run docs:build` - 构建文档
+- `mise run render:help` - 生成帮助文档
+- `mise run render:completions` - 生成 shell 补全
 
-### Release Tasks
+### 发布任务
 
-- `mise run release` - Create a release
-- `mise run ci` - Run CI tasks (format, build, test)
+- `mise run release` - 创建发布
+- `mise run ci` - 运行 CI 任务（格式化、构建、测试）
 
-## Setup
+## 环境配置
 
-Shouldn't require anything special I'm aware of, but `mise run build` is a good
-sanity check to run and make sure it's all working.
+应该不需要什么特殊配置，但 `mise run build` 是一个很好的完整性检查命令，可以确认一切正常。
 
-## Pre-commit Hooks & Code Quality
+## Dev Container
 
-mise uses [hk](https://hk.jdx.dev) as its git hook manager for
-linting and code quality checks. hk is a modern alternative to lefthook written
-by the same author as mise.
+::: danger
+Docker 环境已经无法正常工作了，由于我自己不使用，所以还没有修复。目前你需要在 Docker 之外运行，或者你可以尝试修复 Docker 配置。
+:::
 
-### hk Configuration
+有一个 Docker 环境可以让 mise 的开发更容易。它对运行 E2E 测试特别有帮助。以下是一些使用示例：
 
-The project uses `hk.pkl` (written in the Pkl configuration language) to define
-linting rules:
+```sh
+mise run docker:cargo build
+mise run docker:cargo test
+mise run docker:mise --help # 在 dev container 中运行 `mise --help`
+# 在 Docker 容器中运行 e2e 测试
+mise run docker:mise run test:e2e
+# `mise run docker:mise run test:e2e` 的简写
+mise run docker:e2e
+```
+
+## Pre-commit 钩子与代码质量
+
+mise 使用 [hk](https://hk.jdx.dev) 作为 git 钩子管理器，用于代码检查和质量控制。hk 是 lefthook 的现代替代品，由 mise 的同一作者编写。
+
+### hk 配置
+
+项目使用 `hk.pkl`（用 Pkl 配置语言编写）来定义代码检查规则：
 
 ```bash
-# Run all linting checks
+# 运行所有检查
 hk check --all
 
-# Run linting with fixes
+# 运行检查并修复
 hk fix --all
 
-# Run specific linter
+# 运行特定检查
 hk check --step shellcheck
 ```
 
-### Available Linters in hk
+### hk 中可用的检查器
 
-- **prettier**: Code formatting for multiple languages
-- **clippy**: Rust linting with `cargo clippy`
-- **shellcheck**: Shell script linting
-- **shfmt**: Shell script formatting
-- **pkl**: Pkl configuration file validation
+- **prettier**：多语言代码格式化
+- **clippy**：Rust 代码检查，使用 `cargo clippy`
+- **shellcheck**：Shell 脚本检查
+- **shfmt**：Shell 脚本格式化
+- **pkl**：Pkl 配置文件验证
 
-### Using hk in Development
+### 在开发中使用 hk
 
 ```bash
-# Run linting (used in CI and pre-commit)
-mise run lint  # This runs hk check --all
+# 运行检查（用于 CI 和 pre-commit）
+mise run lint  # 实际运行 hk check --all
 
-# Run linting with fixes
+# 运行检查并修复
 hk fix --all
 
-# Check specific file types
+# 检查特定文件类型
 hk check --step prettier
 hk check --step shellcheck
 ```
 
-### Setting Up Pre-commit Hooks
+### Pre-commit 任务配置
 
-```bash
-# Set up git hooks to run hk on pre-commit
-hk install --mise
+mise 定义了一个运行主要检查的 `pre-commit` 任务：
+
+```toml
+[pre-commit]
+env = { PRE_COMMIT = 1 }
+run = ["mise run lint"]
 ```
 
-### Running Checks Manually
+此任务：
+
+1. 设置 `PRE_COMMIT=1` 环境变量
+2. 运行 `mise run lint`，它会执行 `hk check --all`
+
+### 设置 Pre-commit 钩子
 
 ```bash
-# Run all checks
-hk check --all
+# 设置 git 钩子运行 mise 的 pre-commit 任务
+mise generate git-pre-commit --write --task=pre-commit
+```
 
-# Run checks with fixes
+### 手动运行 Pre-commit 检查
+
+```bash
+# 运行所有 pre-commit 检查
+mise run pre-commit
+
+# 运行特定检查
+mise run lint
+
+# 运行检查并修复
 hk fix --all
 
-# Run checks on specific files
+# 检查特定文件
 hk check --files="src/**/*.rs"
 ```
 
-## Running the CLI
+## 运行 CLI
 
-I use the following shim in `~/.local/bin/@mise`:
+即使使用 devcontainer，创建一个 shim 以方便启动 mise 也是好主意。我在 `~/.local/bin/@mise` 中使用以下 shim：
 
 ```sh
 #!/bin/sh
@@ -435,56 +457,53 @@ exec cargo run -q --all-features --manifest-path ~/src/mise/Cargo.toml -- "$@"
 ```
 
 ::: info
-Don't forget to change the manifest path to the correct path for your setup.
+不要忘记将 manifest 路径改为你自己的正确路径。
 :::
 
-Then if that is in PATH just use `@mise` to run mise by compiling it on the fly.
+然后如果它在 PATH 中，只需使用 `@mise` 即可通过即时编译运行 mise。
 
 ```sh
 @mise --help
+@mise run docker:e2e
 eval "$(@mise activate zsh)"
 @mise activate fish | source
 ```
 
-## Releasing
+## 发布
 
-Run `mise run release -x [minor|patch]`. (minor if it is the first release in a
-month)
+运行 `mise run release -x [minor|patch]`。（如果是当月第一次发布则用 minor）
 
-## Linting
+## 代码检查
 
-- Lint codebase: `mise run lint`
-- Lint and fix codebase: `mise run lint:fix`
+- 检查代码库：`mise run lint`
+- 检查并修复代码库：`mise run lint:fix`
 
-## Generating readme and shell completion files
+## 生成 readme 和 shell 补全文件
 
 ```sh
 mise run render
 ```
 
-## Dependency Management
+## 依赖管理
 
-mise uses several tools to validate dependencies and code quality:
+mise 使用多个工具来验证依赖和代码质量：
 
-- **cargo-deny**: Validates licenses, security advisories, and dependency
-  duplicates
-- **cargo-msrv**: Verifies minimum supported Rust version compatibility
-- **cargo-machete**: Detects unused dependencies in Cargo.toml
+- **cargo-deny**：验证许可证、安全公告和重复依赖
+- **cargo-msrv**：验证最低支持的 Rust 版本兼容性
+- **cargo-machete**：检测 Cargo.toml 中未使用的依赖
 
-These checks run automatically in CI and can be run locally:
+这些检查在 CI 中自动运行，也可以在本地运行：
 
 ```bash
-# Run checks (tools are automatically available via mise.toml)
+# 运行检查（工具通过 mise.toml 自动可用）
 cargo deny check
 cargo msrv verify
 cargo machete --with-metadata
 ```
 
-## Conventional Commits
+## 约定式提交
 
-mise uses [Conventional Commits](https://www.conventionalcommits.org/) for
-consistent commit messages and automated changelog generation. All commits
-should follow this format:
+mise 使用[约定式提交](https://www.conventionalcommits.org/)来保持提交消息的一致性和自动化变更日志生成。所有提交应遵循以下格式：
 
 ```text
 <type>[optional scope]: <description>
@@ -494,19 +513,19 @@ should follow this format:
 [optional footer(s)]
 ```
 
-### Commit Types
+### 提交类型
 
-- **feat**: New features (🚀 Features)
-- **fix**: Bug fixes (🐛 Bug Fixes)
-- **refactor**: Code refactoring (🚜 Refactor)
-- **docs**: Documentation changes (📚 Documentation)
-- **style**: Code style changes (🎨 Styling)
-- **perf**: Performance improvements (⚡ Performance)
-- **test**: Testing changes (🧪 Testing)
-- **chore**: Maintenance tasks, dependency updates
-- **revert**: Reverting previous changes (◀️ Revert)
+- **feat**：新功能（🚀 Features）
+- **fix**：Bug 修复（🐛 Bug Fixes）
+- **refactor**：代码重构（🚜 Refactor）
+- **docs**：文档变更（📚 Documentation）
+- **style**：代码风格变更（🎨 Styling）
+- **perf**：性能优化（⚡ Performance）
+- **test**：测试变更（🧪 Testing）
+- **chore**：维护任务、依赖更新
+- **revert**：回退之前的变更（◀️ Revert）
 
-### Examples
+### 示例
 
 ```bash
 feat(cli): add new command for listing plugins
@@ -517,98 +536,85 @@ test(e2e): add tests for new plugin functionality
 chore(deps): update dependencies to latest versions
 ```
 
-### Scopes
+### 作用域
 
-Common scopes used in mise:
+mise 中常用的作用域：
 
-- `cli` - Command line interface changes
-- `config` - Configuration system changes
-- `parser` - Parsing logic changes
-- `deps` - Dependency updates
-- `security` - Security-related changes
+- `cli` - 命令行接口变更
+- `config` - 配置系统变更
+- `parser` - 解析逻辑变更
+- `deps` - 依赖更新
+- `security` - 安全相关变更
 
-### Breaking Changes
+### 破坏性变更
 
-#### Breaking Change Policy
+#### 破坏性变更政策
 
-Breaking changes are rarely accepted into mise and are only performed in
-exceptional situations where there is no better alternative. When a breaking
-change is necessary, the process includes:
+破坏性变更在 mise 中很少被接受，只有在没有更好替代方案的特殊情况下才会进行。当需要破坏性变更时，流程包括：
 
-1. **CLI warnings**: Users receive deprecation warnings in the CLI
-2. **Migration period**: Several months are provided for users to migrate
-3. **Documentation**: Clear migration guides are provided
-4. **Community notice**: Announcements in Discord and GitHub discussions
+1. **CLI 警告**：用户会在 CLI 中收到弃用警告
+2. **迁移期**：提供数月的迁移时间
+3. **文档**：提供清晰的迁移指南
+4. **社区通知**：在 Discord 和 GitHub discussions 中公告
 
-For breaking changes, add `!` after the type or include `BREAKING CHANGE:` in
-the footer:
+对于破坏性变更，在类型后加 `!` 或在 footer 中包含 `BREAKING CHANGE:`：
 
 ```bash
 feat(api)!: remove deprecated configuration options
-# OR
+# 或
 feat(api): remove deprecated configuration options
 
 BREAKING CHANGE: The old configuration format is no longer supported
 ```
 
-## CI/CD & Pull Request Automation
+## CI/CD 与 Pull Request 自动化
 
-mise uses several automated workflows to maintain code quality and streamline
-development:
+mise 使用多个自动化工作流来维护代码质量和简化开发流程：
 
-### Automated Code Formatting
+### 自动代码格式化
 
-- **autofix.ci**: Automatically formats code and fixes linting issues in PRs
-- Runs `mise run render` and `mise run lint-fix` automatically
-- Commits fixes directly to the PR branch
+- **autofix.ci**：自动格式化代码并修复 PR 中的 lint 问题
+- 自动运行 `mise run render` 和 `mise run lint-fix`
+- 将修复直接提交到 PR 分支
 
-### PR Title Validation
+### PR 标题验证
 
-- **semantic-pr-lint**: Validates PR titles follow conventional commit format
-- PR titles must match: `<type>[optional scope]: <description>`
-- Example: `feat(cli): add new command for listing plugins`
+- **semantic-pr-lint**：验证 PR 标题遵循约定式提交格式
+- PR 标题必须匹配：`<type>[optional scope]: <description>`
+- 示例：`feat(cli): add new command for listing plugins`
 
-### Continuous Integration
+### 持续集成
 
-- **Cross-platform testing**: Ubuntu, macOS, and Windows
-- **Unit tests**: Fast component-level tests
-- **E2E tests**: Full integration testing with multiple test tranches
-- **Dependency validation**: `cargo deny`, `cargo msrv`, `cargo machete`
+- **跨平台测试**：Ubuntu、macOS 和 Windows
+- **单元测试**：快速的组件级测试
+- **E2E 测试**：完整的集成测试，分多批运行
+- **依赖验证**：`cargo deny`、`cargo msrv`、`cargo machete`
 
-### Release Automation
+### 发布自动化
 
-- **release-plz**: Automated release management based on conventional commits
-- Automatically creates release PRs and publishes releases
-- Runs daily via scheduled workflow
-- Handles version bumping and changelog generation
+- **release-plz**：基于约定式提交的自动化发布管理
+- 自动创建发布 PR 并发布
+- 通过定时工作流每天运行
+- 处理版本号递增和变更日志生成
 
-## Adding a new setting
+## 添加新设置
 
-To add a new setting, add it to
-[`settings.toml`](https://github.com/jdx/mise/blob/main/settings.toml) in the
-root of the project and run `mise run render` to update the codebase.
+要添加新设置，将其添加到项目根目录的 [`settings.toml`](https://github.com/jdx/mise/blob/main/settings.toml) 中，然后运行 `mise run render` 更新代码库。
 
-## Adding Tools
+## 添加工具
 
-Adding tools to mise involves adding entries to the
-[registry/](https://github.com/jdx/mise/blob/main/registry/) file. This
-allows users to install tools using short names like `mise use ripgrep` instead
-of the full backend specification.
+向 mise 添加工具需要在 [registry/](https://github.com/jdx/mise/blob/main/registry/) 文件中添加条目。这使得用户可以使用短名称如 `mise use ripgrep` 而不需要完整的工具源规范。
 
-### Quick Start
+### 快速开始
 
-1. **Choose the right backend** for your tool:
+1. **选择合适的工具源**：
 
-   - **[aqua](dev-tools/backends/aqua.md)** - Preferred for GitHub releases with security
-     features
-   - **[github](dev-tools/backends/github.md)** - Simple GitHub releases following
-     standard conventions
-   - **Language package managers** - `npm`, `pipx`, `cargo`, `gem`, etc. for
-     ecosystem-specific tools
-   - **[Core tools](core-tools.md)** - Built-in support for major languages
-     (not user-contributed)
+   - **[aqua](dev-tools/backends/aqua.md)** - 适合 GitHub releases，带安全特性
+   - **[github](dev-tools/backends/github.md)** - 简单的 GitHub releases，遵循标准约定
+   - **语言包管理器** - `npm`、`pipx`、`cargo`、`gem` 等，适合各语言生态特定工具
+   - **[核心工具](core-tools.md)** - 主要语言的内置支持（非用户贡献）
 
-2. **Add to registry/**:
+2. **添加到 registry/**：
 
    ```toml
    [tools.your-tool]
@@ -617,50 +623,44 @@ of the full backend specification.
    test = ["your-tool --version", "{{version}}"]
    ```
 
-3. **Test the tool** works properly with `mise test-tool your-tool`
+3. **测试工具**是否正常工作：`mise test-tool your-tool`
 
-### Guidelines and Requirements
+### 准则和要求
 
-When adding a new tool, the following requirements apply (automatically
-enforced by [GitHub Actions workflow](https://github.com/jdx/mise/blob/main/.github/workflows/registry_comment.yml)):
+添加新工具时，以下要求适用（由 [GitHub Actions 工作流](https://github.com/jdx/mise/blob/main/.github/workflows/registry_comment.yml)自动执行）：
 
-- **New asdf plugins are not accepted** - Use aqua/github instead
-- **A test is required in `registry/`** - Must include a `test` field to
-  verify installation
-- **Tools may be rejected if they are not notable** - The tool should be
-  reasonably popular and well-maintained. There are no specific guidelines for this and
-  a lot of factors are taken into account. @jdx won't explain why a given tool wasn't
-  accepted.
+- **不接受新的 asdf 插件** - 请使用 aqua/github
+- **需要在 `registry/` 中包含测试** - 必须包含 `test` 字段以验证安装
+- **工具可能因不够知名而被拒绝** - 工具应该有一定的流行度且维护良好。这方面没有具体标准，会考虑很多因素。@jdx 不会解释为什么某个工具没有被接受
 
-### Registry Format
+### 注册表格式
 
-The `registry/` file uses this format:
+`registry/` 文件使用以下格式：
 
 ```toml
-# Tool name "your-tool" (becomes the short name for `mise use`)
+# 工具名称 "your-tool"（作为 `mise use` 的短名称）
 [tools.your-tool]
 description = "Tool description"
 backends = [
-    "aqua:owner/repo",           # Preferred backend first
-    "github:owner/repo",         # Fallback backends
-    "npm:package-name"           # Multiple backends supported
+    "aqua:owner/repo",           # 优先工具源
+    "github:owner/repo",         # 备选工具源
+    "npm:package-name"           # 支持多个工具源
 ]
 test = [
-    "your-tool --version",       # Command to run
-    "{{version}}"                # Expected output pattern
+    "your-tool --version",       # 要运行的命令
+    "{{version}}"                # 预期输出模式
 ]
-aliases = ["alt-name"] # Optional alternative names
-os = ["linux", "macos"] # Optional OS restrictions
+aliases = ["alt-name"] # 可选的替代名称
+os = ["linux", "macos"] # 可选的操作系统限制
 ```
 
-### Backend Priority
+### 工具源优先级
 
-List backends in order of preference. Users will get the first available
-backend, but can override with explicit syntax like `mise use aqua:owner/repo`.
+按优先级顺序列出工具源。用户会获得第一个可用的工具源，但可以通过显式语法如 `mise use aqua:owner/repo` 来覆盖。
 
-### Tool Testing
+### 工具测试
 
-All tools must include a test to verify proper installation:
+所有工具必须包含测试以验证安装正确：
 
 ```toml
 test = [
@@ -669,14 +669,13 @@ test = [
 ]
 ```
 
-The test command should be reliable and the output pattern should use
-`{{version}}` to match any version number.
+测试命令应该可靠，输出模式应使用 `{{version}}` 来匹配任何版本号。
 
-### Registry Examples
+### 注册表示例
 
-Recent tool additions:
+近期添加的工具：
 
-- **DuckDB**: Simple github backend ([#4248](https://github.com/jdx/mise/pull/4248))
+- **DuckDB**：简单的 github 工具源（[#4248](https://github.com/jdx/mise/pull/4248)）
 
   ```toml
   [tools.duckdb]
@@ -684,7 +683,7 @@ Recent tool additions:
   test = ["duckdb --version", "{{version}}"]
   ```
 
-- **Biome**: Multiple backends ([#4283](https://github.com/jdx/mise/pull/4283))
+- **Biome**：多个工具源（[#4283](https://github.com/jdx/mise/pull/4283)）
 
   ```toml
   [tools.biome]
@@ -692,53 +691,38 @@ Recent tool additions:
   test = ["biome --version", "Version: {{version}}"]
   ```
 
-## Adding Backends
+## 添加工具源
 
-:::warning Backend vs Tool Confusion
-**Most contributors want to add tools, not backends.** Before reading this
-section, make sure you actually need a new backend. Tools are individual
-software packages (like `node` or `ripgrep`), while backends are installation
-mechanisms (like `aqua` or `github`). If you want to add a specific tool to mise,
-see [Adding Tools](#adding-tools) instead.
+:::warning 工具源 vs 工具的区别
+**大多数贡献者想要添加的是工具，而不是工具源。** 在阅读本节之前，请确认你确实需要新的工具源。工具是具体的软件包（如 `node` 或 `ripgrep`），而工具源是安装机制（如 `aqua` 或 `github`）。如果你想向 mise 添加具体工具，请参见[添加工具](#adding-tools)。
 :::
 
-:::warning Core Backend Acceptance Policy
-**New backends are unlikely to be accepted into mise core.** They require
-a lot of maintenance so it's generally better to use the [backend plugin system](backend-plugin-development.md) to add backends without core changes. A new backend would only be accepted for a major package manager
-or tool that would greatly enhance mise's capabilities.
+:::warning 核心工具源接受政策
+**新的工具源不太可能被接受到 mise 核心中。** 它们需要大量维护，因此通常最好使用[工具源插件系统](backend-plugin-development.md)来添加，无需修改核心代码。只有在某个主要包管理器或工具能极大增强 mise 能力的情况下，新工具源才会被接受。
 
-If you need a custom backend:
+如果你需要自定义工具源：
 
-1. **Discuss with jdx first** in [Discord](https://discord.gg/UBa7pJUN7Z) or by
-   creating a [discussion](https://github.com/jdx/mise/discussions)
-2. **Consider if existing backends** (github, aqua, npm, pipx, etc.) can meet your
-   needs
-3. **Create a plugin** - use the [plugin system](tool-plugin-development.md) to create plugins for private/custom tools without core changes. Start with the [mise-tool-plugin-template](https://github.com/jdx/mise-tool-plugin-template) for a quick setup
+1. **先与 jdx 讨论**，在 [Discord](https://discord.gg/UBa7pJUN7Z) 中或创建 [discussion](https://github.com/jdx/mise/discussions)
+2. **考虑现有工具源**（github、aqua、npm、pipx 等）是否能满足你的需求
+3. **创建插件** - 使用[插件系统](tool-plugin-development.md)为私有/自定义工具创建插件，无需修改核心代码。使用 [mise-tool-plugin-template](https://github.com/jdx/mise-tool-plugin-template) 快速上手
 
-Most tool installation needs can be met by existing backends, especially
-[github](dev-tools/backends/github.md) for GitHub releases and
-[aqua](dev-tools/backends/aqua.md) for comprehensive package management.
+大多数工具安装需求可以通过现有工具源满足，特别是用于 GitHub releases 的 [github](dev-tools/backends/github.md) 和用于全面包管理的 [aqua](dev-tools/backends/aqua.md)。
 :::
 
-Backends are mise's abstraction for different tool installation methods. Each
-backend implements the `Backend` trait to provide consistent functionality
-across different installation systems.
+工具源是 mise 对不同工具安装方式的抽象。每个工具源实现 `Backend` trait 以在不同安装系统间提供一致的功能。
 
-### Backend Types
+### 工具源类型
 
-- **Core Backends** (`src/backend/core/`) - Built-in language runtimes like
-  Node.js, Python, Ruby
-- **Package Manager Backends** (`src/backend/`) - npm, pipx, cargo, gem, go
-  modules
-- **Universal Installers** (`src/backend/`) - github, aqua for GitHub releases and
-  package management
-- **Plugin Backends** (`src/backend/`) - plugins can provide custom backends or individual tools
+- **核心工具源**（`src/backend/core/`）- 内置语言运行时，如 Node.js、Python、Ruby
+- **包管理器工具源**（`src/backend/`）- npm、pipx、cargo、gem、go modules
+- **通用安装器**（`src/backend/`）- github、aqua，用于 GitHub releases 和包管理
+- **插件工具源**（`src/backend/`）- 插件可以提供自定义工具源或单个工具
 
-### Implementation Steps
+### 实现步骤
 
-1. **Create the backend module** in `src/backend/` (e.g., `my_backend.rs`)
+1. **在 `src/backend/` 中创建工具源模块**（如 `my_backend.rs`）
 
-2. **Implement the Backend trait**:
+2. **实现 Backend trait**：
 
    ```rust
    use crate::backend::{Backend, BackendType};
@@ -746,70 +730,68 @@ across different installation systems.
 
    #[derive(Debug)]
    pub struct MyBackend {
-       // backend-specific fields
+       // 工具源特定字段
    }
 
    impl Backend for MyBackend {
        fn get_type(&self) -> BackendType { BackendType::MyBackend }
 
        async fn list_remote_versions(&self) -> Result<Vec<String>> {
-           // Implementation for listing available versions
+           // 列出可用版本的实现
        }
 
        async fn install_version(&self, ctx: &InstallContext,
                                  tv: &ToolVersion) -> Result<()> {
-           // Implementation for installing a specific version
+           // 安装特定版本的实现
        }
 
        async fn uninstall_version(&self, tv: &ToolVersion) -> Result<()> {
-           // Implementation for uninstalling a version
+           // 卸载版本的实现
        }
 
-       // ... other required methods
+       // ... 其他必需方法
    }
    ```
 
-3. **Register the backend** in `src/backend/mod.rs`:
+3. **在 `src/backend/mod.rs` 中注册工具源**：
 
-   - Add your backend to the imports
-   - Add it to the backend registry/factory function
-   - Add the `BackendType` enum variant
+   - 添加你的工具源到 imports
+   - 添加到工具源注册/工厂函数
+   - 添加 `BackendType` 枚举变体
 
-4. **Add CLI argument parsing** in `src/cli/args/backend_arg.rs` if needed
+4. **如需添加 CLI 参数解析**，在 `src/cli/args/backend_arg.rs` 中处理
 
-5. **Update the registry** in `registry/` if it should be available as a
-   shorthand
+5. **更新注册表**（`registry/`），如果需要作为简写名称使用
 
-### Testing Requirements
+### 测试要求
 
-- **Integration tests** in `e2e/backend/test_my_backend`
-- **Test both installation and usage** of tools from your backend
-- **Windows testing** if the backend supports Windows
+- **集成测试**在 `e2e/backend/test_my_backend` 中
+- **测试工具的安装和使用**
+- **Windows 测试**（如果工具源支持 Windows）
 
-### Documentation
+### 文档
 
-- **Update backend documentation** in `docs/dev-tools/backends/`
-- **Add usage examples** showing how to install tools with your backend
-- **Update the registry documentation** if adding new shorthand tools
+- **更新工具源文档**在 `docs/dev-tools/backends/` 中
+- **添加使用示例**展示如何用你的工具源安装工具
+- **更新注册表文档**（如果添加了新的简写工具）
 
-### Implementation Examples
+### 实现参考
 
-Look at existing backends for patterns:
+可以参考现有工具源的模式：
 
-- `src/backend/github.rs` - Simple GitHub release installer
-- `src/backend/npm.rs` - Package manager integration
-- `src/backend/core/node.rs` - Full language runtime implementation
+- `src/backend/github.rs` - 简单的 GitHub release 安装器
+- `src/backend/npm.rs` - 包管理器集成
+- `src/backend/core/node.rs` - 完整的语言运行时实现
 
-For detailed architecture information, see
-[Backend Architecture](dev-tools/backend_architecture.md).
+有关详细的架构信息，请参见[工具源架构](dev-tools/backend_architecture.md)。
 
-## Testing packaging
+## 测试打包
 
-This is only necessary to test if actually changing the packaging setup.
+只有在实际修改打包配置时才需要进行。
 
 ### Ubuntu (apt)
 
-This is for arm64, but you can change the arch to amd64 if you want.
+以下为 arm64，你可以改为 amd64。
 
 ```sh
 docker run -ti --rm ubuntu

@@ -1,10 +1,10 @@
-# Shell Aliases
+# Shell 别名
 
-mise can manage shell aliases that are set dynamically when you enter a directory and unset when you leave, similar to how environment variables work.
+mise 可以管理 shell 别名，当你进入目录时动态设置，离开时取消设置，类似于环境变量的工作方式。
 
-## Configuration
+## 配置
 
-Shell aliases are defined in `mise.toml` under the `[shell_alias]` section:
+Shell 别名在 `mise.toml` 的 `[shell_alias]` 部分定义：
 
 ```toml
 [shell_alias]
@@ -14,40 +14,40 @@ gs = "git status"
 gc = "git commit"
 ```
 
-When you enter a directory with this configuration, these aliases will be automatically set in your shell. When you leave the directory (and the new directory doesn't have the same aliases), they will be unset.
+当你进入包含此配置的目录时，这些别名会自动在你的 shell 中设置。当你离开该目录（且新目录没有相同的别名）时，它们会被取消设置。
 
-## Supported Shells
+## 支持的 Shell
 
-Shell aliases are currently supported in:
+Shell 别名目前支持：
 
-- **bash** - Uses `alias`/`unalias` commands
-- **zsh** - Uses `alias`/`unalias` commands
-- **fish** - Uses `alias`/`functions -e` commands
+- **bash** - 使用 `alias`/`unalias` 命令
+- **zsh** - 使用 `alias`/`unalias` 命令
+- **fish** - 使用 `alias`/`functions -e` 命令
 
-Other shells (nushell, elvish, xonsh, powershell) do not currently support shell aliases.
+其他 shell（nushell、elvish、xonsh、powershell）暂不支持 shell 别名。
 
-## Dynamic Behavior
+## 动态行为
 
-Shell aliases work similarly to environment variables managed by mise:
+Shell 别名的工作方式类似于 mise 管理的环境变量：
 
-1. **Set on entry**: When you `cd` into a directory with `[shell_alias]` config, the aliases are set
-2. **Updated on change**: If an alias value changes in your config, it will be updated
-3. **Unset on exit**: When you leave the directory (or the alias is removed from config), it will be unset
+1. **进入时设置**：当你 `cd` 进入包含 `[shell_alias]` 配置的目录时，别名被设置
+2. **变更时更新**：如果配置中的别名值发生变化，它会被更新
+3. **离开时取消**：当你离开该目录（或别名从配置中移除）时，它会被取消设置
 
 ```bash
 $ cd ~/myproject
-# mise sets: alias ll='ls -la'
+# mise 设置: alias ll='ls -la'
 
 $ ll
-# Runs: ls -la
+# 执行: ls -la
 
 $ cd ~
-# mise runs: unalias ll
+# mise 执行: unalias ll
 ```
 
-## Hierarchy
+## 层级结构
 
-Like other mise config, shell aliases from parent directories are available in child directories. A child directory can override a parent's alias:
+与其他 mise 配置一样，父目录的 shell 别名在子目录中也可用。子目录可以覆盖父目录的别名：
 
 ```toml
 # ~/projects/mise.toml
@@ -56,12 +56,12 @@ build = "make build"
 
 # ~/projects/myapp/mise.toml
 [shell_alias]
-build = "npm run build"  # Overrides parent
+build = "npm run build"  # 覆盖父目录的别名
 ```
 
-## Templates
+## 模板
 
-Alias values support [templates](/templates), allowing dynamic values:
+别名值支持[模板](/templates)，可以使用动态值：
 
 ```toml
 [shell_alias]
@@ -69,11 +69,11 @@ proj = "cd {{config_root}}"
 node_version = "echo {{exec(command='node --version')}}"
 ```
 
-## Use Cases
+## 使用场景
 
-### Project-Specific Shortcuts
+### 项目专属快捷方式
 
-Define shortcuts that only make sense within a specific project:
+定义仅在特定项目中有意义的快捷方式：
 
 ```toml
 [shell_alias]
@@ -83,9 +83,9 @@ build = "npm run build"
 deploy = "./scripts/deploy.sh"
 ```
 
-### Tool Wrappers
+### 工具包装器
 
-Create aliases that wrap tools with project-specific defaults:
+创建带有项目特定默认值的工具别名：
 
 ```toml
 [shell_alias]
@@ -93,7 +93,7 @@ docker-compose = "docker compose -f docker-compose.dev.yml"
 terraform = "terraform -chdir=./infrastructure"
 ```
 
-### Quick Navigation
+### 快速导航
 
 ```toml
 [shell_alias]
@@ -102,13 +102,13 @@ tests = "cd {{config_root}}/tests"
 docs = "cd {{config_root}}/docs"
 ```
 
-## Comparison to Tool Aliases
+## 与工具别名的区别
 
-mise has two different alias features that serve different purposes:
+mise 有两种不同的别名功能，用途各异：
 
-| Feature           | Purpose                                                | Config Key      |
-| ----------------- | ------------------------------------------------------ | --------------- |
-| **Shell Aliases** | Define shell command shortcuts (`alias ll='ls -la'`)   | `[shell_alias]` |
-| **Tool Aliases**  | Define version aliases for tools (`node@lts` → `20.x`) | `[tool_alias]`  |
+| 功能             | 用途                                                   | 配置键            |
+| --------------- | ----------------------------------------------------- | ---------------- |
+| **Shell 别名**   | 定义 shell 命令快捷方式（`alias ll='ls -la'`）            | `[shell_alias]`  |
+| **工具别名**     | 定义工具的版本别名（`node@lts` → `20.x`）                | `[tool_alias]`   |
 
-See [Tool Aliases](/dev-tools/aliases) for documentation on aliasing tool versions.
+参阅[工具别名](/dev-tools/aliases)了解工具版本别名的文档。

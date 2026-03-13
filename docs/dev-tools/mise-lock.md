@@ -1,41 +1,41 @@
-# mise.lock Lockfile
+# mise.lock 锁文件
 
-`mise.lock` is a lockfile that pins exact versions and checksums of tools for reproducible environments. Lockfiles are not created automatically—you must run `mise lock` to generate them. Once a lockfile exists, mise will keep it updated as tools are installed or upgraded.
+`mise.lock` 是一个锁文件，用于固定工具的精确版本和校验和，确保环境可复现。启用后，mise 会自动维护此文件，保证不同机器和部署环境中的工具版本一致。
 
-## Overview
+## 概述
 
-The lockfile serves similar purposes to `package-lock.json` in npm or `Cargo.lock` in Rust:
+锁文件的作用类似于 npm 的 `package-lock.json` 或 Rust 的 `Cargo.lock`：
 
-- **Reproducible builds**: Ensures everyone on your team uses exactly the same tool versions
-- **Security**: Verifies tool integrity with checksums when supported by the backend
-- **Version pinning**: Locks tools to specific versions while allowing flexibility in `mise.toml`
-- **Avoids API rate limits**: By storing download URLs, future installs use the lockfile and do not need to call GitHub (or other providers), avoiding rate limits and the need for `GITHUB_TOKEN` in most cases
+- **可复现构建**：确保团队中每个人使用完全相同的工具版本
+- **安全性**：在工具源支持时通过校验和验证工具完整性
+- **版本锁定**：将工具锁定到特定版本，同时在 `mise.toml` 中保持灵活性
+- **避免 API 速率限制**：存储下载 URL 后，后续安装直接使用锁文件，无需调用 GitHub（或其他提供商），避免速率限制，大多数情况下不再需要 `GITHUB_TOKEN`
 
-## Enabling Lockfiles
+## 启用锁文件
 
-Lockfiles are controlled by the `lockfile` setting:
+锁文件通过 `lockfile` 设置控制：
 
 ```sh
-# Enable lockfiles globally
+# 全局启用锁文件
 mise settings lockfile=true
 
-# Or set in mise.toml
+# 或在 mise.toml 中设置
 [settings]
 lockfile = true
 ```
 
-## How It Works
+## 工作原理
 
-1. **Lockfile Updates**: Once a `mise.lock` file exists, running `mise install` or `mise use` updates it with the exact versions installed
-2. **Version Resolution**: If a `mise.lock` exists, mise will prefer locked versions over version ranges in `mise.toml`
-3. **Checksum Verification**: For supported backends, mise stores and verifies checksums of downloaded tools
+1. **自动创建**：运行 `mise install` 或 `mise use` 时，mise 会用安装的精确版本更新 `mise.lock`
+2. **版本解析**：如果 `mise.lock` 存在，mise 会优先使用锁定版本而非 `mise.toml` 中的版本范围
+3. **校验和验证**：对于支持的工具源，mise 会存储并验证下载工具的校验和
 
-## File Format
+## 文件格式
 
-`mise.lock` is a TOML file with a platform-based format that organizes asset information by platform:
+`mise.lock` 是一个 TOML 文件，采用基于平台的格式来组织资源信息：
 
 ```toml
-# Example mise.lock
+# mise.lock 示例
 [[tools.node]]
 version = "20.11.0"
 backend = "core:node"
@@ -53,7 +53,7 @@ backend = "core:python"
 checksum = "sha256:def456..."
 size = 12345678
 
-# Tool with backend-specific options
+# 带有工具源特定选项的工具
 [[tools.ripgrep]]
 version = "14.1.1"
 backend = "aqua:BurntSushi/ripgrep"
@@ -63,226 +63,228 @@ options = { exe = "rg" }
 checksum = "sha256:4cf9f2741e6c465ffdb7c26f38056a59e2a2544b51f7cc128ef28337eeae4d8e"
 size = 1234567
 
+# 环境特定版本（仅在 MISE_ENV=test 时使用）
+[[tools.tiny]]
+version = "2.1.0"
+env = ["test"]
 ```
 
-### Platform Information
+### 平台信息
 
-Each platform in a tool's `[tools.name.platforms]` section uses a key format like `"os-arch"` (e.g., `"linux-x64"`, `"macos-arm64"`) and can contain:
+工具的 `[tools.name.platforms]` 节中每个平台使用 `"os-arch"` 格式的键（如 `"linux-x64"`、`"macos-arm64"`），可以包含：
 
-- **`checksum`** (optional): SHA256 or Blake3 hash for integrity verification
-- **`size`** (optional): File size in bytes for download validation
-- **`url`** (optional): Original download URL for reference or re-downloading
+- **`checksum`**（可选）：SHA256 或 Blake3 哈希值，用于完整性验证
+- **`size`**（可选）：文件大小（字节），用于下载验证
+- **`url`**（可选）：原始下载 URL，用于引用或重新下载
 
-### Tool Entry Fields
+### 工具条目字段
 
-Each tool entry (`[[tools.name]]`) can contain:
+每个工具条目（`[[tools.name]]`）可以包含：
 
-- **`version`** (required): The exact version of the tool
-- **`backend`** (optional): The backend used to install the tool (e.g., `core:node`, `aqua:BurntSushi/ripgrep`)
-- **`options`** (optional): Backend-specific options that identify the artifact (e.g., `{exe = "rg", matching = "musl"}`)
-- **`platforms`** (optional): Platform-specific metadata (checksums, URLs, sizes)
+- **`version`**（必填）：工具的精确版本
+- **`backend`**（可选）：安装工具使用的工具源（如 `core:node`、`aqua:BurntSushi/ripgrep`）
+- **`options`**（可选）：用于标识构件的工具源特定选项（如 `{exe = "rg", matching = "musl"}`）
+- **`env`**（可选）：此版本适用的环境名列表（如 `["test", "staging"]`）
+- **`platforms`**（可选）：平台特定元数据（校验和、URL、文件大小）
 
-### Platform Keys
+### 平台键
 
-The platform key format is generally `os-arch` but can be customized by backends:
+平台键格式通常为 `os-arch`，但工具源可以自定义：
 
-- **Standard format**: `linux-x64`, `macos-arm64`, `windows-x64`
-- **Backend-specific**: Some backends like Java may use more specific platform identifiers
-- **Tool-specific**: Backends like `ubi` may include additional tool-specific information in the platform key
+- **标准格式**：`linux-x64`、`macos-arm64`、`windows-x64`
+- **工具源特定**：某些工具源（如 Java）可能使用更具体的平台标识符
+- **工具特定**：`ubi` 等工具源可能在平台键中包含额外的工具特定信息
 
-## Environment-Specific Lockfiles
+## 环境特定版本
 
-When using [environment-specific configuration files](/configuration/environments) (e.g., `mise.test.toml`), each environment gets its own lockfile:
+使用[环境特定配置文件](/configuration/environments)（如 `mise.test.toml`）时，这些文件中的工具会在锁文件中标记 `env` 字段：
 
-| Config file            | Lockfile               |
-| ---------------------- | ---------------------- |
-| `mise.toml`            | `mise.lock`            |
-| `mise.test.toml`       | `mise.test.lock`       |
-| `mise.staging.toml`    | `mise.staging.lock`    |
-| `mise.local.toml`      | `mise.local.lock`      |
-| `mise.test.local.toml` | `mise.test.local.lock` |
-
-For example, with `MISE_ENV=test`:
-
-```sh
-MISE_ENV=test mise lock  # creates mise.lock AND mise.test.lock
+```toml
+# mise.test.toml
+[tools]
+tiny = "2"
 ```
 
-Tools from `mise.toml` go to `mise.lock`, tools from `mise.test.toml` go to `mise.test.lock`.
+运行 `MISE_ENV=test mise use tiny@2` 后，锁文件将包含：
 
-**Resolution**: When `MISE_ENV=test`, mise reads `mise.test.lock` for tools defined in `mise.test.toml` and `mise.lock` for tools in `mise.toml`. Environment-specific lockfiles are strictly scoped to their corresponding config — they only contain tools defined in that config.
+```toml
+[[tools.tiny]]
+version = "2.1.0"
+env = ["test"]
+```
 
-This design means CI environments that don't set `MISE_ENV` only depend on `mise.lock`, so dev tool version bumps in `mise.dev.lock` won't invalidate CI caches.
+**解析优先级**：解析版本时，mise 按以下顺序检查：
 
-Both `mise.lock` and `mise.<env>.lock` files should be committed to version control. `mise.local.lock` and `mise.<env>.local.lock` should be gitignored alongside their corresponding config files.
+1. 与当前 `MISE_ENV` 匹配的 `env` 条目
+2. 基础条目（无 `env` 字段）
+3. 第一个可用条目
 
-## Local Lockfiles
+这样不同环境可以使用不同的工具版本，同时共享同一个锁文件。
 
-Tools defined in `mise.local.toml` (which is typically gitignored) use a separate `mise.local.lock` file. This keeps local tool configurations separate from the committed lockfile.
+## 本地锁文件
+
+在 `mise.local.toml`（通常被 gitignore）中定义的工具使用单独的 `mise.local.lock` 文件。这将本地工具配置与提交的锁文件分开。
 
 ```sh
-# mise.local.toml tools go to mise.local.lock
+# mise.local.toml 中的工具写入 mise.local.lock
 mise use --path mise.local.toml node@22
 
-# Regular mise.toml tools go to mise.lock
+# 普通 mise.toml 中的工具写入 mise.lock
 mise use --path mise.toml node@20
 ```
 
-Use `mise lock --local` to update the local lockfile for all platforms:
+使用 `mise lock --local` 为所有平台更新本地锁文件：
 
 ```sh
-mise lock --local              # update mise.local.lock
-mise lock --local node python  # update specific tools in mise.local.lock
+mise lock --local              # 更新 mise.local.lock
+mise lock --local node python  # 更新本地锁文件中的特定工具
 ```
 
-## Strict Lockfile Mode
+## 严格锁文件模式
 
-The `locked` setting enforces that all tools have pre-resolved URLs in the lockfile before installation. This prevents API calls to GitHub, aqua registry, etc., ensuring fully reproducible installations.
+`locked` 设置要求所有工具在锁文件中必须有预解析的 URL 才能安装。这防止对 GitHub、aqua 注册表等的 API 调用，确保完全可复现的安装。
 
 ```sh
-# Enable strict mode
+# 启用严格模式
 mise settings locked=true
 
-# Or via environment variable
+# 或通过环境变量
 MISE_LOCKED=1 mise install
 ```
 
-When enabled, `mise install` will fail if a tool doesn't have a URL for the current platform in the lockfile. To fix this, first populate the lockfile with URLs:
+启用后，如果工具在锁文件中没有当前平台的 URL，`mise install` 会失败。要修复这个问题，先填充锁文件中的 URL：
 
 ```sh
-mise lock                    # generate URLs for all platforms
-mise lock --platform linux-x64,macos-arm64  # or specific platforms
+mise lock                    # 为所有平台生成 URL
+mise lock --platform linux-x64,macos-arm64  # 或特定平台
 ```
 
-This is useful for CI environments where you want to guarantee reproducible builds without any external API dependencies.
+这对于需要保证可复现构建且不依赖外部 API 的 CI 环境非常有用。
 
-## Workflow
+## 工作流
 
-### Initial Setup
+### 初始设置
 
 ```sh
-# Generate the lockfile
-mise lock
+# 创建锁文件
+touch mise.lock
 
-# Install tools using locked versions
+# 安装工具（这会填充锁文件）
 mise install
 ```
 
-### Daily Usage
+### 日常使用
 
 ```sh
-# Install exact versions from lockfile
+# 从锁文件安装精确版本
 mise install
 
-# Update tools and lockfile
+# 更新工具和锁文件
 mise upgrade
 ```
 
-### Updating Versions
+### 更新版本
 
-When you want to update tool versions:
+需要更新工具版本时：
 
 ```sh
-# Update tool version in mise.toml
+# 更新 mise.toml 中的工具版本
 mise use node@24
 
-# This will update both the installation and mise.lock
+# 这会同时更新安装和 mise.lock
 ```
 
-## Backend Support
+## 工具源支持
 
-Backend support for lockfile features varies:
+各工具源对锁文件功能的支持程度不同：
 
-- ✅ **Full support** (version + checksum + size + URL): `aqua`, `http`, `github`, `gitlab`
-  - _Provenance support_: `aqua`, `github`, `core:ruby` (precompiled binaries), `core:zig` (install-time)
-- ⚠️ **Partial support** (version + URL + provenance): `vfox` (tool plugins only)
-- ⚠️ **Partial support** (version + checksum + size): `ubi`
-- 📝 **Basic support** (version + checksum): `core` (some tools)
-- 📝 **Version only**: `asdf`, `npm`, `cargo`, `pipx`
-- 📝 **Planned**: More backends will add full asset tracking support over time
+- ✅ **完整支持**（版本 + 校验和 + 大小 + URL）：`aqua`、`http`、`github`、`gitlab`
+- ⚠️ **部分支持**（版本 + 校验和 + 大小）：`ubi`
+- 📝 **基本支持**（版本 + 校验和）：`core`（部分工具）
+- 📝 **仅版本**：`asdf`、`npm`、`cargo`、`pipx`
+- 📝 **计划中**：更多工具源将逐步添加完整的资源追踪支持
 
-## Best Practices
+## 最佳实践
 
-### Version Control
+### 版本控制
 
 ```sh
-# Always commit the lockfile
+# 始终提交锁文件
 git add mise.lock
 git commit -m "Update tool versions"
 ```
 
-### Team Workflow
+### 团队协作
 
-1. **Team Lead**: Updates `mise.toml` with new version ranges
-2. **Team Lead**: Runs `mise install` to update `mise.lock`
-3. **Team Lead**: Commits both files
-4. **Team Members**: Pull changes and run `mise install` to get exact versions
+1. **团队负责人**：在 `mise.toml` 中更新版本范围
+2. **团队负责人**：运行 `mise install` 更新 `mise.lock`
+3. **团队负责人**：提交两个文件
+4. **团队成员**：拉取更改并运行 `mise install` 获取精确版本
 
 ### CI/CD
 
 ```yaml
-# Example GitHub Actions
-- name: Install tools
+# GitHub Actions 示例
+- name: 安装工具
   run: |
-    mise install  # Uses exact versions from mise.lock
+    mise install  # 使用 mise.lock 中的精确版本
 
-- name: Cache lockfile
+- name: 缓存锁文件
   uses: actions/cache@v5
   with:
     key: mise-lock-${{ hashFiles('mise.lock') }}
 ```
 
-## Troubleshooting
+## 故障排查
 
-### Regenerating Checksums
+### 重新生成校验和
 
-If checksums become invalid or you need to regenerate them:
+如果校验和无效或需要重新生成：
 
 ```sh
-# Remove all tools and reinstall
+# 卸载所有工具并重新安装
 mise uninstall --all
 mise install
 ```
 
-### Lockfile Conflicts
+### 锁文件冲突
 
-When merging branches with different lockfiles:
+合并有不同锁文件的分支时：
 
-1. Resolve conflicts in `mise.lock`
-2. Run `mise install` to verify everything works
-3. Commit the resolved lockfile
+1. 解决 `mise.lock` 中的冲突
+2. 运行 `mise install` 验证一切正常
+3. 提交解决后的锁文件
 
-### Disabling for Specific Projects
+### 为特定项目禁用
 
 ```toml
-# In project's mise.toml
+# 在项目的 mise.toml 中
 [settings]
 lockfile = false
 ```
 
-## Migration from Other Tools
+## 从其他工具迁移
 
-### From asdf
+### 从 asdf 迁移
 
 ```sh
-# Convert .tool-versions to mise.toml
+# 将 .tool-versions 转换为 mise.toml
 mise config generate
 
-# Enable lockfiles and generate the lockfile
+# 启用锁文件并填充
 mise settings lockfile=true
-mise lock
 mise install
 ```
 
-### From package.json engines
+### 从 package.json engines 迁移
 
 ```sh
-# Set versions based on package.json
+# 根据 package.json 设置版本
 mise use node@$(jq -r '.engines.node' package.json)
 ```
 
-## See Also
+## 另见
 
-- [Configuration Settings](/configuration/settings) - All available settings
-- [Tool Version Management](/dev-tools/) - How tool versions work
-- [Backends](/dev-tools/backends/) - Backend-specific checksum support
+- [配置设置项](/configuration/settings) - 所有可用设置
+- [工具版本管理](/dev-tools/) - 工具版本的工作原理
+- [工具源](/dev-tools/backends/) - 工具源特定的校验和支持

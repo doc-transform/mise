@@ -1,14 +1,14 @@
-# Task System Architecture
+# 任务系统架构
 
-Understanding how mise's task system works helps you write more efficient tasks and troubleshoot dependency issues.
+了解 mise 任务系统的工作原理，有助于你编写更高效的任务并排查依赖问题。
 
-## Task Dependency System
+## 任务依赖系统
 
-mise uses a sophisticated dependency graph system to manage task execution order and parallelism. This ensures tasks run in the correct order while maximizing performance through parallel execution.
+mise 使用精密的依赖图系统来管理任务执行顺序和并行度。这确保任务按正确顺序运行，同时通过并行执行最大化性能。
 
-### Dependency Graph Resolution
+### 依赖图解析
 
-When you run `mise run build`, mise creates a directed acyclic graph (DAG) of all tasks and their dependencies:
+当你运行 `mise run build` 时，mise 会创建一个包含所有任务及其依赖关系的有向无环图（DAG）：
 
 ```mermaid
 graph TD
@@ -20,20 +20,20 @@ graph TD
     E[package] --> G[deploy]
 ```
 
-This graph ensures that:
+此图确保：
 
-- Dependencies run before dependents
-- Independent tasks run in parallel
-- No circular dependencies exist
-- Failed dependencies prevent dependents from running
+- 依赖项先于被依赖项运行
+- 独立的任务并行运行
+- 不存在循环依赖
+- 依赖项失败时阻止被依赖项运行
 
-### Dependency Types
+### 依赖类型
 
-mise supports three types of task dependencies:
+mise 支持三种任务依赖类型：
 
-#### `depends` - Prerequisites
+#### `depends` - 前置依赖
 
-Tasks that must complete successfully before this task runs:
+必须在此任务运行之前成功完成的任务：
 
 ```toml
 [tasks.test]
@@ -41,9 +41,9 @@ depends = ["lint", "build"]
 run = "npm test"
 ```
 
-#### `depends_post` - Cleanup Tasks
+#### `depends_post` - 后置任务
 
-Tasks that run after this task completes (whether successful or failed):
+在此任务完成后运行的任务（无论成功与否）：
 
 ```toml
 [tasks.deploy]
@@ -52,28 +52,28 @@ depends_post = ["cleanup", "notify"]
 run = "kubectl apply -f deployment.yaml"
 ```
 
-#### `wait_for` - Soft Dependencies
+#### `wait_for` - 软依赖
 
-Tasks that should run first if they're in the current execution, but don't fail if they're not available:
+如果这些任务在当前执行中，则应先运行，但如果不存在也不会失败：
 
 ```toml
 [tasks.integration-test]
-wait_for = ["start-services"]  # Only waits if start-services is also being run
+wait_for = ["start-services"]  # 仅在 start-services 也在运行时等待
 run = "npm run test:integration"
 ```
 
-## Parallel Execution Engine
+## 并行执行引擎
 
-### Job Control
+### 任务控制
 
-mise executes tasks in parallel up to the configured job limit:
+mise 按配置的任务限制并行执行任务：
 
 ```bash
-mise run --jobs 8 test        # Use 8 parallel jobs
-mise run -j 1 test            # Force sequential execution
+mise run --jobs 8 test        # 使用 8 个并行任务
+mise run -j 1 test            # 强制顺序执行
 ```
 
-The default is 4 parallel jobs, but you can configure this globally:
+默认值为 4 个并行任务，但你可以全局配置：
 
 ```toml
 # ~/.config/mise/config.toml
@@ -81,9 +81,9 @@ The default is 4 parallel jobs, but you can configure this globally:
 jobs = 8
 ```
 
-### Example Execution Flow
+### 执行流程示例
 
-Given these tasks:
+给定以下任务：
 
 ```toml
 [tasks.lint]
@@ -102,53 +102,53 @@ depends = ["test-unit", "test-integration"]
 run = "npm run build"
 ```
 
-Execution with `--jobs 2`:
+使用 `--jobs 2` 执行：
 
 ```
-Time →
+时间轴 →
 0s:   [lint]
-5s:   [test-unit] [test-integration]  # Run in parallel after lint
-15s:  [build]                        # Waits for both tests
+5s:   [test-unit] [test-integration]  # lint 完成后并行运行
+15s:  [build]                        # 等待两个测试完成
 ```
 
-## Task Discovery and Resolution
+## 任务发现与解析
 
-### Task Sources
+### 任务来源
 
-mise discovers tasks from multiple sources in this order:
+mise 按以下顺序从多个来源发现任务：
 
-1. **File tasks**: Executable files in task directories
-2. **TOML tasks**: Defined in `mise.toml` files
-3. **Parent directory tasks**: Available from parent directories
+1. **文件任务**：任务目录中的可执行文件
+2. **TOML 任务**：在 `mise.toml` 文件中定义
+3. **父目录任务**：从父目录继承
 
-### Task Resolution Process
+### 任务解析流程
 
-When you run `mise run build`, mise:
+当你运行 `mise run build` 时，mise 会：
 
-1. **Discovers all tasks** from all configuration sources
-2. **Resolves the task name** (handles aliases and partial matches)
-3. **Builds dependency graph** including all dependencies
-4. **Validates graph** (checks for circular dependencies)
-5. **Executes in dependency order** with parallelism
+1. **发现所有任务** — 从所有配置来源
+2. **解析任务名称** — 处理别名和部分匹配
+3. **构建依赖图** — 包含所有依赖关系
+4. **验证图** — 检查循环依赖
+5. **按依赖顺序执行** — 支持并行
 
-### Task Resolution Across Directories
+### 跨目录的任务解析
 
-Tasks from parent directories are available in subdirectories and can be overridden:
+父目录的任务在子目录中可用，且可被覆盖：
 
 ```
 project/
-├── mise.toml              # defines: lint, test, build
+├── mise.toml              # 定义: lint, test, build
 └── frontend/
-    └── mise.toml          # overrides: test, adds: bundle
+    └── mise.toml          # 覆盖: test, 新增: bundle
 ```
 
-In `frontend/`, you have access to: `lint` (from parent), `test` (overridden), `build` (from parent), `bundle` (local).
+在 `frontend/` 中，你可以使用：`lint`（来自父目录）、`test`（被覆盖）、`build`（来自父目录）、`bundle`（本地）。
 
-## Advanced Dependency Features
+## 高级依赖特性
 
-### Conditional Dependencies
+### 条件依赖
 
-Use task arguments for conditional behavior:
+使用任务参数实现条件行为：
 
 ```toml
 [tasks.test]
@@ -161,15 +161,15 @@ npm test
 '''
 ```
 
-### Dynamic Dependencies
+### 动态依赖
 
-Tasks can specify dependencies at runtime:
+任务可以在运行时指定依赖：
 
 ```bash
 #!/usr/bin/env bash
 #MISE depends=["setup"]
 
-# Additional conditional dependency
+# 额外的条件依赖
 if [ ! -f ".env" ]; then
   mise run generate-env
 fi
@@ -177,9 +177,9 @@ fi
 npm start
 ```
 
-### Cross-Project Dependencies
+### 跨项目依赖
 
-Reference tasks from other directories:
+引用其他目录的任务：
 
 ```toml
 [tasks.deploy-all]
@@ -191,11 +191,11 @@ depends = [
 run = "echo 'All services deployed'"
 ```
 
-## Performance Optimizations
+## 性能优化
 
-### Source and Output Tracking
+### 源文件和输出跟踪
 
-Tasks can skip execution if sources haven't changed:
+任务可以在源文件未更改时跳过执行：
 
 ```toml
 [tasks.build]
@@ -204,69 +204,69 @@ outputs = ["dist/**/*"]
 run = "npm run build"
 ```
 
-mise will only run the task if:
+mise 仅在以下情况下运行任务：
 
-- Source files are newer than output files
-- The task has never been run
-- Dependencies have changed
+- 源文件比输出文件更新
+- 任务从未运行过
+- 依赖已更改
 
-### Incremental Execution
+### 增量执行
 
-Use `mise run --force` to ignore source/output checking:
-
-```bash
-mise run --force build     # Always run, ignore source changes
-```
-
-### Parallel File Watching
-
-Use `mise watch` for continuous development:
+使用 `mise run --force` 忽略源文件/输出检查：
 
 ```bash
-mise watch              # Watch all task sources
-mise watch build test   # Watch specific tasks
+mise run --force build     # 始终运行，忽略源文件变化
 ```
 
-This automatically reruns tasks when their source files change.
+### 并行文件监视
 
-## Debugging Task Dependencies
-
-### Visualize Dependencies
+使用 `mise watch` 进行持续开发：
 
 ```bash
-mise tasks deps build           # Show build's dependencies
-mise tasks deps --dot > deps.dot # Generate graphviz diagram
+mise watch              # 监视所有任务源文件
+mise watch build test   # 监视特定任务
 ```
 
-### Execution Tracing
+当源文件变化时自动重新运行任务。
+
+## 调试任务依赖
+
+### 可视化依赖
 
 ```bash
-mise run --verbose build       # Show task execution details
-mise run --dry-run build       # Show what would run without executing
+mise tasks deps build           # 显示 build 的依赖
+mise tasks deps --dot > deps.dot # 生成 graphviz 图
 ```
 
-### Common Issues
+### 执行追踪
 
-**Circular Dependencies**:
+```bash
+mise run --verbose build       # 显示任务执行详情
+mise run --dry-run build       # 显示将要执行的内容但不实际执行
+```
+
+### 常见问题
+
+**循环依赖**：
 
 ```
 Error: Circular dependency detected: test → build → test
 ```
 
-Solution: Remove the circular reference or use `wait_for` instead of `depends`.
+解决方案：移除循环引用，或使用 `wait_for` 代替 `depends`。
 
-**Missing Dependencies**:
+**缺失依赖**：
 
 ```
 Error: Task 'build' depends on 'lint' but 'lint' was not found
 ```
 
-Solution: Define the missing task or remove the dependency.
+解决方案：定义缺失的任务或移除该依赖。
 
-**Slow Parallel Execution**:
+**并行执行缓慢**：
 
-- Check if tasks have unnecessary dependencies
-- Use `mise tasks deps` to verify dependency graph
-- Consider increasing `--jobs` if you have CPU cores available
+- 检查任务是否有不必要的依赖
+- 使用 `mise tasks deps` 验证依赖图
+- 如果有可用的 CPU 核心，考虑增加 `--jobs`
 
-The task architecture is designed to scale from simple single-task projects to complex multi-service applications with intricate build dependencies.
+任务架构设计为可从简单的单任务项目扩展到具有复杂构建依赖的多服务应用。

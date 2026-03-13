@@ -1,50 +1,49 @@
-# gem Backend
+# gem 工具源
 
-mise can be used to install CLIs from RubyGems. The code for this is inside of the mise repository at [`./src/backend/gem.rs`](https://github.com/jdx/mise/blob/main/src/backend/gem.rs).
+mise 可以用来安装 RubyGems 上的 CLI 工具。相关代码位于 mise 仓库的 [`./src/backend/gem.rs`](https://github.com/jdx/mise/blob/main/src/backend/gem.rs)。
 
-## Dependencies
+## 依赖
 
-This relies on having `gem` (provided with ruby) installed. You can install it with or without mise.
-Here is how to install `ruby` with mise:
+需要安装 `gem`（随 ruby 一起提供）。你可以选择是否通过 mise 安装。
+以下是通过 mise 安装 `ruby` 的方式：
 
 ```sh
 mise use -g ruby
 ```
 
-## Usage
+## 用法
 
-The following installs the latest version of [rubocop](https://rubygems.org/gems/rubocop) and sets it as the active version on PATH:
+以下命令安装最新版本的 [rubocop](https://rubygems.org/gems/rubocop) 并将其设为 PATH 中的活跃版本：
 
 ```sh
 mise use -g gem:rubocop
 rubocop --version
 ```
 
-The version will be set in `~/.config/mise/config.toml` with the following format:
+版本将以如下格式写入 `~/.config/mise/config.toml`：
 
 ```toml
 [tools]
 "gem:rubocop" = "latest"
 ```
 
-## Ruby upgrades
+## Ruby 升级
 
-If the ruby version used by a gem package changes, (by mise or system ruby), you may need to
-reinstall the gem. This can be done with:
+如果 gem 包使用的 ruby 版本发生变化（通过 mise 或系统 ruby），你可能需要重新安装 gem。可以这样操作：
 
 ```sh
 mise install -f gem:rubocop
 ```
 
-Or you can reinstall all gems with:
+或者重新安装所有 gem：
 
 ```sh
 mise install -f "gem:*"
 ```
 
-## Settings
+## 设置
 
-Set these with `mise settings set [VARIABLE] [VALUE]` or by setting the environment variable listed.
+通过 `mise settings set [VARIABLE] [VALUE]` 或设置对应的环境变量进行配置。
 
 <script setup>
 import Settings from '/components/settings.vue';

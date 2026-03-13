@@ -1,6 +1,6 @@
-# Cookbook
+# 实践手册
 
-Here we are sharing a few mise setups that other people have found useful.
+这里分享了一些其他用户觉得有用的 mise 配置方案。
 
 - [C++](cpp.md)
 - [Docker](docker.md)
@@ -10,8 +10,8 @@ Here we are sharing a few mise setups that other people have found useful.
 - [Terraform](terraform.md)
 - [Neovim](neovim.md)
 
-Finally, here is how to create [presets](presets.md) and some [shell tricks](shell-tricks.md) you might find useful.
+此外，这里介绍了如何创建[预设](presets.md)以及一些你可能觉得有用的 [Shell 技巧](shell-tricks.md)。
 
-## Contributing
+## 贡献
 
-If you would like to share your setup, please share it in this [cookbook thread](https://github.com/jdx/mise/discussions/3645).
+如果你想分享你的配置方案，请在这个 [cookbook 讨论帖](https://github.com/jdx/mise/discussions/3645)中发布。

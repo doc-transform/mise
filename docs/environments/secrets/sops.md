@@ -1,11 +1,11 @@
 # sops <Badge type="warning" text="experimental" />
 
-mise reads encrypted secret files and makes values available as environment variables via `env._.file`.
+mise 可以读取加密的密钥文件，并通过 `env._.file` 将值作为环境变量提供。
 
-- **Formats**: `.env.json`, `.env.yaml`, `.env.toml`
-- **Encryption**: [sops](https://getsops.io) backed by [age](https://github.com/FiloSottile/age)
+- **格式**：`.env.json`、`.env.yaml`、`.env.toml`
+- **加密**：[sops](https://getsops.io)，基于 [age](https://github.com/FiloSottile/age)
 
-## Example
+## 示例
 
 ```json
 {
@@ -19,83 +19,83 @@ mise reads encrypted secret files and makes values available as environment vari
 _.file = ".env.json"
 ```
 
-mise will automatically decrypt the file if it is sops-encrypted.
+如果文件是 sops 加密的，mise 会自动解密。
 
-## Encrypt with sops
+## 使用 sops 加密
 
-:::: info
-Currently age is the only sops encryption method supported.
-::::
+::::: info
+目前仅支持 age 作为 sops 加密方式。
+:::::
 
-1. Install tools: `mise use -g sops age`
+1. 安装工具：`mise use -g sops age`
 
-2. Generate an age key and note the public key:
+2. 生成 age 密钥并记下公钥：
 
 ```sh
 age-keygen -o ~/.config/mise/age.txt
-# Public key: <public key>
+# Public key: <公钥>
 ```
 
-3. Encrypt the file:
+3. 加密文件：
 
 ```sh
-sops encrypt -i --age "<public key>" .env.json
+sops encrypt -i --age "<公钥>" .env.json
 ```
 
-:::: tip
-The `-i` overwrites the file. The encrypted file is safe to commit. Set `SOPS_AGE_KEY_FILE=~/.config/mise/age.txt` or `MISE_SOPS_AGE_KEY_FILE=~/.config/mise/age.txt` to decrypt/edit with sops.
-::::
+::::: tip
+`-i` 会覆盖原文件。加密后的文件可以安全提交到版本控制。设置 `SOPS_AGE_KEY_FILE=~/.config/mise/age.txt` 或 `MISE_SOPS_AGE_KEY_FILE=~/.config/mise/age.txt` 以便使用 sops 解密/编辑。
+:::::
 
-4. Reference it in config:
+4. 在配置中引用：
 
 ```toml
 [env]
 _.file = ".env.json"
 ```
 
-Now `mise env` exposes the values.
+现在 `mise env` 即可输出这些值。
 
-## Environment Variables
+## 环境变量
 
-mise supports both mise-specific environment variables and standard SOPS ones:
+mise 同时支持 mise 特有的环境变量和标准 SOPS 环境变量：
 
-**Mise-specific variables (highest priority):**
+**Mise 特有变量（最高优先级）：**
 
-- `MISE_SOPS_AGE_KEY` - Age private key content directly
-- `MISE_SOPS_AGE_KEY_FILE` - Path to age private key file
+- `MISE_SOPS_AGE_KEY` - 直接提供 age 私钥内容
+- `MISE_SOPS_AGE_KEY_FILE` - age 私钥文件路径
 
-**Standard SOPS variables (fallback):**
+**标准 SOPS 变量（备选）：**
 
-- `SOPS_AGE_KEY_FILE` - Path to age private key file
-- `SOPS_AGE_KEY` - Age private key content directly
+- `SOPS_AGE_KEY_FILE` - age 私钥文件路径
+- `SOPS_AGE_KEY` - 直接提供 age 私钥内容
 
-**Precedence order:**
+**优先级顺序：**
 
-1. `MISE_SOPS_AGE_KEY` (mise setting or env var, checked first)
-2. `MISE_SOPS_AGE_KEY_FILE` or `sops.age_key_file` (mise setting or env var)
-3. `SOPS_AGE_KEY_FILE` (standard)
-4. `SOPS_AGE_KEY` (standard, direct key content)
-5. Default: `~/.config/mise/age.txt`
+1. `MISE_SOPS_AGE_KEY`（mise 设置或环境变量，最先检查）
+2. `MISE_SOPS_AGE_KEY_FILE` 或 `sops.age_key_file`（mise 设置或环境变量）
+3. `SOPS_AGE_KEY_FILE`（标准）
+4. `SOPS_AGE_KEY`（标准，直接提供密钥内容）
+5. 默认值：`~/.config/mise/age.txt`
 
-This allows you to override SOPS settings specifically for mise while keeping your standard SOPS configuration intact for other tools.
+这允许你为 mise 单独覆盖 SOPS 设置，同时保持标准 SOPS 配置不受影响，以便其他工具使用。
 
-## Redaction
+## 脱敏处理
 
-Mark secrets from files as sensitive:
+将文件中的密钥标记为敏感信息：
 
 ```toml
 [env]
 _.file = { path = ".env.json", redact = true }
 ```
 
-Work with redacted values:
+处理脱敏的值：
 
 ```bash
 mise env --redacted
 mise env --redacted --values
 ```
 
-### CI masking (GitHub Actions)
+### CI 脱敏（GitHub Actions）
 
 ```yaml
 - name: Mask secrets
@@ -108,9 +108,9 @@ mise env --redacted --values
     mise exec -- ./deploy.sh
 ```
 
-If you use [mise-action](https://github.com/jdx/mise-action), values marked `redact = true` are masked automatically.
+如果你使用 [mise-action](https://github.com/jdx/mise-action)，标记了 `redact = true` 的值会自动被脱敏。
 
-## Settings
+## 设置
 
 <script setup>
 import Settings from '/components/settings.vue';

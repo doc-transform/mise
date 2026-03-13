@@ -1,41 +1,24 @@
-# How I use mise
+# 我是如何使用 mise 的
 
-This is a very different doc than the rest of the site. It's not my
-intention to make this valuable to anyone. In fact it may end up being
-useful to 0 people.
+这篇文章与网站上其他文档非常不同。我并不打算让它对所有人都有价值。实际上它可能对 0 个人有用。
 
-I'm probably the strangest user of mise out there. My use case is the
-most atypical for a number of reasons I'll get to. That said, I often
-find myself saying to friends "you know the way I use mise..." and thought
-it might be useful to actually write down the way I use it in case
-anyone is interested.
+我可能是 mise 最奇特的用户了。我的使用场景是最不典型的，原因有很多，后面会讲到。尽管如此，我经常发现自己会跟朋友说"你知道我使用 mise 的方式..."，于是我想不如把自己的使用方式写下来，万一有人感兴趣呢。
 
-This is an advanced article. I'm not going to take the time to explain
-the tools and techniques here. If you're curious, open a discussion or ask
-me in the Discord.
+这是一篇进阶文章。我不打算在这里详细解释所用的工具和技巧。如果你感兴趣，欢迎开一个 discussion 或在 Discord 上问我。
 
-## My setup
+## 我的环境
 
-I use a mac with fish shell and am a heavy homebrew user. I've been using
-both for over a decade.
+我用 Mac，fish shell，是 homebrew 的重度用户。两者都用了超过十年。
 
-My main editor(s) are JetBrains products (IntelliJ, RustRover, Webstorm).
-I also use nvim as a secondary editor (Astronvim with some minimal config).
-I probably spend 70% of my time in JetBrains.
+我的主要编辑器是 JetBrains 系列产品（IntelliJ、RustRover、Webstorm）。我也用 nvim 作为辅助编辑器（Astronvim 加上一些简单配置）。大概 70% 的时间在 JetBrains 中。
 
-I tend to keep a terminal open (kitty) while working in JetBrains. I do not
-often run tests or builds with in the IDE. Not sure why, just never been
-in the habit of that. (Because of that these docs and possibly mise support in
-IDEs may not be what it should be-it's just not how I work personally).
+我在 JetBrains 中工作时通常会打开一个终端（kitty）。我不太在 IDE 中运行测试或构建。不确定为什么，就是从来没这个习惯。（也因此这些文档和 mise 的 IDE 支持可能不够好——只是因为这不是我个人的使用方式）。
 
 ## `mise activate`
 
-Unlike most mise users, I don't use `mise activate` or
-shims at all unless I'm explicitly testing them-and that's rarely the
-case. It certainly doesn't go into my `~/.config/fish/config.fish`.
+不同于大多数 mise 用户，我完全不使用 `mise activate` 或 shims，除非是在明确测试它们——而且很少这样做。它肯定不会出现在我的 `~/.config/fish/config.fish` 中。
 
-Because I work on mise itself, I often need to rebuild it and run the code from my repo. For this, I have the following bash shim located in
-`~/bin/@mise`:
+因为我在开发 mise 本身，我经常需要重新构建并从仓库运行代码。为此我在 `~/bin/@mise` 放了一个 bash shim：
 
 ```fish
 #!/usr/bin/env bash
@@ -45,69 +28,43 @@ exec cargo run -q --all-features --manifest-path ~/src/mise/Cargo.toml -- "$@"
 ```
 
 :::info
-The "@" prefix I use for things that will perform a rebuild-i.e.: they're slow.
+"@" 前缀是我用来标记会触发重新构建的命令的——也就是说它们会比较慢。
 :::
 
-This way I can easily test mise in any directory with `@mise`. I probably
-run this more often than without just out of habit. For example, if I want to test `mise activate` in zsh:
+这样我就可以在任何目录中轻松用 `@mise` 来测试 mise。出于习惯，我可能用这个比不用还多。例如，如果我想在 zsh 中测试 `mise activate`：
 
 ```sh
 zsh
 eval "$(@mise activate zsh)"
 ```
 
-## Minimal tools
+## 精简的工具集
 
-Might be surprising to folks but I don't use too many mise plugins. Well
-I have a lot in my config, but I don't actually use them. They're for
-testing.
+可能令人惊讶，我实际上没用太多 mise 插件。虽然我配置里有很多，但实际上并不使用它们。它们是用来测试的。
 
-I tend to basically just use core plugins. I like mise for managing
-things where I really care about the major version (like node). If it's
-something like `shfmt` or `jq` I don't really care about the version.
-I just want the latest and for me, I find `brew` to be better suited to
-that purpose.
+我基本上只使用核心插件。我喜欢用 mise 管理那些我真正关心大版本的东西（比如 node）。如果是 `shfmt` 或 `jq` 之类的，我不太在乎版本。我只想要最新的，对我来说 `brew` 更适合这个用途。
 
-I recognize that some people really like locking down their versions
-across a team to keep things consistent. I think that's great too.
-Part of this is that I'm currently at Amazon where the tooling story
-is complicated let's just say-not in a bad way, just one where
-integrating mise into the setup isn't as straightforward as a smaller
-company would be.
+我理解有些人确实喜欢在团队中锁定版本以保持一致。我觉得这也很好。部分原因是我目前在 Amazon 工作，工具链的情况比较复杂——不是说不好，只是将 mise 集成到现有环境中不像在小公司那么简单。
 
-Outside of Amazon I have a handful of open source projects, mostly
-mise-related and mostly fairly simple. Also mostly rust where I don't
-use mise anyways.
+在 Amazon 之外，我有一些开源项目，大多与 mise 相关，而且大多比较简单。也主要是 Rust 项目，在 Rust 中我也不用 mise。
 
-The one big exception here is node which I quite like mise for. I assume
-others do to because it's by far the most popular language. You'd
-probably guess that since it's my example in nearly all of the docs.
+一个重要的例外是 node，我非常喜欢用 mise 管理它。我猜其他人也一样，因为它是目前最受欢迎的语言。你大概也注意到了，几乎所有文档中的示例都用的 node。
 
-That said, part of the reason for doing that in the docs is that it's 4
-characters and everyone knows what it is.
+话虽如此，文档中这样做的部分原因是 node 只有 4 个字符，而且所有人都知道它是什么。
 
 ## `.mise.local.toml`
 
-I'm a heavy user of this concept. I rarely like to actually commit `mise.toml`
-files into projects. I tend to see my mise config as my personal config that
-I use within other projects that I don't particularly want to share with others.
+我大量使用这个概念。我很少喜欢将 `mise.toml` 文件实际提交到项目中。我倾向于将 mise 配置视为个人配置，在其他项目中使用而不特别想与他人共享。
 
-Of course, this goes into my global gitconfig so I can easily add this to
-shared projects without submitting a PR.
+当然，这会放入我的全局 gitconfig 中，这样我可以轻松地在共享项目中添加而无需提交 PR。
 
-One day when tasks is out of experimental, I may do this a lot less since I
-think tasks are one thing I really want to share. For me, the `[tools]`
-section is just so easy to write I don't mind doing it and don't like
-imposing the way that **I** setup my machine on others.
+有一天当 tasks 功能退出实验阶段时，我可能会少这样做了，因为我认为任务是我真正想要共享的东西。对我来说，`[tools]` 部分写起来太简单了，我不介意重写一遍，也不喜欢把**我**配置机器的方式强加给别人。
 
-There is a social aspect of this as well that I'm conscious of. I'm
-the author of `mise`. To me it's a little self-serving to go into a project
-and add a config for my own project. I'd love if _someone else_ did that
-instead.
+这里还有一个社交层面的考虑。我是 `mise` 的作者。对我来说，去一个项目中添加自己项目的配置感觉有点自我推销。我更希望是*别人*来做这件事。
 
 ## `~/.mise`
 
-I often need to access mise's internals so I do the following:
+我经常需要访问 mise 的内部文件，所以我做了以下设置：
 
 ```sh
 ln -s ~/.mise ~/.config/mise
@@ -116,7 +73,4 @@ ln -s ~/.mise ~/.local/state/mise
 ln -s ~/.mise/cache ~/.cache/mise
 ```
 
-It is good that mise generally follows XDG spec, but for tools that I interact
-with a lot I like to put them at the top level like this. Obviously,
-mise doesn't mind if all of these point to the same place or else it would
-not work for me.
+mise 遵循 XDG 规范是好事，但对于经常交互的工具，我喜欢像这样把它们放在顶层。显然 mise 并不介意所有这些路径指向同一个位置，否则对我来说就行不通了。

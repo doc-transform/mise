@@ -1,49 +1,44 @@
 # Go
 
-`mise` can be used to install and manage multiple versions of [go](https://golang.org/) on the same system.
+`mise` 可用于在同一系统上安装和管理多个版本的 [go](https://golang.org/)。
 
-> The following are instructions for using the go mise core plugin. This is used when there isn't a
-> git plugin installed named "go". If you want to use [asdf-golang](https://github.com/kennyp/asdf-golang)
-> then use `mise plugins install go GIT_URL`.
+> 以下是使用 go mise 核心插件的说明。当没有安装名为 "go" 的 git 插件时会使用核心插件。如果你想使用 [asdf-golang](https://github.com/kennyp/asdf-golang)，请使用 `mise plugins install go GIT_URL`。
 
-The code for this is inside the mise repository at
-[`./src/plugins/core/go.rs`](https://github.com/jdx/mise/blob/main/src/plugins/core/go.rs).
+相关代码位于 mise 仓库的
+[`./src/plugins/core/go.rs`](https://github.com/jdx/mise/blob/main/src/plugins/core/go.rs)。
 
-## Usage
+## 用法
 
-The following installs the latest version of go-1.21.x (if some version of 1.21.x is not already
-installed) and makes it the global default:
+以下命令安装最新版本的 go-1.21.x（如果尚未安装 1.21.x 的某个版本）并将其设为全局默认版本：
 
 ```sh
 mise use -g go@1.21
 ```
 
-Minor go versions 1.20 and below require specifying `prefix` before the version number because the
-first version of each series was released without a `.0` suffix, making 1.20 an exact version match:
+1.20 及以下的次版本需要在版本号前指定 `prefix`，因为每个系列的第一个版本发布时不带 `.0` 后缀，导致 1.20 会被当作精确版本匹配：
 
 ```sh
 mise use -g go@prefix:1.20
 ```
 
-## `.go-version` file support
+## `.go-version` 文件支持
 
-mise uses a `mise.toml` or `.tool-versions` file for auto-switching between software versions.
-However, it can also read go-specific version files named `.go-version`.
+mise 使用 `mise.toml` 或 `.tool-versions` 文件在不同软件版本之间自动切换。
+不过，它也可以读取 go 专用的版本文件 `.go-version`。
 
-See [idiomatic version files](/configuration.html#idiomatic-version-files)
+参阅[惯用版本文件](/configuration.html#idiomatic-version-files)
 
-## Default packages
+## 默认包
 
-mise can automatically install a default set of packages right after installing a new go version.
-To enable this feature, provide a `$HOME/.default-go-packages` file that lists one packages per
-line, for example:
+mise 可以在安装新的 go 版本后自动安装一组默认包。
+要启用此功能，提供一个 `$HOME/.default-go-packages` 文件，每行列出一个包，例如：
 
 ```text
-github.com/daixiang0/gci # allows comments
+github.com/daixiang0/gci # 支持注释
 github.com/jesseduffield/lazygit
 ```
 
-## Settings
+## 设置
 
 <script setup>
 import Settings from '/components/settings.vue';

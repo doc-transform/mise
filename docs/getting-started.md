@@ -1,12 +1,12 @@
 <!-- markdownlint-disable MD034 -->
 
-# Getting Started
+# 快速开始
 
-This will show you how to install mise and get started with it. This is a suitable way when using an interactive shell like `bash`, `zsh`, or `fish`.
+本指南将引导你安装 mise 并快速上手。适用于 `bash`、`zsh` 或 `fish` 等交互式 shell 环境。
 
-## 1. Install `mise` CLI {#installing-mise-cli}
+## 1. 安装 `mise` CLI {#installing-mise-cli}
 
-See [installing mise](/installing-mise) for other ways to install mise (`macport`, `apt`, `yum`, `nix`, etc.).
+其他安装方式（`macport`、`apt`、`yum`、`nix` 等）请参阅 [安装 mise](/installing-mise)。
 
 :::tabs key:installing-mise
 == Linux/macOS
@@ -15,16 +15,15 @@ See [installing mise](/installing-mise) for other ways to install mise (`macport
 curl https://mise.run | sh
 ```
 
-By default, mise will be installed to `~/.local/bin` (this is simply a suggestion. `mise` can be installed anywhere).
-You can verify the installation by running:
+默认情况下，mise 会安装到 `~/.local/bin`（这只是建议路径，`mise` 可以安装在任何位置）。
+你可以通过以下命令验证安装：
 
 ```shell
 ~/.local/bin/mise --version
 # mise 2024.x.x
 ```
 
-- `~/.local/bin` does not need to be in `PATH`. mise will automatically add its own directory to `PATH`
-  when [activated](#activate-mise).
+- `~/.local/bin` 不需要在 `PATH` 中。mise 在 [激活](#activate-mise) 后会自动将自身目录添加到 `PATH`。
 
 == Brew
 
@@ -66,7 +65,7 @@ sudo dnf copr enable jdxcode/mise
 sudo dnf install mise
 ```
 
-See the [copr page](https://copr.fedorainfracloud.org/coprs/jdxcode/mise/) for more information.
+详情请参阅 [copr 页面](https://copr.fedorainfracloud.org/coprs/jdxcode/mise/)。
 
 == Snap (beta)
 
@@ -74,60 +73,59 @@ See the [copr page](https://copr.fedorainfracloud.org/coprs/jdxcode/mise/) for m
 sudo snap install mise --classic --beta
 ```
 
-See the [snapcraft.io page](https://snapcraft.io/mise) for more information.
+详情请参阅 [snapcraft.io 页面](https://snapcraft.io/mise)。
 
 :::
 
-`mise` respects [`MISE_DATA_DIR`](/configuration) and [`XDG_DATA_HOME`](/configuration) if you'd like
-to change these locations.
+如果你想更改这些路径，`mise` 支持 [`MISE_DATA_DIR`](/configuration) 和 [`XDG_DATA_HOME`](/configuration) 环境变量。
 
-## 2. mise `exec` and `run` {#mise-exec-run}
+## 2. mise `exec` 和 `run` {#mise-exec-run}
 
-Once `mise` is installed, you can immediately start using it. `mise` can be used to install and run [tools](/dev-tools/), launch [tasks](/tasks/), and manage [environment variables](/environments/).
+安装 `mise` 后即可立即开始使用。`mise` 可用于安装和运行[开发工具](/dev-tools/)、启动[任务](/tasks/)以及管理[环境变量](/environments/)。
 
-The most essential feature `mise` provides is the ability to run [tools](/dev-tools/) with specific versions. A simple way to run a shell command with a given tool is to use [`mise x|exec`](/cli/exec.html). For example, here is how you can start a Python 3 interactive shell (REPL):
+`mise` 最核心的功能是以指定版本运行[工具](/dev-tools/)。通过 [`mise x|exec`](/cli/exec.html) 可以快速使用指定工具执行 shell 命令。例如，启动 Python 3 交互式终端（REPL）：
 
-> _In the examples below, use `~/.local/bin/mise` (or the absolute path to `mise`) if `mise` is not already on `PATH`_
+> _在以下示例中，如果 `mise` 尚未在 `PATH` 中，请使用 `~/.local/bin/mise`（或 `mise` 的绝对路径）_
 
 ```sh
 mise exec python@3 -- python
-# this will download and install Python if it is not already installed
+# 如果 Python 尚未安装，将自动下载并安装
 # Python 3.13.2
 # >>> ...
 ```
 
-or run node 24:
+或运行 node 24：
 
 ```sh
 mise exec node@24 -- node -v
 # v24.x.x
 ```
 
-[`mise x|exec`](/cli/exec.html) is a powerful way to load the current `mise` context (tools & environment variables) without modifying your shell session or running ad-hoc commands with mise tools set. Installing [`tools`](/dev-tools/) is as simple as running [`mise u|use`](/cli/use.html).
+[`mise x|exec`](/cli/exec.html) 可以在不修改当前 shell 会话的情况下，加载 `mise` 上下文（工具和环境变量）来执行命令，非常适合运行一次性命令。安装[工具](/dev-tools/)只需运行 [`mise u|use`](/cli/use.html)。
 
 ```shell
-mise use --global node@24 # install node 24 and set it as the global default
+mise use --global node@24 # 安装 node 24 并设为全局默认版本
 mise exec -- node my-script.js
-# run my-script.js with node 24...
+# 用 node 24 运行 my-script.js...
 ```
 
-Another useful command is [`mise r|run`](/cli/run.html) which allows you to run a [`mise task`](/tasks/) or a script with the `mise` context.
+另一个常用命令是 [`mise r|run`](/cli/run.html)，用于在 `mise` 上下文中运行 [`mise 任务`](/tasks/)或脚本。
 
 ::: tip
-You can set a shell alias in your shell's rc file like `alias x="mise x --"` to save some keystrokes.
+你可以在 shell 的 rc 文件中设置别名，例如 `alias x="mise x --"`，减少输入量。
 :::
 
-## 3. Activate `mise` <Badge text="optional" /> {#activate-mise}
+## 3. 激活 `mise` <Badge text="可选" /> {#activate-mise}
 
-While using [`mise x|exec`](/cli/exec.html) is useful, for interactive shells, you might prefer to activate `mise` to automatically load the `mise` context (`tools` and `environment variables`) in your shell session. Another option is to use [shims](dev-tools/shims.md).
+虽然 [`mise x|exec`](/cli/exec.html) 很实用，但在交互式 shell 中，你可能更希望激活 `mise`，让它自动将工具和环境变量加载到 shell 会话中。另一种方式是使用 [shims](dev-tools/shims.md)。
 
-- [`mise activate`](/cli/activate) method updates your environment variable and `PATH` every time your prompt is run to ensure you use the correct versions.
-- [Shims](dev-tools/shims.md) are symlinks to the `mise` binary that intercept commands and load the appropriate environment. Note that [**shims do not support all the features of `mise activate`**](/dev-tools/shims.html#shims-vs-path).
+- [`mise activate`](/cli/activate) 会在每次显示命令提示符时自动更新环境变量和 `PATH`，确保始终使用正确的工具版本。
+- [Shims](dev-tools/shims.md) 是指向 `mise` 的符号链接，用于拦截命令调用并加载对应的环境。注意 [**shims 不支持 `mise activate` 的所有功能**](/dev-tools/shims.html#shims-vs-path)。
 
-For interactive shells, `mise activate` is recommended. In non-interactive sessions, like CI/CD, IDEs, and scripts, using `shims` might work best. You can also not use any and call `mise exec/run` directly instead.
-See [this guide](dev-tools/shims.md) for more information.
+在交互式 shell 中推荐使用 `mise activate`；在非交互式场景（如 CI/CD、IDE、脚本）中，`shims` 可能更合适。你也可以都不用，直接调用 `mise exec/run`。
+详情请参阅 [shims 指南](dev-tools/shims.md)。
 
-Here is how you can activate `mise` depending on your shell and the installation method:
+以下是根据你的 shell 和安装方式激活 `mise` 的方法：
 
 :::tabs key:installing-mise
 
@@ -160,30 +158,30 @@ echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
 ```
 
 ```sh [fish]
-# do nothing! mise is automatically activated when using brew and fish
-# you can disable this behavior with `set -Ux MISE_FISH_AUTO_ACTIVATE 0`
+# 无需操作！使用 brew 安装时 fish 会自动激活 mise
+# 如需禁用此行为，运行 `set -Ux MISE_FISH_AUTO_ACTIVATE 0`
 ```
 
 == Windows
 
-Add the following to your PowerShell profile (`$PROFILE`):
+将以下内容添加到你的 PowerShell 配置文件（`$PROFILE`）中：
 
 ```powershell
 (&mise activate pwsh) | Out-String | Invoke-Expression
 ```
 
-In case you need to open your PowerShell profile:
+如需打开你的 PowerShell 配置文件：
 
 ```powershell
-# create profile if it doesn't already exist
+# 如果配置文件不存在则创建
 if (-not (Test-Path $profile)) { New-Item $profile -Force }
-# open the profile
+# 打开配置文件
 Invoke-Item $profile
 ```
 
-- If not using PowerShell, add `<homedir>\AppData\Local\mise\shims` to `PATH`.
+- 如果不使用 PowerShell，请将 `<homedir>\AppData\Local\mise\shims` 添加到 `PATH`。
 
-== Other package managers
+== 其他包管理器
 
 ::: code-group
 
@@ -201,10 +199,10 @@ echo 'mise activate fish | source' >> ~/.config/fish/config.fish
 
 :::
 
-Make sure you restart your shell session after modifying your rc file in order for it to take effect.
-You can run [`mise dr|doctor`](/cli/doctor.html) to verify that mise is correctly installed and activated.
+修改 rc 文件后，请确保重启 shell 会话以使其生效。
+你可以运行 [`mise dr|doctor`](/cli/doctor.html) 来验证 mise 是否已正确安装和激活。
 
-Now that `mise` is activated or its shims have been added to `PATH`, `node` is also available directly! (without using `mise exec`):
+现在 `mise` 已经激活（或其 shims 已添加到 `PATH`），`node` 也可以直接使用了！（无需 `mise exec`）：
 
 ```sh
 mise use --global node@24
@@ -212,14 +210,14 @@ node -v
 # v24.x.x
 ```
 
-Note that when you ran `mise use --global node@24`, `mise` updated the global `mise` configuration.
+注意，运行 `mise use --global node@24` 后，`mise` 会自动更新全局配置文件。
 
 ```toml [~/.config/mise/config.toml]
 [tools]
 node = "24"
 ```
 
-## 4. Use tools from backends (npm, pipx, core, aqua, github) {#tool-backends}
+## 4. 通过工具源安装工具（npm、pipx、core、aqua、github） {#tool-backends}
 
 ```mermaid
 flowchart LR
@@ -256,46 +254,46 @@ flowchart LR
   end
 ```
 
-Backends are ecosystems or package managers that mise uses to install tools. With `mise use`, you can install multiple tools from each backend.
+工具源（Backend）是 mise 安装工具时所依赖的生态系统或包管理器。通过 `mise use`，你可以从不同的工具源安装各种工具。
 
-For example, to install [claude-code](https://www.npmjs.com/package/@anthropic-ai/claude-code) with the npm backend:
+例如，通过 npm 工具源安装 [claude-code](https://www.npmjs.com/package/@anthropic-ai/claude-code)：
 
 ```sh
-# run claude-code via mise x|exec
+# 通过 mise x|exec 运行 claude-code
 mise exec npm:@anthropic-ai/claude-code -- claude --version
 
-# or if mise is activated in your shell
+# 或者如果 mise 已在 shell 中激活
 mise use --global npm:@anthropic-ai/claude-code
 claude --version
 ```
 
-Install [black](https://github.com/psf/black) with the pipx backend:
+通过 pipx 工具源安装 [black](https://github.com/psf/black)：
 
 ```sh
-# run black via mise x|exec
+# 通过 mise x|exec 运行 black
 mise exec pipx:black -- black --version
 
-# or if mise is activated in your shell
+# 或者如果 mise 已在 shell 中激活
 mise use --global pipx:black
 black --version
 ```
 
-mise can also install tools directly from github with the github backend:
+mise 还可以通过 github 工具源直接从 GitHub 安装工具：
 
 ```sh
-# run ripgrep via mise x|exec
+# 通过 mise x|exec 运行 ripgrep
 mise exec github:BurntSushi/ripgrep -- rg --version
 
-# or if mise is activated in your shell
+# 或者如果 mise 已在 shell 中激活
 mise use --global github:BurntSushi/ripgrep
 rg --version
 ```
 
-See [Backends](/dev-tools/backends/) for more ecosystems and details.
+更多工具源和详细信息请参阅[工具源](/dev-tools/backends/)。
 
-## 5. Setting environment variables {#environment-variables}
+## 5. 设置环境变量 {#environment-variables}
 
-You can set environment variables in `mise.toml` which will be set if mise is activated or if `mise x|exec` is used in a directory:
+你可以在 `mise.toml` 中设置环境变量，当 mise 激活或在目录中使用 `mise x|exec` 时这些变量会被设置：
 
 ```toml [mise.toml]
 [env]
@@ -305,21 +303,21 @@ NODE_ENV = "production"
 ```sh
 mise exec -- node --eval 'console.log(process.env.NODE_ENV)'
 
-# or if mise is activated in your shell
+# 或者如果 mise 已在 shell 中激活
 echo "node env: $NODE_ENV"
 # node env: production
 ```
 
-## 6. Run a task {#run-a-task}
+## 6. 运行任务 {#run-a-task}
 
-You can define simple tasks in `mise.toml` and run them with `mise run`:
+你可以在 `mise.toml` 中定义简单的任务，并使用 `mise run` 运行它们：
 
 ```toml [mise.toml]
 [tasks]
 hello = "echo hello from mise"
 ```
 
-Run it:
+运行：
 
 ```sh
 mise run hello
@@ -327,24 +325,21 @@ mise run hello
 ```
 
 :::tip
-mise tasks will automatically install all of the tools from `mise.toml` before running the task.
+mise 任务会在运行前自动安装 `mise.toml` 中的所有工具。
 :::
 
-See [tasks](/tasks/) for more information on how to define and use tasks.
+更多关于如何定义和使用任务的信息，请参阅[任务](/tasks/)。
 
-## 7. Next steps {#next-steps}
+## 7. 下一步 {#next-steps}
 
-Follow the [walkthrough](/walkthrough) for more examples on how to use mise.
+请查看[使用教程](/walkthrough)获取更多 mise 使用示例。
 
-### Set up autocompletion {#autocompletion}
+### 设置自动补全 {#autocompletion}
 
-See [autocompletion](/installing-mise.html#autocompletion) to learn how to set up autocompletion for your shell.
+请参阅[自动补全](/installing-mise.html#autocompletion)了解如何为你的 shell 设置自动补全。
 
-### GitHub API rate limiting {#github-api-rate-limiting}
+### GitHub API 速率限制 {#github-api-rate-limiting}
 
 ::: warning
-Many tools in mise require the use of the GitHub API. Unauthenticated requests to the GitHub API are
-often rate limited. If you see 4xx errors while using mise, you can set `MISE_GITHUB_TOKEN` or `GITHUB_TOKEN`
-to a token [generated from here](https://github.com/settings/tokens/new?description=MISE_GITHUB_TOKEN) which
-will likely fix the issue. The token does not require any scopes.
+mise 中的许多工具需要使用 GitHub API。未经身份验证的 GitHub API 请求通常会受到速率限制。如果在使用 mise 时遇到 4xx 错误，你可以将 `MISE_GITHUB_TOKEN` 或 `GITHUB_TOKEN` 设置为[在此生成的令牌](https://github.com/settings/tokens/new?description=MISE_GITHUB_TOKEN)，这通常可以解决问题。该令牌不需要任何权限范围。
 :::
