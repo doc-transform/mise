@@ -4,7 +4,7 @@ title: Home
 
 hero:
   name: mise-en-place
-  tagline: 你的开发环境前端工具
+  tagline: 一站式开发环境管理工具
   actions:
     - theme: brand
       text: 快速开始
