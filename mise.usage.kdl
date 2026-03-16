@@ -482,6 +482,13 @@ cmd install help="Install a tool version" {
         long_help "Like --dry-run but exits with code 1 if there are tools to install\n\nThis is useful for scripts to check if tools need to be installed."
     }
     flag --raw help="Directly pipe stdin/stdout/stderr from plugin to user Sets --jobs=1"
+    flag --shared help="[experimental] Install tool(s) to a shared directory" {
+        long_help "[experimental] Install tool(s) to a shared directory\n\nInstalls to the specified directory instead of the default install location.\nMay require elevated permissions depending on the path."
+        arg <SHARED>
+    }
+    flag --system help="[experimental] Install tool(s) to the system-wide shared directory" {
+        long_help "[experimental] Install tool(s) to the system-wide shared directory\n\nInstalls to /usr/local/share/mise/installs (or MISE_SYSTEM_DATA_DIR/installs).\nMay require elevated permissions (e.g. sudo)."
+    }
     arg "[TOOL@VERSION]…" help="Tool(s) to install e.g.: node@20" required=#false var=#true
 }
 cmd install-into help="Install a tool version to a specific path" {
@@ -783,6 +790,7 @@ cmd set help="Set environment variables in mise.toml" {
         long_help "The TOML file to update\n\nCan be a file path or directory. If a directory is provided, will create/use mise.toml in that directory.\nDefaults to MISE_DEFAULT_CONFIG_FILENAME environment variable, or `mise.toml`."
         arg <FILE>
     }
+    flag --no-redact help="Show raw values instead of redacting secrets"
     flag --prompt help="Prompt for environment variable values"
     flag "--remove --rm --unset" help="Remove the environment variable from config file" var=#true hide=#true {
         long_help "Remove the environment variable from config file\n\nCan be used multiple times."

@@ -58,6 +58,10 @@
 可以是文件路径或目录。如果提供目录，将在该目录中创建/使用 mise.toml。
 默认为 MISE_DEFAULT_CONFIG_FILENAME 环境变量，或 `mise.toml`。
 
+### `--no-redact`
+
+显示原始值而非隐藏密钥内容
+
 ### `--prompt`
 
 提示输入环境变量值

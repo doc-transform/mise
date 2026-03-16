@@ -374,7 +374,7 @@ python      sub-0.1:latest # 如果最新版是 3.11 则安装 python-3.10
 
 - `ref:<SHA>` - 从 VCS（通常是 git）的 ref 编译
 - `prefix:<PREFIX>` - 使用匹配前缀的最新版本。对 Go 特别有用，因为 `1.20` 只会精确匹配 `1.20`，而 `prefix:1.20` 会匹配 `1.20.1`、`1.20.2` 等
-- `path:<PATH>` - 使用指定路径上的自定义编译版本。一个用途是复用 Homebrew 安装的工具（如 `path:/opt/homebrew/opt/node@20`）
+- `path:<PATH>` - 使用指定路径上的自定义运行时。一个用途是复用 Homebrew 安装的工具（如 `path:/opt/homebrew/opt/node@20`）
 - `sub-<PARTIAL_VERSION>:<ORIG_VERSION>` - 从 ORIG_VERSION 中减去 PARTIAL_VERSION。可以用来表达"比 LTS 低 2 个版本"（如 `sub-2:lts`），或"比最新版低 1 个小版本"（如 `sub-0.1:latest`）
 
 ## 惯用版本文件
@@ -447,11 +447,12 @@ mise 存储内部缓存的目录。不应跨机器共享。在 mise 未运行时
 
 用于临时存储，例如安装工具时使用。
 
-### `MISE_SYSTEM_DIR`
+### `MISE_SYSTEM_CONFIG_DIR`
 
 默认值：`/etc/mise`
 
 mise 存储系统级配置的目录。
+`MISE_SYSTEM_DIR` 也可以作为旧版别名使用。
 
 ### `MISE_GLOBAL_CONFIG_FILE`
 

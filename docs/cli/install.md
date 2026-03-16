@@ -57,6 +57,20 @@
 
 直接将 stdin/stdout/stderr 从插件传递给用户，设置 --jobs=1
 
+### `--shared <SHARED>`
+
+[实验性] 将工具安装到共享目录
+
+安装到指定目录而非默认安装位置。
+根据路径不同，可能需要提升权限。
+
+### `--system`
+
+[实验性] 将工具安装到系统级共享目录
+
+安装到 /usr/local/share/mise/installs（或 MISE_SYSTEM_DATA_DIR/installs）。
+可能需要提升权限（如 sudo）。
+
 示例：
 
 ```

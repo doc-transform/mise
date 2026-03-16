@@ -1,13 +1,10 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 title: Home
 
 hero:
   name: mise-en-place
-  tagline: |
-    一站式开发环境管理工具
-    <span class="formerly">发音 "MEEZ ahn plahs"</span>
+  tagline: 你的开发环境前端工具
   actions:
     - theme: brand
       text: 快速开始
@@ -22,21 +19,14 @@ hero:
 features:
   - title: 开发工具
     link: /dev-tools/
-    icon: 🛠️
-    details: mise 是一个跨语言的工具版本管理器，可替代 asdf、nvm、pyenv、rbenv 等工具。
+    icon: 🔪
+    details: 跨语言的工具版本管理器。一个工具替代 asdf、nvm、pyenv、rbenv 等——支持所有语言。
   - title: 环境变量
-    details: mise 允许你在不同项目目录中切换环境变量集合，可替代 direnv。
-    icon: ⚙
+    details: 按项目目录切换环境变量集合。更智能、更简洁的 direnv 替代方案。
+    icon: 🫕
     link: /environments/
   - title: 任务运行器
     link: /tasks/
-    details: mise 内置任务运行器，可替代 make 或 npm scripts。
-    icon: ⚡
+    details: 强大的任务运行器，替代 make 和 npm scripts。轻松定义、组合和运行任务。
+    icon: 🍳
 ---
-
-<style>
-.formerly {
-    font-size: 0.7em;
-    color: #666;
-}
-</style>
